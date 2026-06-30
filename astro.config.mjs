@@ -30,8 +30,11 @@ export default defineConfig({
           href: 'https://discord.com/channels/1521440528388984934/1521440528829382718',
         },
       ],
-      // Footer personnalisé (section communautaire à la manière d'Astro).
+      // Composants personnalisés :
+      // - Sidebar : ajoute un sélecteur de version en tête de barre latérale.
+      // - Footer  : section communautaire à la manière d'Astro.
       components: {
+        Sidebar: './src/components/Sidebar.astro',
         Footer: './src/components/Footer.astro',
       },
       // Sidebar explicite : pages de tête (Accueil, Guide de démarrage) en

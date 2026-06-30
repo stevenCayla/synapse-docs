@@ -1,0 +1,9 @@
+---
+// Override du Sidebar Starlight : insère le sélecteur de version au-dessus de la
+// navigation par défaut, puis rend la barre latérale standard.
+import Default from '@astrojs/starlight/components/Sidebar.astro';
+import VersionSelect from './VersionSelect.astro';
+---
+
+<VersionSelect />
+<Default><slot /></Default>

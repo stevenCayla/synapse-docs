@@ -1,0 +1,69 @@
+---
+// Sélecteur de version de la documentation, affiché en haut de la barre latérale.
+// Le <select> natif navigue vers l'URL choisie via un script bundlé (compatible
+// avec une CSP stricte « script-src 'self' » — pas de gestionnaire inline).
+import { DOCS_VERSION, RELEASES_URL } from '../version';
+
+const isEn = Astro.url.pathname.startsWith('/en/');
+const changelogHref = isEn ? '/en/changelog/readme/' : '/changelog/readme/';
+
+const t = isEn
+  ? { label: 'Documentation', changelog: 'Changelog', releases: 'All releases (GitHub) ↗' }
+  : { label: 'Documentation', changelog: 'Journal des modifications', releases: 'Toutes les versions (GitHub) ↗' };
+---
+
+<div class="version-select">
+  <span class="vs-label">{t.label}</span>
+  <select class="vs-select" aria-label={`${t.label} v${DOCS_VERSION}`}>
+    <option value="" selected>v{DOCS_VERSION}</option>
+    <option value={changelogHref}>{t.changelog}</option>
+    <option value={RELEASES_URL}>{t.releases}</option>
+  </select>
+</div>
+
+<script>
+  document.querySelectorAll('select.vs-select').forEach((el) => {
+    el.addEventListener('change', (event) => {
+      const target = event.currentTarget as HTMLSelectElement;
+      const value = target.value;
+      // Réinitialise sur l'option « version courante » après navigation.
+      target.selectedIndex = 0;
+      if (value && value !== '#') {
+        window.location.href = value;
+      }
+    });
+  });
+</script>
+
+<style>
+  .version-select {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+  .vs-label {
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    color: var(--sl-color-gray-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .vs-select {
+    flex: 1;
+    min-width: 0;
+    padding: 0.3rem 0.5rem;
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    color: var(--sl-color-white);
+    background-color: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    cursor: pointer;
+  }
+  .vs-select:hover {
+    border-color: var(--sl-color-text-accent);
+  }
+</style>
