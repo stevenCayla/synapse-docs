@@ -1,9 +1,119 @@
 ---
-// Override du Sidebar Starlight : insère le sélecteur de version au-dessus de la
-// navigation par défaut, puis rend la barre latérale standard.
-import Default from '@astrojs/starlight/components/Sidebar.astro';
+// Override du Sidebar Starlight — navigation par SECTIONS façon docs Astro.
+//
+// La config `sidebar` définit 4 groupes de tête (Guide, Tutorials, Reference,
+// Ecosystem). Ici on les rend sous forme d'onglets à icônes : seule la section
+// active (celle qui contient la page courante, sinon « Guide » par défaut) voit
+// ses liens affichés. Cliquer un onglet navigue vers la 1re page de la section.
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
+import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import VersionSelect from './VersionSelect.astro';
+
+const { sidebar } = Astro.locals.starlightRoute;
+
+// Seuls les groupes de tête sont des sections.
+const sections = sidebar.filter((entry) => entry.type === 'group');
+
+// Une section est active si l'un de ses liens est la page courante.
+const containsCurrent = (entry) =>
+  entry.type === 'link' ? entry.isCurrent : entry.entries.some(containsCurrent);
+
+// Première URL atteignable d'une section (cible de l'onglet).
+const firstLink = (entry) => {
+  if (entry.type === 'link') return entry.href;
+  for (const child of entry.entries) {
+    const href = firstLink(child);
+    if (href) return href;
+  }
+  return undefined;
+};
+
+let activeIndex = sections.findIndex((section) => section.entries.some(containsCurrent));
+if (activeIndex === -1) activeIndex = 0; // défaut : Guide
+const active = sections[activeIndex];
+
+// Icônes (line icons) — seules les sections en ont. Indexées comme `sections`.
+const ICONS = [
+  // Guide — livre
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>',
+  // Tutorials — toque de diplômé
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 10-10-5L2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2 3 6 3s6-2 6-3v-5"/></svg>',
+  // Reference — clé à molette
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.4 2.4-2-2 2.4-2.4Z"/></svg>',
+  // Ecosystem — blocs
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>',
+];
 ---
 
 <VersionSelect />
-<Default><slot /></Default>
+
+<nav class="section-tabs" aria-label="Sections de la documentation">
+  {
+    sections.map((section, i) => (
+      <a
+        href={firstLink(section)}
+        class:list={['section-tab', { active: i === activeIndex }]}
+        aria-current={i === activeIndex ? 'true' : undefined}
+      >
+        <span class="section-tab__icon" set:html={ICONS[i] ?? ''} />
+        <span class="section-tab__label">{section.label}</span>
+      </a>
+    ))
+  }
+</nav>
+
+<SidebarPersister>
+  <SidebarSublist sublist={active.entries} />
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter />
+</div>
+
+<style>
+  .section-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+  .section-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    line-height: 1.1;
+  }
+  .section-tab:hover {
+    border-color: var(--sl-color-text-accent);
+    color: var(--sl-color-white);
+  }
+  .section-tab.active {
+    color: var(--sl-color-text-accent);
+    border-color: var(--sl-color-text-accent);
+    background-color: var(--sl-color-accent-low);
+  }
+  .section-tab__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .section-tab__icon :global(svg) {
+    width: 1.15em;
+    height: 1.15em;
+  }
+  .section-tab__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

@@ -72,95 +72,117 @@ export default defineConfig({
         Sidebar: './src/components/Sidebar.astro',
         Footer: './src/components/Footer.astro',
       },
-      // Sidebar explicite : pages de tête (Accueil, Guide de démarrage) en
-      // premier, puis les groupes — tous repliés par défaut (`collapsed`).
-      // Starlight ouvre automatiquement le groupe de la page courante.
-      // Les `link` et dossiers `autogenerate` sont résolus par locale.
+      // Sidebar organisée en 4 SECTIONS de tête (Guide, Tutorials, Reference,
+      // Ecosystem) — façon docs Astro. Le composant Sidebar personnalisé
+      // (src/components/Sidebar.astro) affiche ces sections sous forme d'onglets
+      // à icônes et ne montre que les liens de la section active (Guide par défaut).
+      // Les labels internes n'ont PAS d'icône : seules les sections en ont.
       sidebar: [
-        { label: '🏠 Accueil', translations: { en: '🏠 Home' }, link: '/' },
         {
-          label: '🚦 Guide de démarrage',
-          translations: { en: '🚦 Getting started' },
-          link: '/getting-started/',
+          label: 'Guide',
+          items: [
+            { label: 'Accueil', translations: { en: 'Home' }, link: '/' },
+            {
+              label: 'Architecture',
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'architecture', collapsed: true } }],
+            },
+            {
+              label: 'Backend',
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'backend', collapsed: true } }],
+            },
+            {
+              label: 'Sécurité',
+              translations: { en: 'Security' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'security', collapsed: true } }],
+            },
+            {
+              label: 'Conventions de code',
+              translations: { en: 'Code conventions' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'code-convention', collapsed: true } }],
+            },
+            {
+              label: 'Déploiement',
+              translations: { en: 'Deployment' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'deployment', collapsed: true } }],
+            },
+            {
+              label: 'Dépannage',
+              translations: { en: 'Troubleshooting' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'troubleshooting', collapsed: true } }],
+            },
+          ],
         },
         {
-          label: '🤝 Contribuer',
-          translations: { en: '🤝 Contribute' },
-          link: '/contribute/',
-          badge: { text: 'Nouveau', variant: 'tip' },
+          label: 'Tutorials',
+          items: [
+            {
+              label: 'Guide de démarrage',
+              translations: { en: 'Getting started' },
+              link: '/getting-started/',
+              badge: { text: 'Nouveau', variant: 'tip' },
+            },
+            {
+              label: 'QA',
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'qa', collapsed: true } }],
+            },
+          ],
         },
         {
-          label: '🛠️ Backend',
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'backend', collapsed: true } }],
+          label: 'Reference',
+          items: [
+            {
+              label: 'API',
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'api', collapsed: true } }],
+            },
+            {
+              label: 'Commandes',
+              translations: { en: 'Commands' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'commands', collapsed: true } }],
+            },
+            {
+              label: 'Base de données',
+              translations: { en: 'Database' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'database', collapsed: true } }],
+            },
+            {
+              label: 'Audit & conformité',
+              translations: { en: 'Audit & compliance' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'audit', collapsed: true } }],
+            },
+            {
+              label: 'RGPD',
+              translations: { en: 'GDPR' },
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'rgpd', collapsed: true } }],
+            },
+          ],
         },
         {
-          label: '🏗️ Architecture',
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'architecture', collapsed: true } }],
-        },
-        {
-          label: '🗄️ Base de données',
-          translations: { en: '🗄️ Database' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'database', collapsed: true } }],
-        },
-        {
-          label: '🔌 API',
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'api', collapsed: true } }],
-        },
-        {
-          label: '⌨️ Commandes',
-          translations: { en: '⌨️ Commands' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'commands', collapsed: true } }],
-        },
-        {
-          label: '🎨 Conventions de code',
-          translations: { en: '🎨 Code conventions' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'code-convention', collapsed: true } }],
-        },
-        {
-          label: '🔒 Sécurité',
-          translations: { en: '🔒 Security' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'security', collapsed: true } }],
-        },
-        {
-          label: '✅ Audit & conformité',
-          translations: { en: '✅ Audit & compliance' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'audit', collapsed: true } }],
-        },
-        {
-          label: '🛡️ RGPD',
-          translations: { en: '🛡️ GDPR' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'rgpd', collapsed: true } }],
-        },
-        {
-          label: '🧪 QA',
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'qa', collapsed: true } }],
-        },
-        {
-          label: '🚀 Déploiement',
-          translations: { en: '🚀 Deployment' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'deployment', collapsed: true } }],
-        },
-        {
-          label: '🩺 Dépannage',
-          translations: { en: '🩺 Troubleshooting' },
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'troubleshooting', collapsed: true } }],
-        },
-        {
-          label: '📝 Changelog',
-          collapsed: true,
-          items: [{ autogenerate: { directory: 'changelog', collapsed: true } }],
+          label: 'Ecosystem',
+          items: [
+            {
+              label: 'Contribuer',
+              translations: { en: 'Contribute' },
+              link: '/contribute/',
+              badge: { text: 'Nouveau', variant: 'tip' },
+            },
+            {
+              label: 'Changelog',
+              collapsed: true,
+              items: [{ autogenerate: { directory: 'changelog', collapsed: true } }],
+            },
+          ],
         },
       ],
     }),
