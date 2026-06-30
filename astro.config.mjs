@@ -44,6 +44,13 @@ export default defineConfig({
     }),
     starlight({
       title: 'Synapse Medical',
+      // Logo Synapse (identique à la page /login), variantes clair/sombre.
+      logo: {
+        light: './src/assets/synapse-logo-light.svg',
+        dark: './src/assets/synapse-logo-dark.svg',
+        alt: 'Synapse Medical',
+      },
+      favicon: '/favicon.svg',
       defaultLocale: 'root',
       locales: {
         root: { label: 'Français', lang: 'fr' },
