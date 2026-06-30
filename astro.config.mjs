@@ -1,11 +1,39 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Lit APP_VERSION depuis le .env à la racine du projet (au-dessus de docs-site/),
+// afin que le sélecteur de version reste synchronisé sans valeur codée en dur.
+function readAppVersion() {
+  for (const file of ['.env.local', '.env']) {
+    try {
+      const content = fs.readFileSync(path.resolve('..', file), 'utf8');
+      const match = content.match(/^\s*APP_VERSION\s*=\s*(.*)$/m);
+      if (match) {
+        const value = match[1].trim().replace(/^["']|["']$/g, '');
+        if (value) return value;
+      }
+    } catch {
+      // fichier absent → on tente le suivant
+    }
+  }
+  return '0.0.0';
+}
+
+const APP_VERSION = readAppVersion();
 
 // Documentation Synapse Medical — site Starlight.
 // Locale racine = Français (servi à /), Anglais sous /en/.
 export default defineConfig({
   site: 'https://docs.synapse-medical.fr',
+  // Injecte la version (constante remplacée à la compilation par Vite).
+  vite: {
+    define: {
+      __DOCS_VERSION__: JSON.stringify(APP_VERSION),
+    },
+  },
   integrations: [
     // Rendu des blocs ```mermaid → SVG (client, sans Chromium).
     // Doit précéder starlight() pour intercepter les blocs avant la
