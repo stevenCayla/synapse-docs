@@ -15,7 +15,7 @@ export SYNAPSE_DIR
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help install sync dev build preview clean deploy-dev deploy-prod deploy-check login whoami
+.PHONY: help install sync archive dev build preview clean deploy-dev deploy-prod deploy-check login whoami
 
 ## —— Synapse Medical documentation ——————————————————————————————————————
 help: ## Outputs this help screen
@@ -29,6 +29,10 @@ install: ## Install the npm dependencies from package-lock.json
 
 sync: ## Refresh src/content/docs from the application's docs/ (SYNAPSE_DIR or SYNAPSE_REF)
 	sh scripts/sync-content.sh
+
+archive: ## Archive the current docs as version VERSION=x.y (at release time, before syncing the next version)
+	@test -n "$(VERSION)" || { echo "Usage: make archive VERSION=x.y" >&2; exit 1; }
+	sh scripts/archive-version.sh $(VERSION)
 
 dev: ## Start the dev server with live reload (http://localhost:4321)
 	npm run dev

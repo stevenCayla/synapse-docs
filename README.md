@@ -46,6 +46,26 @@ make sync SYNAPSE_REF=main               # from a branch of the application
 The equivalent npm commands are `npm ci`, `npm run dev`, `npm run build`,
 `npm run preview` and `npm run sync-content`.
 
+## Versioned documentation
+
+Older releases of the documentation can stay online next to the current one
+with [starlight-versions](https://github.com/HiDeoo/starlight-versions). The
+plugin is enabled as soon as `versions.json` lists an archived version (it is
+empty until the next release).
+
+At release time, **before** syncing the content of the new version:
+
+```bash
+make archive VERSION=2.0   # copies the current pages to src/content/docs/2.0/ (and en/2.0/)
+git add versions.json src/content/docs/2.0 src/content/docs/en/2.0 src/content/versions
+git commit -m "docs: archive version 2.0"
+```
+
+Archived pages are served under `/2.0/…`, a version picker appears in the
+header, and search is limited to the selected version. Archived folders are
+never touched by the content sync; the Audit & compliance pages are not
+versioned (they always show their latest content).
+
 ## Hosting: Cloudflare Workers
 
 The site is a Worker with no server-side code that serves the files of `dist/`

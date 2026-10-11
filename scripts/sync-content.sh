@@ -9,7 +9,9 @@
 #      e.g. SYNAPSE_DIR=../symfony-docker make sync
 #   2. otherwise, partial clone (docs/ + root files) of SYNAPSE_REF into .synapse/
 #
-# src/content/docs/audit/ is maintained in this repository and never synced.
+# src/content/docs/audit/ (maintained in this repository) and the archived
+# versions listed in versions.json (src/content/docs/<x.y>/, en/<x.y>/) are
+# never synced.
 set -eu
 
 cd "$(dirname "$0")/.."
@@ -29,8 +31,13 @@ fi
 
 test -d "$dir/docs" || { echo "$dir does not contain a docs/ folder." >&2; exit 1; }
 
+set -- --exclude '/audit/'
+for slug in $(node -p 'require("./versions.json").map((v) => v.slug).join(" ")'); do
+  set -- "$@" --exclude "/$slug/" --exclude "/en/$slug/"
+done
+
 mkdir -p src/content/docs
-rsync -a --delete --exclude '/audit/' "$dir/docs/" src/content/docs/
+rsync -a --delete "$@" "$dir/docs/" src/content/docs/
 
 version="$(sed -n 's/^[[:space:]]*APP_VERSION[[:space:]]*=[[:space:]]*//p' "$dir/.env" 2>/dev/null | tail -1 | tr -d "\"'")"
 if [ -n "$version" ]; then
