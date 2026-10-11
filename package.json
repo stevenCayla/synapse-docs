@@ -4,9 +4,7 @@
   "private": true,
   "scripts": {
     "sync-content": "sh scripts/sync-content.sh",
-    "predev": "sh scripts/sync-content.sh",
     "dev": "astro dev",
-    "prebuild": "sh scripts/sync-content.sh",
     "build": "astro build",
     "preview": "astro preview",
     "deploy:dev": "npm run build && sh scripts/deploy.sh dev",

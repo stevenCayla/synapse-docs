@@ -5,6 +5,11 @@ on:
   push:
     branches: [develop, main]
   workflow_dispatch:
+    inputs:
+      sync:
+        description: Refresh the content from SYNAPSE-MEDICAL before building
+        type: boolean
+        default: false
   # Sent by the SYNAPSE-MEDICAL repository when docs/ changes on develop or main
   # (.github/workflows/docs.yaml), with client_payload.branch = develop|main.
   repository_dispatch:
@@ -14,44 +19,62 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  target:
     runs-on: ubuntu-latest
     outputs:
       branch: ${{ steps.target.outputs.branch }}
+      sync: ${{ steps.target.outputs.sync }}
       deploy: ${{ steps.target.outputs.deploy }}
     steps:
-      # Target branch: develop → dev-docs, main → docs. The docs/ content is taken
-      # from the same branch of the application repository.
+      # develop → dev-docs, main → docs. Other branches and pull requests are
+      # only built.
       - name: Determine target branch
         id: target
         env:
           DISPATCH_BRANCH: ${{ github.event.client_payload.branch }}
+          SYNC_INPUT: ${{ inputs.sync }}
         run: |
+          sync=false
           case "$GITHUB_EVENT_NAME" in
-            repository_dispatch) branch="$DISPATCH_BRANCH" ;;
-            pull_request)        branch="$GITHUB_BASE_REF" ;;
+            repository_dispatch) branch="$DISPATCH_BRANCH"; sync=true ;;
+            pull_request)        branch="$GITHUB_HEAD_REF" ;;
+            workflow_dispatch)   branch="$GITHUB_REF_NAME"; [ "$SYNC_INPUT" = true ] && sync=true ;;
             *)                   branch="$GITHUB_REF_NAME" ;;
           esac
           deploy=false
           case "$branch" in
             develop|main) [ "$GITHUB_EVENT_NAME" != pull_request ] && deploy=true ;;
-            *)            branch=develop ;;
+            *) if [ "$sync" = true ]; then echo "Content sync only targets develop or main." >&2; exit 1; fi ;;
           esac
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
-          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
-          echo "Target branch: $branch — deploy: $deploy"
+          {
+            echo "branch=$branch"
+            echo "sync=$sync"
+            echo "deploy=$deploy"
+          } >> "$GITHUB_OUTPUT"
+          echo "Branch: $branch — sync: $sync — deploy: $deploy"
 
+  # Refreshes src/content/docs from the docs/ folder of SYNAPSE-MEDICAL (same
+  # branch), checks that the site still builds, then commits the snapshot.
+  sync:
+    needs: target
+    if: needs.target.outputs.sync == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: sync-${{ needs.target.outputs.branch }}
+      cancel-in-progress: false
+    steps:
       - name: Checkout site
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event_name == 'repository_dispatch' && steps.target.outputs.branch || '' }}
-          persist-credentials: false
+          ref: ${{ needs.target.outputs.branch }}
 
       - name: Checkout content (SYNAPSE-MEDICAL docs/)
         uses: actions/checkout@v6
         with:
           repository: stevenCayla/SYNAPSE-MEDICAL
-          ref: ${{ steps.target.outputs.branch }}
+          ref: ${{ needs.target.outputs.branch }}
           # Read-only deploy key of SYNAPSE-MEDICAL
           ssh-key: ${{ secrets.SYNAPSE_REPO_SSH_KEY }}
           path: .synapse
@@ -66,10 +89,51 @@ jobs:
 
       - run: npm ci
 
+      - name: Sync content
+        run: SYNAPSE_DIR=.synapse sh scripts/sync-content.sh
+
+      - name: Check the site still builds
+        run: npm run build
+
+      - name: Commit the snapshot
+        env:
+          BRANCH: ${{ needs.target.outputs.branch }}
+        run: |
+          git add src/content/docs APP_VERSION
+          if git diff --cached --quiet; then
+            echo "Content already up to date."
+            exit 0
+          fi
+          source_sha="$(git -C .synapse rev-parse --short HEAD)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs: sync content from SYNAPSE-MEDICAL@$source_sha"
+          git push origin "HEAD:$BRANCH"
+
+  build:
+    needs: [target, sync]
+    if: ${{ !cancelled() && needs.target.result == 'success' && needs.sync.result != 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v6
+        with:
+          # After a sync, build the branch tip that contains the new snapshot.
+          ref: ${{ needs.target.outputs.sync == 'true' && needs.target.outputs.branch || '' }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
       - run: npm run build
 
       - name: Upload build
-        if: steps.target.outputs.deploy == 'true'
+        if: needs.target.outputs.deploy == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -77,14 +141,14 @@ jobs:
           retention-days: 7
 
   deploy:
-    needs: build
-    if: needs.build.outputs.deploy == 'true'
+    needs: [target, build]
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.target.outputs.deploy == 'true' }}
     runs-on: ubuntu-latest
     environment:
-      name: ${{ needs.build.outputs.branch == 'main' && 'production' || 'development' }}
-      url: ${{ needs.build.outputs.branch == 'main' && 'https://docs.synapse-medical.fr' || 'https://dev-docs.synapse-medical.fr' }}
+      name: ${{ needs.target.outputs.branch == 'main' && 'production' || 'development' }}
+      url: ${{ needs.target.outputs.branch == 'main' && 'https://docs.synapse-medical.fr' || 'https://dev-docs.synapse-medical.fr' }}
     concurrency:
-      group: deploy-${{ needs.build.outputs.branch }}
+      group: deploy-${{ needs.target.outputs.branch }}
       cancel-in-progress: false
     steps:
       - name: Checkout site
@@ -110,4 +174,4 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: sh scripts/deploy.sh ${{ needs.build.outputs.branch == 'main' && 'prod' || 'dev' }}
+        run: sh scripts/deploy.sh ${{ needs.target.outputs.branch == 'main' && 'prod' || 'dev' }}

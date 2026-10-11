@@ -1,5 +1,5 @@
-// DOCS_VERSION is derived automatically from APP_VERSION (.env / .env.local of
-// the application repository, see SYNAPSE_DIR) at build time, through
+// DOCS_VERSION is derived from the APP_VERSION file (synced from the
+// application's .env by scripts/sync-content.sh) at build time, through
 // `vite.define` in astro.config.mjs.
 // → No manual sync: bumping APP_VERSION is enough, the version selector
 //   follows on the next build.
