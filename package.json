@@ -3,9 +3,14 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "sync-content": "sh scripts/sync-content.sh",
+    "predev": "sh scripts/sync-content.sh",
     "dev": "astro dev",
+    "prebuild": "sh scripts/sync-content.sh",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "deploy:dev": "npm run build && sh scripts/deploy.sh dev",
+    "deploy:prod": "npm run build && sh scripts/deploy.sh prod"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.41.1",
@@ -13,5 +18,8 @@
     "astro-mermaid": "^2.1.0",
     "mermaid": "^11.16.0",
     "sharp": "^0.35.2"
+  },
+  "devDependencies": {
+    "wrangler": "4.141.0"
   }
 }

@@ -1,0 +1,17 @@
+# En-têtes servis par Cloudflare Workers (assets statiques).
+#
+# CSP : aucun script inline n'est généré (voir
+# integrations/externalize-inline-scripts.mjs), d'où « script-src 'self' ».
+# 'wasm-unsafe-eval' autorise uniquement la compilation WebAssembly, requise par
+# Pagefind (recherche Starlight) — pas eval() en JavaScript.
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Fichiers nommés d'après leur contenu → cache long, immuable.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

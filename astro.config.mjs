@@ -1,15 +1,19 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
+import externalizeInlineScripts from './integrations/externalize-inline-scripts.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// Lit APP_VERSION depuis le .env à la racine du projet (au-dessus de docs-site/),
-// afin que le sélecteur de version reste synchronisé sans valeur codée en dur.
+// Dossier du dépôt de l'application (contenu docs/ + .env), voir
+// scripts/sync-content.sh. APP_VERSION y est lu pour que le sélecteur de
+// version reste synchronisé sans valeur codée en dur.
+const SYNAPSE_DIR = path.resolve(process.env.SYNAPSE_DIR || '.synapse');
+
 function readAppVersion() {
   for (const file of ['.env.local', '.env']) {
     try {
-      const content = fs.readFileSync(path.resolve('..', file), 'utf8');
+      const content = fs.readFileSync(path.join(SYNAPSE_DIR, file), 'utf8');
       const match = content.match(/^\s*APP_VERSION\s*=\s*(.*)$/m);
       if (match) {
         const value = match[1].trim().replace(/^["']|["']$/g, '');
@@ -186,5 +190,8 @@ export default defineConfig({
         },
       ],
     }),
+    // En dernier : sort tous les <script> inline du HTML généré, pour la CSP
+    // « script-src 'self' » de la prod (voir le fichier de l'intégration).
+    externalizeInlineScripts(),
   ],
 });

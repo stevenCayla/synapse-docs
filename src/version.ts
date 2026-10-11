@@ -1,5 +1,6 @@
 // DOCS_VERSION est dérivée automatiquement de APP_VERSION (.env / .env.local du
-// projet) au moment du build, via `vite.define` dans astro.config.mjs.
+// dépôt de l'application, voir SYNAPSE_DIR) au moment du build, via
+// `vite.define` dans astro.config.mjs.
 // → Aucune synchronisation manuelle : bumper APP_VERSION suffit, le sélecteur de
 //   version suit au prochain build.
 declare const __DOCS_VERSION__: string;

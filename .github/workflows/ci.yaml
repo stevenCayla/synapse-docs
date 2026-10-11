@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+  # Envoyé par le dépôt SYNAPSE-MEDICAL quand docs/ change sur develop ou main
+  # (.github/workflows/docs.yaml), avec client_payload.branch = develop|main.
+  repository_dispatch:
+    types: [docs-content-updated]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.target.outputs.branch }}
+      deploy: ${{ steps.target.outputs.deploy }}
+    steps:
+      # Branche cible : develop → dev-docs, main → docs. Le contenu docs/ est pris
+      # sur la même branche du dépôt de l'application.
+      - name: Determine target branch
+        id: target
+        env:
+          DISPATCH_BRANCH: ${{ github.event.client_payload.branch }}
+        run: |
+          case "$GITHUB_EVENT_NAME" in
+            repository_dispatch) branch="$DISPATCH_BRANCH" ;;
+            pull_request)        branch="$GITHUB_BASE_REF" ;;
+            *)                   branch="$GITHUB_REF_NAME" ;;
+          esac
+          deploy=false
+          case "$branch" in
+            develop|main) [ "$GITHUB_EVENT_NAME" != pull_request ] && deploy=true ;;
+            *)            branch=develop ;;
+          esac
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+          echo "Branche cible : $branch — déploiement : $deploy"
+
+      - name: Checkout site
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'repository_dispatch' && steps.target.outputs.branch || '' }}
+          persist-credentials: false
+
+      - name: Checkout content (SYNAPSE-MEDICAL docs/)
+        uses: actions/checkout@v6
+        with:
+          repository: stevenCayla/SYNAPSE-MEDICAL
+          ref: ${{ steps.target.outputs.branch }}
+          # Clé de déploiement en lecture seule sur SYNAPSE-MEDICAL
+          ssh-key: ${{ secrets.SYNAPSE_REPO_SSH_KEY }}
+          path: .synapse
+          sparse-checkout: docs
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Upload build
+        if: steps.target.outputs.deploy == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.build.outputs.branch == 'main' && 'production' || 'development' }}
+      url: ${{ needs.build.outputs.branch == 'main' && 'https://docs.synapse-medical.fr' || 'https://dev-docs.synapse-medical.fr' }}
+    concurrency:
+      group: deploy-${{ needs.build.outputs.branch }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Deploy to Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: sh scripts/deploy.sh ${{ needs.build.outputs.branch == 'main' && 'prod' || 'dev' }}
