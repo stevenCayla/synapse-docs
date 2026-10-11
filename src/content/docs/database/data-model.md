@@ -89,7 +89,7 @@ erDiagram
 
     EcrfTemplate ||--o{ EcrfTemplateSection : ""
     EcrfTemplateSection ||--o{ EcrfTemplateField : ""
-    EcrfTemplate ..|| EcrfForm : "instancie (snapshot)"
+    EcrfTemplate ||..o{ EcrfForm : "instancie (snapshot)"
 
     ConsentTemplate ||--o{ ConsentVersion : "versions"
     ConsentVersion ||--o{ PatientConsent : "consentements"
