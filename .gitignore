@@ -2,7 +2,7 @@ node_modules/
 dist/
 .astro/
 
-# Contenu récupéré depuis le dépôt de l'application (scripts/sync-content.sh)
+# Content fetched from the application repository (scripts/sync-content.sh)
 .synapse/
 src/content/docs
 

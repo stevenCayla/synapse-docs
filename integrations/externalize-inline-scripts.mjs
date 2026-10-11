@@ -3,12 +3,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// La prod impose la CSP « script-src 'self' » : tout <script> inline y est
-// bloqué (sélecteurs de langue/thème, raccourci de recherche, restauration de
-// la barre latérale…). Après le build, chaque script inline exécutable est
-// déplacé dans /_astro/inline.<hash>.js et remplacé par <script src>.
-// Un script classique externe reste bloquant et un module reste différé :
-// l'ordre et le moment d'exécution sont donc inchangés.
+// Production enforces the CSP "script-src 'self'": every inline <script> is
+// blocked there (language/theme selectors, search shortcut, sidebar state
+// restore…). After the build, each executable inline script is moved into
+// /_astro/inline.<hash>.js and replaced by <script src>.
+// An external classic script stays blocking and a module stays deferred, so
+// execution order and timing are unchanged.
 const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
 const JS_TYPES = new Set(['', 'text/javascript', 'module']);
 

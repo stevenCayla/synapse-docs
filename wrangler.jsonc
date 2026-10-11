@@ -1,7 +1,7 @@
-// Hébergement Cloudflare Workers (assets statiques, aucun code serveur).
-//   wrangler deploy            → production  : docs.synapse-medical.fr     (branche main)
-//   wrangler deploy --env dev  → préproduction : dev-docs.synapse-medical.fr (branche develop)
-// En-têtes de sécurité et cache : public/_headers (copié dans dist/ au build).
+// Cloudflare Workers hosting (static assets, no server-side code).
+//   wrangler deploy --env=""   → production: docs.synapse-medical.fr     (main branch)
+//   wrangler deploy --env dev  → staging:    dev-docs.synapse-medical.fr (develop branch)
+// Security and cache headers: public/_headers (copied into dist/ at build time).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "synapse-docs",

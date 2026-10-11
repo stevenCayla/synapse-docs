@@ -5,8 +5,8 @@ on:
   push:
     branches: [develop, main]
   workflow_dispatch:
-  # Envoyé par le dépôt SYNAPSE-MEDICAL quand docs/ change sur develop ou main
-  # (.github/workflows/docs.yaml), avec client_payload.branch = develop|main.
+  # Sent by the SYNAPSE-MEDICAL repository when docs/ changes on develop or main
+  # (.github/workflows/docs.yaml), with client_payload.branch = develop|main.
   repository_dispatch:
     types: [docs-content-updated]
 
@@ -20,8 +20,8 @@ jobs:
       branch: ${{ steps.target.outputs.branch }}
       deploy: ${{ steps.target.outputs.deploy }}
     steps:
-      # Branche cible : develop → dev-docs, main → docs. Le contenu docs/ est pris
-      # sur la même branche du dépôt de l'application.
+      # Target branch: develop → dev-docs, main → docs. The docs/ content is taken
+      # from the same branch of the application repository.
       - name: Determine target branch
         id: target
         env:
@@ -39,7 +39,7 @@ jobs:
           esac
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
-          echo "Branche cible : $branch — déploiement : $deploy"
+          echo "Target branch: $branch — deploy: $deploy"
 
       - name: Checkout site
         uses: actions/checkout@v6
@@ -52,7 +52,7 @@ jobs:
         with:
           repository: stevenCayla/SYNAPSE-MEDICAL
           ref: ${{ steps.target.outputs.branch }}
-          # Clé de déploiement en lecture seule sur SYNAPSE-MEDICAL
+          # Read-only deploy key of SYNAPSE-MEDICAL
           ssh-key: ${{ secrets.SYNAPSE_REPO_SSH_KEY }}
           path: .synapse
           sparse-checkout: docs

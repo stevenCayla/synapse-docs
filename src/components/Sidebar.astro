@@ -1,10 +1,10 @@
 ---
-// Override du Sidebar Starlight — navigation par SECTIONS façon docs Astro.
+// Starlight Sidebar override — SECTION navigation, like the Astro docs.
 //
-// La config `sidebar` définit 4 groupes de tête (Guide, Tutorials, Reference,
-// Ecosystem). Ici on les rend sous forme d'onglets à icônes : seule la section
-// active (celle qui contient la page courante, sinon « Guide » par défaut) voit
-// ses liens affichés. Cliquer un onglet navigue vers la 1re page de la section.
+// The `sidebar` config defines 4 top-level groups (Guide, Tutorials, Reference,
+// Ecosystem). They are rendered here as icon tabs: only the active section (the
+// one containing the current page, "Guide" by default) shows its links.
+// Clicking a tab navigates to the first page of the section.
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
@@ -12,14 +12,14 @@ import VersionSelect from './VersionSelect.astro';
 
 const { sidebar } = Astro.locals.starlightRoute;
 
-// Seuls les groupes de tête sont des sections.
+// Only top-level groups are sections.
 const sections = sidebar.filter((entry) => entry.type === 'group');
 
-// Une section est active si l'un de ses liens est la page courante.
+// A section is active if one of its links is the current page.
 const containsCurrent = (entry) =>
   entry.type === 'link' ? entry.isCurrent : entry.entries.some(containsCurrent);
 
-// Première URL atteignable d'une section (cible de l'onglet).
+// First reachable URL of a section (target of the tab).
 const firstLink = (entry) => {
   if (entry.type === 'link') return entry.href;
   for (const child of entry.entries) {
@@ -30,18 +30,18 @@ const firstLink = (entry) => {
 };
 
 let activeIndex = sections.findIndex((section) => section.entries.some(containsCurrent));
-if (activeIndex === -1) activeIndex = 0; // défaut : Guide
+if (activeIndex === -1) activeIndex = 0; // default: Guide
 const active = sections[activeIndex];
 
-// Icônes (line icons) — seules les sections en ont. Indexées comme `sections`.
+// Icons (line icons) — only sections have one. Indexed like `sections`.
 const ICONS = [
-  // Guide — livre
+  // Guide — book
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>',
-  // Tutorials — toque de diplômé
+  // Tutorials — graduation cap
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 10-10-5L2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2 3 6 3s6-2 6-3v-5"/></svg>',
-  // Reference — clé à molette
+  // Reference — wrench
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.4 2.4-2-2 2.4-2.4Z"/></svg>',
-  // Ecosystem — blocs
+  // Ecosystem — blocks
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>',
 ];
 ---

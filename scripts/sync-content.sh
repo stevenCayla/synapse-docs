@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
-# Relie src/content/docs au dossier docs/ du dépôt de l'application.
+# Links src/content/docs to the docs/ folder of the application repository.
 #
-# Le contenu (docs/, .env pour APP_VERSION) vit dans le dépôt SYNAPSE-MEDICAL ;
-# ce dépôt ne contient que le site Astro. Source utilisée, par ordre de priorité :
-#   1. SYNAPSE_DIR : chemin d'un checkout existant (édition locale en direct),
-#      ex. SYNAPSE_DIR=../symfony-docker npm run dev
-#   2. .synapse/   : checkout déjà présent (la CI l'y place via actions/checkout)
-#   3. sinon, clone partiel (docs/ + fichiers racine) de SYNAPSE_REF dans .synapse/
+# The content (docs/, .env for APP_VERSION) lives in the SYNAPSE-MEDICAL
+# repository; this repository only holds the Astro site. Source, by priority:
+#   1. SYNAPSE_DIR: path of an existing checkout (live local editing),
+#      e.g. SYNAPSE_DIR=../symfony-docker npm run dev
+#   2. .synapse/:   checkout already present (put there by actions/checkout in CI)
+#   3. otherwise, partial clone (docs/ + root files) of SYNAPSE_REF into .synapse/
 set -eu
 
 cd "$(dirname "$0")/.."
@@ -17,10 +17,10 @@ dir="${SYNAPSE_DIR:-.synapse}"
 
 if [ ! -d "$dir/docs" ]; then
   if [ -n "${SYNAPSE_DIR:-}" ]; then
-    echo "SYNAPSE_DIR=$SYNAPSE_DIR ne contient pas de dossier docs/." >&2
+    echo "SYNAPSE_DIR=$SYNAPSE_DIR does not contain a docs/ folder." >&2
     exit 1
   fi
-  echo "Clone de docs/ depuis $SYNAPSE_REPO ($SYNAPSE_REF)…"
+  echo "Cloning docs/ from $SYNAPSE_REPO ($SYNAPSE_REF)…"
   rm -rf .synapse
   git clone --quiet --depth 1 --filter=blob:none --sparse --branch "$SYNAPSE_REF" "$SYNAPSE_REPO" .synapse
   git -C .synapse sparse-checkout set docs
