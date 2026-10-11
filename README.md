@@ -1,82 +1,80 @@
-# Synapse Medical — site de documentation (Astro + Starlight)
+# Synapse Medical — documentation website (Astro + Starlight)
 
-Ce dépôt contient uniquement le **site** de documentation. Le **contenu** (les
-pages Markdown) vit dans le dossier `docs/` du dépôt de l'application
-[SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL) (français à
-la racine, anglais sous `en/`), afin que la documentation évolue avec le code.
+This repository only contains the documentation **website**. The **content**
+(the Markdown pages) lives in the `docs/` folder of the
+[SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL) application
+repository (French at the root, English under `en/`), so the documentation
+evolves together with the code.
 
-| Branche | Contenu utilisé | Publication |
-|---------|-----------------|-------------|
-| `develop` | `docs/` de `develop` | https://dev-docs.synapse-medical.fr (non indexée) |
-| `main` | `docs/` de `main` | https://docs.synapse-medical.fr |
+| Branch | Content used | Published at |
+|--------|--------------|--------------|
+| `develop` | `docs/` from `develop` | https://dev-docs.synapse-medical.fr (not indexed) |
+| `main` | `docs/` from `main` | https://docs.synapse-medical.fr |
 
-## Développement local
+## Local development
 
 ```bash
 npm install
 
-# Édition en direct : pointer vers un checkout local de l'application
+# Live editing: point to a local checkout of the application
 SYNAPSE_DIR=../symfony-docker npm run dev
 
-# Sans checkout local : docs/ de develop est cloné dans .synapse/
+# Without a local checkout: docs/ from develop is cloned into .synapse/
 npm run dev
-SYNAPSE_REF=main npm run dev   # contenu de main
+SYNAPSE_REF=main npm run dev   # content from main
 ```
 
-`scripts/sync-content.sh` (lancé automatiquement avant `dev` et `build`) relie
-`src/content/docs` au dossier `docs/` choisi. La version affichée dans le
-sélecteur est lue dans `APP_VERSION` du `.env` de l'application.
+`scripts/sync-content.sh` (run automatically before `dev` and `build`) links
+`src/content/docs` to the selected `docs/` folder. The version shown in the
+version selector is read from `APP_VERSION` in the application's `.env`.
 
-> Le dossier `check/` est une zone de triage hors site (non construite par Astro).
+## Hosting: Cloudflare Workers
 
-## Hébergement : Cloudflare Workers
+The site is a Worker with no server-side code that serves the files of `dist/`
+(`wrangler.jsonc`):
 
-Le site est un Worker sans code serveur qui sert les fichiers de `dist/`
-(`wrangler.jsonc`) :
-
-| Environnement | Commande | Domaine |
-|---------------|----------|---------|
+| Environment | Command | Domain |
+|-------------|---------|--------|
 | production | `wrangler deploy --env=""` | docs.synapse-medical.fr |
 | dev | `wrangler deploy --env dev` | dev-docs.synapse-medical.fr |
 
-Les en-têtes de sécurité (CSP comprise) et le cache sont définis dans
-`public/_headers`. La CSP impose `script-src 'self'` : aucun script inline
-n'est permis. L'intégration `integrations/externalize-inline-scripts.mjs` sort
-donc chaque script inline du HTML généré dans un fichier
-`/_astro/inline.<hash>.js`.
+Security headers (including the CSP) and caching rules are defined in
+`public/_headers`. The CSP enforces `script-src 'self'`, so no inline script is
+allowed: the `integrations/externalize-inline-scripts.mjs` integration moves
+every inline script of the generated HTML into a `/_astro/inline.<hash>.js`
+file.
 
-### CI / déploiement
+### CI / deployment
 
-La CI (`.github/workflows/ci.yaml`) construit le site à chaque PR et déploie
-automatiquement :
+The CI (`.github/workflows/ci.yaml`) builds the site on every pull request and
+deploys automatically:
 
-- push sur `develop` → environnement GitHub `development` → dev-docs ;
-- push sur `main` → environnement GitHub `production` → docs ;
-- modification de `docs/` sur `develop` ou `main` dans le dépôt de
-  l'application → reconstruction de la branche correspondante
-  (`repository_dispatch`, envoyé par `.github/workflows/docs.yaml` de
-  l'application).
+- push to `develop` → GitHub environment `development` → dev-docs;
+- push to `main` → GitHub environment `production` → docs;
+- a change to `docs/` on `develop` or `main` in the application repository →
+  rebuild of the matching branch (`repository_dispatch`, sent by the
+  application's `.github/workflows/docs.yaml`).
 
-Déploiement manuel si besoin (après `npx wrangler login`) :
+Manual deployment if needed (after `npx wrangler login`):
 
 ```bash
 npm run deploy:dev
 npm run deploy:prod
 ```
 
-### Configuration GitHub
+### GitHub configuration
 
-Dans ce dépôt :
+In this repository:
 
-| Type | Nom | Valeur |
-|------|-----|--------|
-| Secret | `SYNAPSE_REPO_SSH_KEY` | Clé privée d'une clé de déploiement en lecture seule de SYNAPSE-MEDICAL |
-| Secret | `CLOUDFLARE_API_TOKEN` | Jeton API Cloudflare (modèle « Edit Cloudflare Workers ») |
-| Variable | `CLOUDFLARE_ACCOUNT_ID` | Identifiant du compte Cloudflare |
+| Type | Name | Value |
+|------|------|-------|
+| Secret | `SYNAPSE_REPO_SSH_KEY` | Private key of a read-only deploy key of SYNAPSE-MEDICAL |
+| Secret | `CLOUDFLARE_API_TOKEN` | Cloudflare API token ("Edit Cloudflare Workers" template) |
+| Variable | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
 
-Environnements `development` (branche `develop` uniquement) et `production`
-(branche `main` uniquement), dans *Settings → Environments*.
+Environments `development` (branch `develop` only) and `production` (branch
+`main` only), under *Settings → Environments*.
 
-Dans le dépôt de l'application : secret `DOCS_DISPATCH_TOKEN`, jeton
-fine-grained sur ce dépôt avec *Contents: Read and write* (requis pour
+In the application repository: secret `DOCS_DISPATCH_TOKEN`, a fine-grained
+token on this repository with *Contents: Read and write* (required by
 `repository_dispatch`).
