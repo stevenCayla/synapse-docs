@@ -14,12 +14,12 @@ Merci de votre intérêt pour **Synapse Medical** ! Les contributions de **toute
 tout niveau** sont les bienvenues — du correctif de typo à une nouvelle fonctionnalité.
 
 :::tip[Pour aller vite]
-Le fichier [`CONTRIBUTING.md`](#) à la racine du dépôt résume tout ce qui suit. Cette page
+Le fichier [`CONTRIBUTING.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CONTRIBUTING.md) à la racine du dépôt résume tout ce qui suit. Cette page
 en est la version enrichie et navigable.
 :::
 
 <div class="sl-flex" style="gap:1rem;flex-wrap:wrap;margin:1rem 0;">
-  <a href="#" class="sl-flex" style="gap:.4em;align-items:center;">🐙 Voir le code sur GitHub</a>
+  <a href="https://github.com/stevenCayla/SYNAPSE-MEDICAL" class="sl-flex" style="gap:.4em;align-items:center;">🐙 Voir le code sur GitHub</a>
   <a href="https://discord.com/channels/1521440528388984934/1521440528829382718" class="sl-flex" style="gap:.4em;align-items:center;">💬 Rejoindre le Discord</a>
 </div>
 

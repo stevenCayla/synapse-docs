@@ -9,7 +9,7 @@ sidebar:
 > 🌐 [Version française](/changelog/releases/) · English version
 
 Every published version is materialized by a **Git tag `vX.Y.Z`** and an associated
-**[GitHub Release](#)**.
+**[GitHub Release](https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases)**.
 
 ## Numbering (SemVer)
 
@@ -25,7 +25,7 @@ The current version is exposed by the `APP_VERSION` environment variable (**`2.0
 
 ## Publishing process
 
-1. Group the `[Unreleased]` changes in [`CHANGELOG.md`](#) under a dated version number.
+1. Group the `[Unreleased]` changes in [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md) under a dated version number.
 2. Tag: `git tag -a v2.1.0 -m "Release 2.1.0"` then `git push --tags`.
 3. Create the matching **GitHub Release** (notes = changelog section).
 4. Bump `APP_VERSION` (`.env`). The documentation version selector is **derived
