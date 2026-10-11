@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
+import starlightVersions from 'starlight-versions';
 import externalizeInlineScripts from './integrations/externalize-inline-scripts.mjs';
 import fs from 'node:fs';
 
@@ -16,6 +17,11 @@ function readAppVersion() {
 }
 
 const APP_VERSION = readAppVersion();
+
+// Archived documentation versions (starlight-versions), managed with
+// "make archive VERSION=x.y". The plugin requires at least one archived
+// version, so it is only enabled once versions.json lists one.
+const ARCHIVED_VERSIONS = JSON.parse(fs.readFileSync('versions.json', 'utf8'));
 
 // Synapse Medical documentation — Starlight site.
 // Root locale = French (served at /), English under /en/.
@@ -37,6 +43,16 @@ export default defineConfig({
     }),
     starlight({
       title: 'Synapse Medical',
+      plugins: ARCHIVED_VERSIONS.length
+        ? [
+            starlightVersions({
+              versions: ARCHIVED_VERSIONS,
+              current: { label: `v${APP_VERSION}` },
+              // Audit & compliance pages always show their latest content.
+              exclude: ['audit/**'],
+            }),
+          ]
+        : [],
       // Synapse logo (same as the /login page), light/dark variants.
       logo: {
         light: './src/assets/synapse-logo-light.svg',

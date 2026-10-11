@@ -138,6 +138,13 @@ commands.
 
 ## 5. Publish the version
 
+0. **Archive the documentation** of the previous version (new minor or major version
+   only), in the `synapse-docs` repository, **before** the release commit: that commit
+   triggers the content sync, which would replace the current pages.
+   ```bash
+   make archive VERSION=2.0   # keeps the 2.0 docs online under /2.0/
+   ```
+   Commit the result on `develop` (see the `synapse-docs` README).
 1. **Release commit** on `develop`: dated changelog + updated `APP_VERSION`, e.g.
    `chore(release): 2.1.0`.
 2. **Release PR** `develop` → `main`. CI runs on the PR; merge once green.
@@ -154,9 +161,9 @@ commands.
 :::tip[Bump APP_VERSION before building]
 `APP_VERSION` is read from `.env` and **baked into the image** at build time
 (`composer dump-env prod` in the `frankenphp_prod_builder` stage). The
-documentation site also reads it at build time (`readAppVersion()` in
-`astro.config.mjs` of the `synapse-docs` repository, injected through `vite.define` as
-`__DOCS_VERSION__`). It must therefore be changed **in the release commit**,
+documentation site receives it through the content sync (`APP_VERSION` file of the
+`synapse-docs` repository, read at build time by `astro.config.mjs` and injected through
+`vite.define` as `__DOCS_VERSION__`). It must therefore be changed **in the release commit**,
 before tagging and building; otherwise the application and the docs version
 selector will show the previous version.
 :::

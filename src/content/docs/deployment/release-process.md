@@ -141,6 +141,13 @@ pour les commandes de backfill associées.
 
 ## 5. Publier la version
 
+0. **Archiver la documentation** de la version précédente (nouvelle version mineure ou
+   majeure uniquement), dans le dépôt `synapse-docs`, **avant** le commit de release : ce
+   commit déclenche la synchronisation du contenu, qui remplacerait les pages actuelles.
+   ```bash
+   make archive VERSION=2.0   # garde la doc 2.0 en ligne sous /2.0/
+   ```
+   Commiter le résultat sur `develop` (voir le README de `synapse-docs`).
 1. **Commit de release** sur `develop` : changelog daté + `APP_VERSION` mis à jour, par exemple
    `chore(release): 2.1.0`.
 2. **PR de release** `develop` → `main`. La CI s'exécute sur la PR ; fusionner une fois verte.
@@ -157,8 +164,9 @@ pour les commandes de backfill associées.
 :::tip[Mettre à jour APP_VERSION avant le build]
 `APP_VERSION` est lue dans `.env` et **figée dans l'image** au build
 (`composer dump-env prod` dans la cible `frankenphp_prod_builder`). Le site de
-documentation la lit aussi au build (`readAppVersion()` dans
-`astro.config.mjs` du dépôt `synapse-docs`, injectée via `vite.define` en `__DOCS_VERSION__`).
+documentation la reçoit par la synchronisation du contenu (fichier `APP_VERSION` du dépôt
+`synapse-docs`, lu au build par `astro.config.mjs` et injecté via `vite.define` en
+`__DOCS_VERSION__`).
 Elle doit donc être modifiée **dans le commit de release**, avant de taguer et de
 construire, sans quoi l'application et le sélecteur de version de la doc
 afficheront l'ancienne version.
