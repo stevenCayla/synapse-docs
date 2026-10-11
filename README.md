@@ -13,6 +13,20 @@ evolves together with the code.
 
 ## Local development
 
+Run `make` to list the available commands:
+
+```bash
+make install                              # install the npm dependencies
+make dev SYNAPSE_DIR=../symfony-docker    # dev server on a local checkout of the application
+make build                                # build dist/ (docs/ cloned from develop)
+make build SYNAPSE_REF=main               # build with the content of main
+make preview                              # build, then serve dist/
+make clean                                # remove dist/, caches and the cloned content
+make deploy-check                         # validate both Cloudflare deployments (dry run)
+```
+
+The equivalent npm commands:
+
 ```bash
 npm install
 
