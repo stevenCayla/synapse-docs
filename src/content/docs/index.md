@@ -12,7 +12,7 @@ Plateforme de gestion d'études cliniques et de recueil de données électroniqu
 Stack : **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 16 · Mercure · AssetMapper/Stimulus**.
 
 <div class="sl-flex" style="gap:1.25rem;flex-wrap:wrap;margin:1rem 0;font-weight:600;">
-  <a href="#" class="sl-flex" style="gap:.4em;align-items:center;">🐙 Voir le code sur GitHub</a>
+  <a href="https://github.com/stevenCayla/SYNAPSE-MEDICAL" class="sl-flex" style="gap:.4em;align-items:center;">🐙 Voir le code sur GitHub</a>
   <a href="https://discord.com/channels/1521440528388984934/1521440528829382718" class="sl-flex" style="gap:.4em;align-items:center;">💬 Rejoindre le Discord</a>
   <a href="/contribute/" class="sl-flex" style="gap:.4em;align-items:center;">🤝 Contribuer</a>
 </div>
@@ -63,7 +63,7 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/getting
 | Ressource | Détail |
 |-----------|--------|
 | [Contribuer](/contribute/) 📌 | Workflow Git, conventions, mise en place |
-| [🐙 GitHub](#) | Code source (lien à venir) |
+| [🐙 GitHub](https://github.com/stevenCayla/SYNAPSE-MEDICAL) | Code source |
 | [💬 Discord](https://discord.com/channels/1521440528388984934/1521440528829382718) | Discussion et entraide |
 
 ## 📣 Présentation

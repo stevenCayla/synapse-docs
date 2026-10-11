@@ -7,5 +7,6 @@ declare const __DOCS_VERSION__: string;
 
 export const DOCS_VERSION = __DOCS_VERSION__;
 
-// GitHub Releases URL (to fill in once the repository is public).
-export const RELEASES_URL = '#';
+// GitHub Releases URL of the application. Empty while the SYNAPSE-MEDICAL
+// repository is private: the version selector then hides the entry.
+export const RELEASES_URL = '';

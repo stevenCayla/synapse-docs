@@ -44,7 +44,7 @@ cd synapse-medical
 
 :::tip
 Pas d'accès au dépôt ? Demande-le à l'équipe ou travaille sur un **fork**. Le code source
-sera publié sur [GitHub](#).
+sera publié sur [GitHub](https://github.com/stevenCayla/SYNAPSE-MEDICAL).
 :::
 
 ## ✅ Étape 2 — Générer les clés de chiffrement

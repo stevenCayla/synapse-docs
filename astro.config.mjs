@@ -49,9 +49,9 @@ export default defineConfig({
         root: { label: 'Français', lang: 'fr' },
         en: { label: 'English', lang: 'en' },
       },
-      // Social links in the header (temporary "#" GitHub link).
+      // Social links in the header.
       social: [
-        { icon: 'github', label: 'GitHub', href: '#' },
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/stevenCayla/synapse-docs' },
         {
           icon: 'discord',
           label: 'Discord',

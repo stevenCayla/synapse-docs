@@ -17,7 +17,7 @@ const t = isEn
   <select class="vs-select" aria-label={`${t.label} v${DOCS_VERSION}`}>
     <option value="" selected>v{DOCS_VERSION}</option>
     <option value={changelogHref}>{t.changelog}</option>
-    <option value={RELEASES_URL}>{t.releases}</option>
+    {RELEASES_URL && <option value={RELEASES_URL}>{t.releases}</option>}
   </select>
 </div>
 

@@ -13,8 +13,8 @@ Synapse Medical suit le **[Semantic Versioning](https://semver.org/lang/fr/)**
 
 | Source | Rôle |
 |--------|------|
-| [`CHANGELOG.md`](#) (racine du dépôt) | **Source de vérité**, format Keep a Changelog |
-| [GitHub Releases](#) | Une release par version publiée (tag `vX.Y.Z`) |
+| [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md) (racine du dépôt) | **Source de vérité**, format Keep a Changelog |
+| [GitHub Releases](https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases) | Une release par version publiée (tag `vX.Y.Z`) |
 | Cette page | Reflet lisible de l'historique des versions |
 
 :::note[Convention SemVer]
@@ -59,5 +59,5 @@ Version applicative de référence (`APP_VERSION`).
 
 ---
 
-> 📋 L'historique complet et détaillé est maintenu dans [`CHANGELOG.md`](#). Pour les
+> 📋 L'historique complet et détaillé est maintenu dans [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md). Pour les
 > ruptures de compatibilité, voir [Changements incompatibles](/changelog/breaking-changes/).

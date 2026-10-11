@@ -1,18 +1,18 @@
 ---
 // Starlight Footer override: keeps the default footer (pagination, "last
 // updated", edit link) and adds an Astro-style community section
-// (Contribute · Community · Sponsor).
+// (Contribute · Community · GitHub).
 import Default from '@astrojs/starlight/components/Footer.astro';
 
 const isEn = Astro.url.pathname.startsWith('/en/');
 const contributeHref = isEn ? '/en/contribute/' : '/contribute/';
 const discordHref =
   'https://discord.com/channels/1521440528388984934/1521440528829382718';
-const githubHref = '#';
+const githubHref = 'https://github.com/stevenCayla/synapse-docs';
 
 const t = isEn
-  ? { contribute: 'Contribute', community: 'Community', sponsor: 'Sponsor', github: 'View on GitHub' }
-  : { contribute: 'Contribuer', community: 'Communauté', sponsor: 'Sponsor', github: 'Voir sur GitHub' };
+  ? { contribute: 'Contribute', community: 'Community', github: 'View on GitHub' }
+  : { contribute: 'Contribuer', community: 'Communauté', github: 'Voir sur GitHub' };
 ---
 
 <Default><slot /></Default>
@@ -30,9 +30,9 @@ const t = isEn
     {t.community}
   </a>
 
-  <a href={githubHref} class="sl-flex">
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.2em;"><path d="M20.16 5A6.29 6.29 0 0 0 12 4.36a6.27 6.27 0 0 0-8.16 9.48l6.21 6.22a2.78 2.78 0 0 0 3.9 0l6.21-6.22a6.27 6.27 0 0 0 0-8.84m-1.41 7.46-6.21 6.21a.76.76 0 0 1-1.08 0l-6.21-6.24a4.29 4.29 0 0 1 0-6 4.27 4.27 0 0 1 6 0 1 1 0 0 0 1.42 0 4.27 4.27 0 0 1 6 0 4.29 4.29 0 0 1 .08 6Z"></path></svg>
-    {t.sponsor}
+  <a href={githubHref} class="sl-flex" target="_blank" rel="noopener noreferrer">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="width:1.2em;height:1.2em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3"></path></svg>
+    {t.github}
   </a>
 </section>
 
