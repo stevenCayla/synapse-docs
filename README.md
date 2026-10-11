@@ -26,6 +26,8 @@ directly to the synced pages here are overwritten by the next sync. The
 
 ## Local development
 
+Requires Node.js 24 (latest LTS, see `.nvmrc`; `nvm use` selects it).
+
 Run `make` to list the available commands:
 
 ```bash

@@ -2,6 +2,9 @@
   "name": "synapse-docs",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "sync-content": "sh scripts/sync-content.sh",
     "dev": "astro dev",
