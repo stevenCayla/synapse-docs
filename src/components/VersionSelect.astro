@@ -1,7 +1,7 @@
 ---
-// Sélecteur de version de la documentation, affiché en haut de la barre latérale.
-// Le <select> natif navigue vers l'URL choisie via un script bundlé (compatible
-// avec une CSP stricte « script-src 'self' » — pas de gestionnaire inline).
+// Documentation version selector, shown at the top of the sidebar.
+// The native <select> navigates to the chosen URL through a bundled script
+// (compatible with a strict "script-src 'self'" CSP — no inline handler).
 import { DOCS_VERSION, RELEASES_URL } from '../version';
 
 const isEn = Astro.url.pathname.startsWith('/en/');
@@ -17,7 +17,7 @@ const t = isEn
   <select class="vs-select" aria-label={`${t.label} v${DOCS_VERSION}`}>
     <option value="" selected>v{DOCS_VERSION}</option>
     <option value={changelogHref}>{t.changelog}</option>
-    <option value={RELEASES_URL}>{t.releases}</option>
+    {RELEASES_URL && <option value={RELEASES_URL}>{t.releases}</option>}
   </select>
 </div>
 
@@ -26,7 +26,7 @@ const t = isEn
     el.addEventListener('change', (event) => {
       const target = event.currentTarget as HTMLSelectElement;
       const value = target.value;
-      // Réinitialise sur l'option « version courante » après navigation.
+      // Reset to the "current version" option after navigating.
       target.selectedIndex = 0;
       if (value && value !== '#') {
         window.location.href = value;

@@ -1,0 +1,34 @@
+---
+title: "Changements incompatibles"
+description: "Liste des ruptures de compatibilité par version majeure et guides de migration associés."
+sidebar:
+  label: "Changements incompatibles"
+  order: 3
+---
+
+> 🌐 Version française · [English version](/en/changelog/breaking-changes/)
+
+Cette page recense les **ruptures de compatibilité** (changements `MAJOR` au sens
+[SemVer](https://semver.org/lang/fr/)) et les actions de migration nécessaires.
+
+:::note
+Un changement n'apparaît ici que s'il **casse** une compatibilité existante (schéma de base,
+contrat d'API, variable d'environnement requise, comportement par défaut). Les ajouts et
+corrections rétrocompatibles sont dans le [Journal des modifications](/changelog/readme/).
+:::
+
+## Aucune rupture en attente
+
+La branche `[Unreleased]` ne contient actuellement **aucun changement incompatible**.
+
+## Historique
+
+| Version | Rupture | Migration |
+|---------|---------|-----------|
+| `2.0.0` | Clés de chiffrement obligatoires (`APP_TOTP_ENCRYPTION_KEY`, `APP_PATIENT_ENCRYPTION_KEY`, `APP_PATIENT_SEARCH_HMAC_KEY`) | Générer les clés — voir [Quick Start §2](/getting-started/#-étape-2--générer-les-clés-de-chiffrement) |
+
+:::caution[Avant une montée de version majeure]
+Sauvegarder la base de données et lire la GitHub Release correspondante. Les commandes de
+backfill (ex. `app:patient:encrypt-existing`) sont documentées dans la
+[Référence des commandes](/commands/readme/).
+:::

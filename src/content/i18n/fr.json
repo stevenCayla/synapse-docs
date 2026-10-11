@@ -1,0 +1,9 @@
+{
+  "starlightVersions.link.latest": "Passez à la <a href={{link}}>dernière version</a> pour une documentation à jour.",
+  "starlightVersions.outdated.label": "Ce contenu concerne la {{label}}.",
+  "starlightVersions.outdated.slug": "Ce contenu concerne la version {{slug}}.",
+  "starlightVersions.search.link.latest": "Passez à la <a href={{link}}>dernière version</a> pour des résultats à jour.",
+  "starlightVersions.search.outdated.label": "Recherche limitée à la {{label}}.",
+  "starlightVersions.search.outdated.slug": "Recherche limitée à la version {{slug}}.",
+  "starlightVersions.select.accessibleLabel": "Choisir la version"
+}

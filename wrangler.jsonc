@@ -1,0 +1,21 @@
+// Cloudflare Workers hosting (static assets, no server-side code).
+//   wrangler deploy --env=""   → production: docs.synapse-medical.fr     (main branch)
+//   wrangler deploy --env dev  → staging:    dev-docs.synapse-medical.fr (develop branch)
+// Security and cache headers: public/_headers (copied into dist/ at build time).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "synapse-docs",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "docs.synapse-medical.fr", "custom_domain": true }],
+  "env": {
+    "dev": {
+      "routes": [{ "pattern": "dev-docs.synapse-medical.fr", "custom_domain": true }]
+    }
+  }
+}

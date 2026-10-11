@@ -1,50 +1,59 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
+import starlightVersions from 'starlight-versions';
+import externalizeInlineScripts from './integrations/externalize-inline-scripts.mjs';
 import fs from 'node:fs';
-import path from 'node:path';
 
-// Lit APP_VERSION depuis le .env à la racine du projet (au-dessus de docs-site/),
-// afin que le sélecteur de version reste synchronisé sans valeur codée en dur.
+// Application version, synced from APP_VERSION in the application's .env by
+// scripts/sync-content.sh, so the version selector stays in sync without a
+// hard-coded value.
 function readAppVersion() {
-  for (const file of ['.env.local', '.env']) {
-    try {
-      const content = fs.readFileSync(path.resolve('..', file), 'utf8');
-      const match = content.match(/^\s*APP_VERSION\s*=\s*(.*)$/m);
-      if (match) {
-        const value = match[1].trim().replace(/^["']|["']$/g, '');
-        if (value) return value;
-      }
-    } catch {
-      // fichier absent → on tente le suivant
-    }
+  try {
+    return fs.readFileSync('APP_VERSION', 'utf8').trim() || '0.0.0';
+  } catch {
+    return '0.0.0';
   }
-  return '0.0.0';
 }
 
 const APP_VERSION = readAppVersion();
 
-// Documentation Synapse Medical — site Starlight.
-// Locale racine = Français (servi à /), Anglais sous /en/.
+// Archived documentation versions (starlight-versions), managed with
+// "make archive VERSION=x.y". The plugin requires at least one archived
+// version, so it is only enabled once versions.json lists one.
+const ARCHIVED_VERSIONS = JSON.parse(fs.readFileSync('versions.json', 'utf8'));
+
+// Synapse Medical documentation — Starlight site.
+// Root locale = French (served at /), English under /en/.
 export default defineConfig({
   site: 'https://docs.synapse-medical.fr',
-  // Injecte la version (constante remplacée à la compilation par Vite).
+  // Injects the version (constant replaced by Vite at build time).
   vite: {
     define: {
       __DOCS_VERSION__: JSON.stringify(APP_VERSION),
     },
   },
   integrations: [
-    // Rendu des blocs ```mermaid → SVG (client, sans Chromium).
-    // Doit précéder starlight() pour intercepter les blocs avant la
-    // coloration syntaxique. Thème suit le clair/sombre du site.
+    // Renders ```mermaid blocks → SVG (client side, no Chromium).
+    // Must come before starlight() to catch the blocks before syntax
+    // highlighting. The theme follows the site's light/dark mode.
     mermaid({
       theme: 'neutral',
       autoTheme: true,
     }),
     starlight({
       title: 'Synapse Medical',
-      // Logo Synapse (identique à la page /login), variantes clair/sombre.
+      plugins: ARCHIVED_VERSIONS.length
+        ? [
+            starlightVersions({
+              versions: ARCHIVED_VERSIONS,
+              current: { label: `v${APP_VERSION}` },
+              // Audit & compliance pages always show their latest content.
+              exclude: ['audit/**'],
+            }),
+          ]
+        : [],
+      // Synapse logo (same as the /login page), light/dark variants.
       logo: {
         light: './src/assets/synapse-logo-light.svg',
         dark: './src/assets/synapse-logo-dark.svg',
@@ -56,27 +65,27 @@ export default defineConfig({
         root: { label: 'Français', lang: 'fr' },
         en: { label: 'English', lang: 'en' },
       },
-      // Liens sociaux dans l'en-tête (lien GitHub temporaire « # »).
+      // Social links in the header.
       social: [
-        { icon: 'github', label: 'GitHub', href: '#' },
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/stevenCayla/synapse-docs' },
         {
           icon: 'discord',
           label: 'Discord',
           href: 'https://discord.com/channels/1521440528388984934/1521440528829382718',
         },
       ],
-      // Composants personnalisés :
-      // - Sidebar : ajoute un sélecteur de version en tête de barre latérale.
-      // - Footer  : section communautaire à la manière d'Astro.
+      // Custom components:
+      // - Sidebar: adds a version selector at the top of the sidebar.
+      // - Footer:  Astro-style community section.
       components: {
         Sidebar: './src/components/Sidebar.astro',
         Footer: './src/components/Footer.astro',
       },
-      // Sidebar organisée en 4 SECTIONS de tête (Guide, Tutorials, Reference,
-      // Ecosystem) — façon docs Astro. Le composant Sidebar personnalisé
-      // (src/components/Sidebar.astro) affiche ces sections sous forme d'onglets
-      // à icônes et ne montre que les liens de la section active (Guide par défaut).
-      // Les labels internes n'ont PAS d'icône : seules les sections en ont.
+      // Sidebar organized in 4 top-level SECTIONS (Guide, Tutorials, Reference,
+      // Ecosystem), like the Astro docs. The custom Sidebar component
+      // (src/components/Sidebar.astro) renders these sections as icon tabs and
+      // only shows the links of the active section (Guide by default).
+      // Inner labels have NO icon: only the sections do.
       sidebar: [
         {
           label: 'Guide',
@@ -186,5 +195,8 @@ export default defineConfig({
         },
       ],
     }),
+    // Last: moves every inline <script> out of the generated HTML, for the
+    // production CSP "script-src 'self'" (see the integration file).
+    externalizeInlineScripts(),
   ],
 });
