@@ -1,46 +1,48 @@
 # Synapse Medical — documentation website (Astro + Starlight)
 
-This repository only contains the documentation **website**. The **content**
-(the Markdown pages) lives in the `docs/` folder of the
-[SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL) application
-repository (French at the root, English under `en/`), so the documentation
-evolves together with the code.
+Source of [docs.synapse-medical.fr](https://docs.synapse-medical.fr), the
+documentation of [Synapse Medical](https://github.com/stevenCayla/SYNAPSE-MEDICAL).
+This repository builds on its own: clone it, install the dependencies and
+build, no access to the application repository is needed.
 
-| Branch | Content used | Published at |
-|--------|--------------|--------------|
-| `develop` | `docs/` from `develop` | https://dev-docs.synapse-medical.fr (not indexed) |
-| `main` | `docs/` from `main` | https://docs.synapse-medical.fr |
+| Branch | Published at |
+|--------|--------------|
+| `develop` | https://dev-docs.synapse-medical.fr (not indexed) |
+| `main` | https://docs.synapse-medical.fr |
+
+## Where to edit the pages
+
+| Pages | Edit them in |
+|-------|--------------|
+| `src/content/docs/audit/` (Audit & compliance) | this repository |
+| everything else in `src/content/docs/` | the `docs/` folder of [SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL), so the documentation evolves with the code |
+
+`src/content/docs/` (except `audit/`) is a snapshot of the application's
+`docs/` folder, refreshed by `scripts/sync-content.sh`: the CI runs it
+automatically when `docs/` changes on `develop` or `main` in SYNAPSE-MEDICAL,
+checks that the site still builds and commits the new snapshot. Changes made
+directly to the synced pages here are overwritten by the next sync. The
+`APP_VERSION` file (shown in the version selector) is synced the same way.
 
 ## Local development
 
 Run `make` to list the available commands:
 
 ```bash
-make install                              # install the npm dependencies
-make dev SYNAPSE_DIR=../symfony-docker    # dev server on a local checkout of the application
-make build                                # build dist/ (docs/ cloned from develop)
-make build SYNAPSE_REF=main               # build with the content of main
-make preview                              # build, then serve dist/
-make clean                                # remove dist/, caches and the cloned content
-make deploy-check                         # validate both Cloudflare deployments (dry run)
+make install                             # install the npm dependencies
+make dev                                 # dev server on http://localhost:4321
+make build                               # build dist/
+make preview                             # build, then serve dist/
+make clean                               # remove dist/, caches and the temporary clone
+make deploy-check                        # validate both Cloudflare deployments (dry run)
+
+# Refresh the snapshot (maintainers, needs access to SYNAPSE-MEDICAL)
+make sync SYNAPSE_DIR=../symfony-docker  # from a local checkout
+make sync SYNAPSE_REF=main               # from a branch of the application
 ```
 
-The equivalent npm commands:
-
-```bash
-npm install
-
-# Live editing: point to a local checkout of the application
-SYNAPSE_DIR=../symfony-docker npm run dev
-
-# Without a local checkout: docs/ from develop is cloned into .synapse/
-npm run dev
-SYNAPSE_REF=main npm run dev   # content from main
-```
-
-`scripts/sync-content.sh` (run automatically before `dev` and `build`) links
-`src/content/docs` to the selected `docs/` folder. The version shown in the
-version selector is read from `APP_VERSION` in the application's `.env`.
+The equivalent npm commands are `npm ci`, `npm run dev`, `npm run build`,
+`npm run preview` and `npm run sync-content`.
 
 ## Hosting: Cloudflare Workers
 
@@ -66,8 +68,10 @@ deploys automatically:
 - push to `develop` → GitHub environment `development` → dev-docs;
 - push to `main` → GitHub environment `production` → docs;
 - a change to `docs/` on `develop` or `main` in the application repository →
-  rebuild of the matching branch (`repository_dispatch`, sent by the
-  application's `.github/workflows/docs.yaml`).
+  content sync of the matching branch, then build and deployment
+  (`repository_dispatch`, sent by the application's
+  `.github/workflows/docs.yaml`). A sync can also be started manually:
+  *Actions → CI → Run workflow* with "Refresh the content".
 
 Manual deployment if needed (after `npx wrangler login`):
 
@@ -82,7 +86,7 @@ In this repository:
 
 | Type | Name | Value |
 |------|------|-------|
-| Secret | `SYNAPSE_REPO_SSH_KEY` | Private key of a read-only deploy key of SYNAPSE-MEDICAL |
+| Secret | `SYNAPSE_REPO_SSH_KEY` | Private key of a read-only deploy key of SYNAPSE-MEDICAL (content sync only) |
 | Secret | `CLOUDFLARE_API_TOKEN` | Cloudflare API token ("Edit Cloudflare Workers" template) |
 | Variable | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
 

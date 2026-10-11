@@ -1,9 +1,10 @@
 # Synapse Medical documentation website — common tasks.
 # Run "make" or "make help" to list the targets.
 #
-# Content source (see scripts/sync-content.sh):
-#   make dev SYNAPSE_DIR=../symfony-docker   # live editing of a local checkout
-#   make build SYNAPSE_REF=main              # docs/ cloned from another branch
+# The pages in src/content/docs/ are a snapshot of the application's docs/
+# folder (except audit/, maintained here). Refresh it with:
+#   make sync SYNAPSE_DIR=../symfony-docker  # from a local checkout
+#   make sync SYNAPSE_REF=main               # from a branch of the application
 
 SYNAPSE_DIR ?=
 SYNAPSE_REF ?= develop
@@ -14,7 +15,7 @@ export SYNAPSE_DIR
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help install sync dev build preview clean refresh deploy-dev deploy-prod deploy-check login whoami
+.PHONY: help install sync dev build preview clean deploy-dev deploy-prod deploy-check login whoami
 
 ## —— Synapse Medical documentation ——————————————————————————————————————
 help: ## Outputs this help screen
@@ -26,7 +27,7 @@ help: ## Outputs this help screen
 install: ## Install the npm dependencies from package-lock.json
 	npm ci
 
-sync: ## Link src/content/docs to the docs/ content (SYNAPSE_DIR or SYNAPSE_REF)
+sync: ## Refresh src/content/docs from the application's docs/ (SYNAPSE_DIR or SYNAPSE_REF)
 	sh scripts/sync-content.sh
 
 dev: ## Start the dev server with live reload (http://localhost:4321)
@@ -38,11 +39,8 @@ build: ## Build the static site into dist/
 preview: build ## Build, then serve dist/ locally
 	npm run preview
 
-clean: ## Remove build output, caches and the cloned content
-	rm -rf dist .astro .wrangler .synapse src/content/docs
-
-refresh: clean ## Re-clone the docs/ content from SYNAPSE_REF, then build
-	npm run build
+clean: ## Remove build output, caches and the temporary clone
+	rm -rf dist .astro .wrangler .synapse
 
 ## —— Cloudflare Workers ————————————————————————————————————————————————————
 login: ## Log in to Cloudflare (wrangler)

@@ -2,9 +2,8 @@ node_modules/
 dist/
 .astro/
 
-# Content fetched from the application repository (scripts/sync-content.sh)
+# Temporary clone of the application repository (scripts/sync-content.sh)
 .synapse/
-src/content/docs
 
 # Wrangler (Cloudflare)
 .wrangler/

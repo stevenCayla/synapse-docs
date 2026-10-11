@@ -1,0 +1,14 @@
+---
+title: "Implementation status"
+sidebar:
+  badge:
+    text: WIP
+    variant: caution
+---
+
+:::caution[Work in progress]
+This page is a **stub**: its content is being written and will be completed soon.
+
+Want to help complete it? See the [contribution guide](/en/contribute/) — every
+contribution, however small, is welcome.
+:::

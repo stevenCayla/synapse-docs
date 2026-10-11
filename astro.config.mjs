@@ -3,27 +3,16 @@ import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
 import externalizeInlineScripts from './integrations/externalize-inline-scripts.mjs';
 import fs from 'node:fs';
-import path from 'node:path';
 
-// Folder of the application repository (docs/ content + .env), see
-// scripts/sync-content.sh. APP_VERSION is read from it so the version selector
-// stays in sync without a hard-coded value.
-const SYNAPSE_DIR = path.resolve(process.env.SYNAPSE_DIR || '.synapse');
-
+// Application version, synced from APP_VERSION in the application's .env by
+// scripts/sync-content.sh, so the version selector stays in sync without a
+// hard-coded value.
 function readAppVersion() {
-  for (const file of ['.env.local', '.env']) {
-    try {
-      const content = fs.readFileSync(path.join(SYNAPSE_DIR, file), 'utf8');
-      const match = content.match(/^\s*APP_VERSION\s*=\s*(.*)$/m);
-      if (match) {
-        const value = match[1].trim().replace(/^["']|["']$/g, '');
-        if (value) return value;
-      }
-    } catch {
-      // missing file → try the next one
-    }
+  try {
+    return fs.readFileSync('APP_VERSION', 'utf8').trim() || '0.0.0';
+  } catch {
+    return '0.0.0';
   }
-  return '0.0.0';
 }
 
 const APP_VERSION = readAppVersion();
