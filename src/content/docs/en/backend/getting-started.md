@@ -144,10 +144,10 @@ Coverage focuses on **security, access control, encryption and eCRF compliance**
 
 ## 7. Git workflow & contributing
 
-1. Branch from `main`: `feature/<topic>` or `fix/<topic>`.
+1. Branch from `develop`: `feature/<topic>` or `fix/<topic>`.
 2. Conventional commits: `feat(scope): …`, `fix(scope): …`, `docs: …`, `refactor: …`.
 3. Before pushing: `make test` green + `doctrine:schema:validate`.
-4. Open a PR against `main`; the `.github/workflows/ci.yaml` builds images and runs health checks.
+4. Open a PR against `develop`; the `.github/workflows/ci.yaml` builds images and runs health checks.
 5. Respect the critical architecture rules (checklist below).
 
 ### Pre-PR checklist
