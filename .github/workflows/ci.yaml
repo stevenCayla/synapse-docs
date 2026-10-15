@@ -7,13 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       sync:
-        description: Refresh the content from SYNAPSE-MEDICAL before building
+        description: Refresh the content from SYNAPSE-MEDICAL before building (develop only)
         type: boolean
         default: false
-  # Sent by the SYNAPSE-MEDICAL repository when docs/ changes on develop or main
-  # (.github/workflows/docs.yaml), with client_payload.branch = develop|main.
-  repository_dispatch:
-    types: [docs-content-updated]
 
 permissions:
   contents: read
@@ -26,25 +22,31 @@ jobs:
       sync: ${{ steps.target.outputs.sync }}
       deploy: ${{ steps.target.outputs.deploy }}
     steps:
-      # develop → dev-docs, main → docs. Other branches and pull requests are
-      # only built.
+      # develop (push or manual run) → dev-docs. main → docs, but ONLY through
+      # a manual run: the plan has no "required reviewers" environment rule, so
+      # running the workflow by hand on main is the approval gate. A push to
+      # main, other branches and pull requests are only built.
+      # The content sync is started by the application repository with
+      # `gh workflow run ci.yaml --ref develop -f sync=true`, so it always runs
+      # on develop (a repository_dispatch would run on the default branch).
       - name: Determine target branch
         id: target
         env:
-          DISPATCH_BRANCH: ${{ github.event.client_payload.branch }}
           SYNC_INPUT: ${{ inputs.sync }}
         run: |
           sync=false
+          [ "$SYNC_INPUT" = true ] && sync=true
           case "$GITHUB_EVENT_NAME" in
-            repository_dispatch) branch="$DISPATCH_BRANCH"; sync=true ;;
-            pull_request)        branch="$GITHUB_HEAD_REF" ;;
-            workflow_dispatch)   branch="$GITHUB_REF_NAME"; [ "$SYNC_INPUT" = true ] && sync=true ;;
-            *)                   branch="$GITHUB_REF_NAME" ;;
+            pull_request) branch="$GITHUB_HEAD_REF" ;;
+            *)            branch="$GITHUB_REF_NAME" ;;
           esac
+          if [ "$sync" = true ] && [ "$branch" != develop ]; then
+            echo "The content sync is only allowed on develop (ran on $branch)." >&2
+            exit 1
+          fi
           deploy=false
-          case "$branch" in
-            develop|main) [ "$GITHUB_EVENT_NAME" != pull_request ] && deploy=true ;;
-            *) if [ "$sync" = true ]; then echo "Content sync only targets develop or main." >&2; exit 1; fi ;;
+          case "$GITHUB_EVENT_NAME:$branch" in
+            push:develop|workflow_dispatch:develop|workflow_dispatch:main) deploy=true ;;
           esac
           {
             echo "branch=$branch"
@@ -53,8 +55,8 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Branch: $branch — sync: $sync — deploy: $deploy"
 
-  # Refreshes src/content/docs from the docs/ folder of SYNAPSE-MEDICAL (same
-  # branch), checks that the site still builds, then commits the snapshot.
+  # Refreshes src/content/docs from the docs/ folder of SYNAPSE-MEDICAL
+  # (develop), checks that the site still builds, then commits the snapshot.
   sync:
     needs: target
     if: needs.target.outputs.sync == 'true'
@@ -144,6 +146,7 @@ jobs:
     needs: [target, build]
     if: ${{ !cancelled() && needs.build.result == 'success' && needs.target.outputs.deploy == 'true' }}
     runs-on: ubuntu-latest
+    # production is reached only by a manual run on main (see the target job).
     environment:
       name: ${{ needs.target.outputs.branch == 'main' && 'production' || 'development' }}
       url: ${{ needs.target.outputs.branch == 'main' && 'https://docs.synapse-medical.fr' || 'https://dev-docs.synapse-medical.fr' }}
