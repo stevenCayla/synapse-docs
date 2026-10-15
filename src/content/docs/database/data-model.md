@@ -30,7 +30,7 @@ Voir aussi : [Structure du code backend](/backend/symfony-structure/) · [Archit
 - **~50 entités**, **~25 enums**, **~47 repositories**.
 - **2 fonctions DQL custom** (PostgreSQL JSON/text).
 - **35 migrations actives** (+ 85 archivées).
-- SGBD : **PostgreSQL 16** (avec Row-Level Security sur les tables sensibles).
+- SGBD : **PostgreSQL 18** (avec Row-Level Security sur les tables sensibles).
 
 ---
 

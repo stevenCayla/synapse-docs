@@ -30,7 +30,7 @@ Internet ──HTTPS──▶ Apache2 (Debian host, :443, TLS via Let's Encrypt)
                         │
                  PHP 8.5 worker (Symfony 8)
                         │
-                 PostgreSQL 16 (container, internal network only)
+                 PostgreSQL 18 (container, internal network only)
 ```
 
 - **TLS** is handled by Apache on the host, not inside the container.
@@ -123,11 +123,11 @@ Every image is pinned to an explicit version (no floating tag); the production i
 |-------|------|---------|
 | `dunglas/frankenphp` | `Dockerfile` | `1.13.1-php8.5.11` |
 | `debian` (`frankenphp_prod` base) | `Dockerfile` | `13.7-slim@sha256:a29215f6…` |
-| `postgres` | `compose.yaml` (`POSTGRES_VERSION`) | `16.15-alpine` |
+| `postgres` | `compose.yaml` | `18.6-alpine` |
 | `axllent/mailpit` (dev) | `compose.override.yaml` | `v1.31.6` |
 | `nfrastack/db-backup` | `compose.prod.yaml` | `5.0.5@sha256:01212206…` |
 
-To update an image: change the tag (and the digest), rebuild with `--pull --no-cache`, then validate the stack. PostgreSQL major upgrades follow a dedicated procedure.
+To update an image: change the tag (and the digest), rebuild with `--pull --no-cache`, then validate the stack. PostgreSQL major upgrades follow a dedicated procedure: [PostgreSQL 16 to 18 migration](/en/deployment/postgresql-18-upgrade/).
 
 ## 3. Post-deployment steps
 
@@ -188,5 +188,6 @@ optional S3 offload). Targets, encryption and restore drills are documented in
 
 - [Debian + Apache + Docker deployment](/deployment/debian-apache-docker/) — full host setup (French)
 - [Backup policy](/deployment/backup/) · [Release process](/deployment/release-process/)
+- [PostgreSQL 16 to 18 migration](/en/deployment/postgresql-18-upgrade/)
 - [Security overview](/en/security/readme/) · [Compliance](/en/security/compliance/)
 - [Architecture overview](/en/architecture/overview/)

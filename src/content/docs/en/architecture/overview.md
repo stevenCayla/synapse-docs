@@ -59,7 +59,7 @@ flowchart TB
         vulcain["Vulcain"]
     end
 
-    pg[("PostgreSQL 16<br/>Row-Level Security")]
+    pg[("PostgreSQL 18<br/>Row-Level Security")]
     files[/"private_uploads/<br/>outside webroot · encrypted"/]
     audit[["Audit trails<br/>HMAC-chained · append-only"]]
 
