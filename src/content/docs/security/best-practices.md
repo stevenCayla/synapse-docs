@@ -76,6 +76,8 @@ $token = $uploader->store($file, SecureFileUploadService::CTX_AVATAR, $allowedMi
 ## 👮 Authentification & accès
 
 - **2FA TOTP obligatoire** (`TotpService`, `TwoFactorSubscriber`).
+  Dix codes de secours à usage unique sont affichés une seule fois à la fin de
+  l'enrôlement et régénérables depuis le profil (`BackupCodeService`).
 - Accès aux études via `StudyVoter` + `StudyAccessService` (rôle effectif).
 - Verrouillage de compte, expiration de session côté serveur, anti-réutilisation de mot de
   passe (`PasswordHistory`).
