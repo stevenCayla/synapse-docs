@@ -17,11 +17,11 @@ Every published version is materialized by a **Git tag `vX.Y.Z`** and an associa
 
 | Increment | When | Example |
 |-----------|------|---------|
-| **MAJOR** | Incompatible change | `2.0.4` → `3.0.0` |
-| **MINOR** | Backward-compatible feature | `2.0.4` → `2.1.0` |
-| **PATCH** | Backward-compatible fix | `2.0.4` → `2.0.5` |
+| **MAJOR** | Incompatible change | `3.0.0` → `4.0.0` |
+| **MINOR** | Backward-compatible feature | `3.0.0` → `3.1.0` |
+| **PATCH** | Backward-compatible fix | `3.0.0` → `3.0.1` |
 
-The current version is exposed by the `APP_VERSION` environment variable (**`2.0.4`**).
+The current version is exposed by the `APP_VERSION` environment variable (**`3.0.0`**).
 
 ## Publishing process
 

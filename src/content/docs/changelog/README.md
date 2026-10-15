@@ -23,25 +23,41 @@ Synapse Medical suit le **[Semantic Versioning](https://semver.org/lang/fr/)**
 - **PATCH** — corrections rétrocompatibles.
 :::
 
-## Version actuelle — `2.0.4`
+## Version actuelle — `3.0.0`
 
-Version applicative de référence (`APP_VERSION`).
+Première version publiée en release ; version applicative (`APP_VERSION`).
 
 ## En cours (`Unreleased`)
 
+Aucun changement en attente.
+
+## `3.0.0`
+
+### Changements incompatibles
+
+- **PostgreSQL 18** : nouveau volume `database_data_pg18`, migration manuelle (voir [Migration vers PostgreSQL 18](/deployment/postgresql-18-upgrade/)) ; `POSTGRES_VERSION` supprimée.
+- **`app:seed`** : options `--admin-email` / `--admin-password` supprimées (utiliser `--admin` et `SEED_ADMIN_PASSWORD`).
+- Service **`backup`** derrière le profil Compose `backup`.
+- **Hub Mercure 1.0** : bloc `issuer`, `match=` à la place de `topic=`.
+
 ### Ajouté
 
-- Guide de démarrage rapide (**Quick Start**) bilingue.
-- Diagrammes **Mermaid** (architecture, modèle de données, workflow eCRF).
-- Pages **Contribuer** et **Bonnes pratiques de sécurité**, `CONTRIBUTING.md`.
-- **Sélecteur de version** et page Changelog sur le site de doc.
-- Liens **GitHub** / **Discord** et footer communautaire.
+- Documentation développeur FR/EN, site de documentation dans `synapse-docs`, Quick Start, diagrammes Mermaid.
+- Outillage qualité (PHPStan, php-cs-fixer, Rector), audit hebdomadaire des dépendances, Dependabot sur `develop`.
+- Simulateur d'autorisations RBAC, favicon adaptatif.
 
 ### Modifié
 
-- Refonte des références **Commandes** et **API** (style doc Astro).
+- **PostgreSQL 18**, **Symfony 8.1**, **PHP 8.5.11** minimum, images conteneur épinglées, choices.js 11.
+- Refonte de plusieurs pages de l'interface et seed sans données personnelles.
+
+### Sécurité
+
+- Avis symfony/yaml CVE-2026-109413 et symfony/http-foundation CVE-2026-108082 corrigés ; 48 autres avis corrigés par la mise à jour des dépendances.
 
 ## `2.0.4`
+
+Version interne, jamais publiée en release : son contenu est inclus dans `3.0.0`.
 
 ### Ajouté
 
