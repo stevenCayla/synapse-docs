@@ -100,7 +100,7 @@ A single command generates a complete environment (workspace, admin, sites, user
 make sf c="app:seed --reset"
 ```
 
-Default credentials: `steven@example.com` / `Password1!` (see [commands/README.md](/commands/readme/) for all options).
+The seed asks which administrator to create (or creates John Doe, `admin@example.com`, in non-interactive mode) and prints the generated password once at the end; it must be changed at first login (see [commands/README.md](/commands/readme/) for all options).
 
 > **2FA is mandatory**: on first login, the app redirects to TOTP enrollment (`/2fa/setup`). Scan the QR code with a TOTP app, or provision via `app:totp:provision-missing`.
 

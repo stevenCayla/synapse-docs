@@ -135,8 +135,8 @@ You should see the `study`, `patient`, `ecrf_form`, `workspace`, `user`… table
 
    | Field | Default value |
    |-------|---------------|
-   | **Email** | `steven@example.com` |
-   | **Password** | `Password1!` |
+   | **Email** | `admin@example.com` |
+   | **Password** | generated, printed at the end of the seed |
 
 :::note[2FA mandatory]
 Two-factor authentication (**TOTP**) is mandatory. On your first login, scan the QR code with
@@ -181,7 +181,7 @@ Outgoing emails are captured by **Mailpit** (no real sending). Get its web UI UR
 | Containers running | ✅ | `make ps` (`php`, `database`, `mailer` services `running`) |
 | Database initialized | ✅ | `make pgsql` then `\dt` |
 | Application reachable | ✅ | `curl -k https://localhost` (returns HTML) |
-| Admin login | ✅ | https://localhost (`steven@example.com` / `Password1!`) |
+| Admin login | ✅ | https://localhost (`admin@example.com` + password printed by the seed) |
 
 ---
 

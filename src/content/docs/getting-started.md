@@ -132,12 +132,14 @@ Tu devrais voir les tables `study`, `patient`, `ecrf_form`, `workspace`, `user`,
 ## ✅ Étape 5 — Se connecter
 
 1. Ouvre **https://localhost** dans ton navigateur.
-2. Connecte-toi avec l'administrateur créé par le seed :
+2. Connecte-toi avec l'administrateur créé par le seed. Le seed te demande l'administrateur à créer
+   (ou crée John Doe, `admin@example.com`, en mode non interactif) et affiche son mot de passe
+   **une seule fois** à la fin de son exécution : note-le. Tu devras le changer dès la première connexion.
 
    | Champ | Valeur par défaut |
    |-------|-------------------|
-   | **Email** | `steven@example.com` |
-   | **Mot de passe** | `Password1!` |
+   | **Email** | `admin@example.com` |
+   | **Mot de passe** | généré, affiché à la fin du seed |
 
 :::note[2FA obligatoire]
 L'authentification à deux facteurs (**TOTP**) est obligatoire. À la première connexion, scanne
@@ -184,7 +186,7 @@ interface web avec `docker compose port mailer 8025`.
 | Conteneurs lancés | ✅ | `make ps` (services `php`, `database`, `mailer` en `running`) |
 | Base initialisée | ✅ | `make pgsql` puis `\dt` |
 | Application accessible | ✅ | `curl -k https://localhost` (retourne du HTML) |
-| Connexion admin | ✅ | https://localhost (`steven@example.com` / `Password1!`) |
+| Connexion admin | ✅ | https://localhost (`admin@example.com` + mot de passe affiché par le seed) |
 
 ---
 

@@ -104,6 +104,7 @@ Pattern voter standard : **vérifie l'isolation workspace d'abord**, puis bypass
 ## 5. Événements
 
 ### EventSubscriber (`kernel.*`)
+
 | Subscriber | Rôle |
 |------------|------|
 | `TwoFactorSubscriber` | Enforce la 2FA (machine à 4 états) |
@@ -118,6 +119,7 @@ Pattern voter standard : **vérifie l'isolation workspace d'abord**, puis bypass
 | `LocaleSubscriber` | Locale |
 
 ### EventListener (Doctrine)
+
 | Listener | Rôle |
 |----------|------|
 | `PatientEncryptionListener` | Chiffrement transparent des PII patient + index aveugle |
