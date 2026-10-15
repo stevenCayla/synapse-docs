@@ -68,12 +68,12 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout site
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.target.outputs.branch }}
 
       - name: Checkout content (SYNAPSE-MEDICAL docs/)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: stevenCayla/SYNAPSE-MEDICAL
           ref: ${{ needs.target.outputs.branch }}
@@ -118,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout site
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # After a sync, build the branch tip that contains the new snapshot.
           ref: ${{ needs.target.outputs.sync == 'true' && needs.target.outputs.branch || '' }}
@@ -155,7 +155,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout site
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
