@@ -52,6 +52,7 @@ No pending change.
 - **PostgreSQL 18**, **Symfony 8.1**, **PHP 8.5.11** minimum, pinned container images, choices.js 11.
 - Several UI pages redesigned and a seed without personal data or default administrator.
 - Login: a user without 2FA configured now lands on the `/2fa/setup` page instead of being asked for a non-existent code.
+- Doctrine schema back in sync with the migrations and validated in CI; the study identifier is now unique per workspace only; every audit log entry always has an author.
 
 ### Security
 

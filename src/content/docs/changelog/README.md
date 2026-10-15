@@ -51,6 +51,7 @@ Aucun changement en attente.
 - **PostgreSQL 18**, **Symfony 8.1**, **PHP 8.5.11** minimum, images conteneur épinglées, choices.js 11.
 - Refonte de plusieurs pages de l'interface et seed sans données personnelles ni administrateur par défaut.
 - Connexion : un utilisateur sans 2FA configurée arrive sur la page de configuration `/2fa/setup` au lieu d'un code inexistant.
+- Schéma Doctrine resynchronisé avec les migrations et validé en CI ; l'identifiant d'étude n'est plus unique que par workspace ; chaque entrée du journal d'audit a toujours un auteur.
 
 ### Sécurité
 
