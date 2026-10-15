@@ -30,7 +30,7 @@ Document de référence sur l'architecture de la plateforme. Pour le détail du 
 | Couche | Technologie | Version |
 |--------|-------------|---------|
 | Langage | PHP | 8.5 |
-| Framework | Symfony | 8.0 |
+| Framework | Symfony | 8.1 |
 | Serveur applicatif | FrankenPHP (Caddy) | 1.x — **mode worker** |
 | ORM | Doctrine ORM | 3.6 |
 | Base de données | PostgreSQL | 16 |

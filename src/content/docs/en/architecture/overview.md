@@ -30,7 +30,7 @@ Reference document on the platform architecture. For code details, see the
 | Layer | Technology | Version |
 |-------|------------|---------|
 | Language | PHP | 8.5 |
-| Framework | Symfony | 8.0 |
+| Framework | Symfony | 8.1 |
 | Application server | FrankenPHP (Caddy) | 1.x — **worker mode** |
 | ORM | Doctrine ORM | 3.6 |
 | Database | PostgreSQL | 16 |
