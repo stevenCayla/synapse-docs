@@ -83,12 +83,12 @@ docker compose exec database psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SE
 # Same row counts as before: rerun the step 1 query into counts-pg18.txt, then
 diff counts-pg16.txt counts-pg18.txt && echo OK
 docker compose exec php bin/console doctrine:migrations:status      # Already at latest version, New = 0
-docker compose exec php bin/console doctrine:schema:validate        # see the note below
+docker compose exec php bin/console doctrine:schema:validate        # [OK] The database schema is in sync
 curl -sk -o /dev/null -w "%{http_code}\n" https://localhost/login   # 200
 ```
 
 :::note[doctrine:schema:validate]
-The command currently reports the schema as "not in sync" with the mapping (identity and index differences, tracked in issue #27). This is **not** caused by the migration: the diff is strictly identical on a freshly migrated PostgreSQL 18 database and on a restored one. The goal of the check is to confirm there are no **new** differences.
+The command must answer "The database schema is in sync with the mapping files" on the restored database, as on a freshly migrated one. A difference means the restored schema is incomplete: do not switch over before understanding it.
 :::
 
 Then test an application login (2FA included) and, if the `backup` service is enabled, force a backup to confirm it connects to the new server (`docker compose exec backup backup-now`).

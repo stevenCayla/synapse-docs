@@ -126,7 +126,7 @@ règle d'isolation stricte par workspace.
 | php-cs-fixer, PHPStan (niveau 6, avec baseline), Rector | Oui (job **Quality**) |
 | `composer audit` | Oui (job **Security**, quand `composer.json` ou `composer.lock` change ; audit hebdomadaire `dependency-audit.yaml`) |
 | Lint (`super-linter/slim`) | Oui (**Lint**) |
-| **`doctrine:schema:validate`** | **Non** — étape commentée tant que le mapping et les migrations ne sont pas réalignés |
+| **`doctrine:schema:validate`** | Oui (**Tests**, sur la base issue des migrations) |
 
 Sur une Pull Request qui ne touche que `docs/**` ou des fichiers `*.md`, le job
 **Tests** est sauté (job **Changes**) ; **Lint** tourne toujours.

@@ -84,16 +84,16 @@ or on a tag.
 
 | Job | Steps actually executed |
 |-----|-------------------------|
-| **Tests** | Skipped on a Pull Request that only touches `docs/**` or `*.md` files. Builds the images (`compose.yaml` + `compose.override.yaml`, i.e. the **dev** target), `docker compose up --wait`, `curl` on `http://localhost`, Mercure hub check (`/.well-known/mercure`), test database creation, migrations, **PHPUnit** |
+| **Tests** | Skipped on a Pull Request that only touches `docs/**` or `*.md` files. Builds the images (`compose.yaml` + `compose.override.yaml`, i.e. the **dev** target), `docker compose up --wait`, `curl` on `http://localhost`, Mercure hub check (`/.well-known/mercure`), test database creation, migrations, **PHPUnit**, `doctrine:schema:validate` |
 | **Security** | On a Pull Request, only when `composer.json` or `composer.lock` change. `composer install` then `composer audit` (PHP 8.5 via `setup-php`) |
 | **Lint** | `super-linter/slim` (YAML, Markdown, Shell, GitHub Actions…), always runs |
 
 A skipped job counts as passed for required checks. Advisories published between two dependency changes are caught by the weekly `.github/workflows/dependency-audit.yaml` workflow (Monday 05:00 UTC, or manually): `composer audit` and `importmap:audit` on `main` and `develop`. On advisories it opens (or updates) a `security` issue and fails.
 
 :::caution[What CI does not cover]
-The `doctrine:schema:validate` step exists in `ci.yaml` but is **commented out**,
-and CI does not build the `frankenphp_prod` image. These checks must therefore be
-run **locally** before every release (see the checklist below).
+CI does not build the `frankenphp_prod` image. This check must therefore be run
+**locally** before every release (see the checklist below). The Doctrine mapping
+validation (`doctrine:schema:validate`) is run by the **Tests** job.
 :::
 
 ## 4. Pre-release checklist

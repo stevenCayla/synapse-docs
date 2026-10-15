@@ -125,7 +125,7 @@ workspace isolation rule.
 | php-cs-fixer, PHPStan (level 6, with a baseline), Rector | Yes (**Quality** job) |
 | `composer audit` | Yes (**Security** job, when `composer.json` or `composer.lock` changes; weekly `dependency-audit.yaml` audit) |
 | Lint (`super-linter/slim`) | Yes (**Lint**) |
-| **`doctrine:schema:validate`** | **No** — step commented out until the mapping and the migrations are back in sync |
+| **`doctrine:schema:validate`** | Yes (**Tests**, on the database built from the migrations) |
 
 On a pull request that only touches `docs/**` or `*.md` files, the **Tests**
 job is skipped (**Changes** job); **Lint** always runs.

@@ -86,17 +86,17 @@ push direct sur `develop` ni sur un tag.
 
 | Job | Étapes réellement exécutées |
 |-----|-----------------------------|
-| **Tests** | Ignoré sur une Pull Request qui ne touche que `docs/**` ou des fichiers `*.md`. Build des images (`compose.yaml` + `compose.override.yaml`, donc la cible **dev**), `docker compose up --wait`, `curl` sur `http://localhost`, vérification du hub Mercure (`/.well-known/mercure`), création de la base de test, migrations, **PHPUnit** |
+| **Tests** | Ignoré sur une Pull Request qui ne touche que `docs/**` ou des fichiers `*.md`. Build des images (`compose.yaml` + `compose.override.yaml`, donc la cible **dev**), `docker compose up --wait`, `curl` sur `http://localhost`, vérification du hub Mercure (`/.well-known/mercure`), création de la base de test, migrations, **PHPUnit**, `doctrine:schema:validate` |
 | **Security** | Sur une Pull Request, uniquement si `composer.json` ou `composer.lock` changent. `composer install` puis `composer audit` (PHP 8.5 via `setup-php`) |
 | **Lint** | `super-linter/slim` (YAML, Markdown, Shell, GitHub Actions…), toujours exécuté |
 
 Un job ignoré compte comme réussi pour les vérifications requises. Les failles publiées entre deux changements de dépendances sont détectées par le workflow hebdomadaire `.github/workflows/dependency-audit.yaml` (lundi 05:00 UTC, ou manuellement) : `composer audit` et `importmap:audit` sur `main` et `develop`. En cas de faille, il ouvre (ou met à jour) une issue `security` et échoue.
 
 :::caution[Ce que la CI ne couvre pas]
-L'étape `doctrine:schema:validate` est présente dans `ci.yaml` mais
-**commentée**, et la CI ne construit pas l'image `frankenphp_prod`. Ces
-contrôles doivent donc être exécutés **localement** avant chaque release (voir
-la checklist ci-dessous).
+La CI ne construit pas l'image `frankenphp_prod`. Ce contrôle doit donc être
+exécuté **localement** avant chaque release (voir la checklist ci-dessous).
+La validation du mapping Doctrine (`doctrine:schema:validate`) est, elle,
+exécutée par le job **Tests**.
 :::
 
 ## 4. Checklist de pré-release

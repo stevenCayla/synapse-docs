@@ -83,12 +83,12 @@ docker compose exec database psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SE
 # Mêmes nombres de lignes qu'avant : relancer la requête de l'étape 1 vers counts-pg18.txt, puis
 diff counts-pg16.txt counts-pg18.txt && echo OK
 docker compose exec php bin/console doctrine:migrations:status      # Already at latest version, New = 0
-docker compose exec php bin/console doctrine:schema:validate        # voir la note ci-dessous
+docker compose exec php bin/console doctrine:schema:validate        # [OK] The database schema is in sync
 curl -sk -o /dev/null -w "%{http_code}\n" https://localhost/login   # 200
 ```
 
 :::note[doctrine:schema:validate]
-La commande signale aujourd'hui un schéma « non synchronisé » avec le mapping (écarts d'identité et d'index, suivi dans l'issue #27). Ce n'est **pas** lié à la migration : le diff est strictement identique sur une base fraîchement migrée en PostgreSQL 18 et sur une base restaurée. L'objectif de la vérification est de constater l'absence de **nouveaux** écarts.
+La commande doit répondre « The database schema is in sync with the mapping files » sur la base restaurée, comme sur une base fraîchement migrée. Un écart signale un schéma restauré incomplet : ne pas basculer avant de l'avoir compris.
 :::
 
 Tester ensuite une connexion applicative (2FA incluse) et, si le service `backup` est actif, forcer une sauvegarde pour confirmer qu'il se connecte au nouveau serveur (`docker compose exec backup backup-now`).
