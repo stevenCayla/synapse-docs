@@ -7,8 +7,10 @@ build, no access to the application repository is needed.
 
 | Branch | Published at |
 |--------|--------------|
-| `develop` | https://dev-docs.synapse-medical.fr (not indexed) |
-| `main` | https://docs.synapse-medical.fr |
+| `develop` | https://dev-docs.synapse-medical.fr (not indexed), deployed automatically |
+| `main` | https://docs.synapse-medical.fr, deployed manually only |
+
+See [Branches & releases](#branches--releases).
 
 ## Where to edit the pages
 
@@ -19,7 +21,8 @@ build, no access to the application repository is needed.
 
 `src/content/docs/` (except `audit/`) is a snapshot of the application's
 `docs/` folder, refreshed by `scripts/sync-content.sh`: the CI runs it
-automatically when `docs/` changes on `develop` or `main` in SYNAPSE-MEDICAL,
+automatically when `docs/` changes on `develop` in SYNAPSE-MEDICAL (the sync
+only runs on `develop`),
 checks that the site still builds and commits the new snapshot. Changes made
 directly to the synced pages here are overwritten by the next sync. The
 `APP_VERSION` file (shown in the version selector) is synced the same way.
@@ -40,8 +43,13 @@ make deploy-check                        # validate both Cloudflare deployments 
 
 # Refresh the snapshot (maintainers, needs access to SYNAPSE-MEDICAL)
 make sync SYNAPSE_DIR=../symfony-docker  # from a local checkout
-make sync SYNAPSE_REF=main               # from a branch of the application
+make sync SYNAPSE_REF=feat/my-branch    # from another branch of the application
 ```
+
+`make sync` defaults to the `develop` branch of the application. Syncing from
+another ref is a local maintainer tool (for example to preview a branch): the
+CI only syncs on `develop`, so commit such a snapshot only on a work branch
+that targets `develop`.
 
 The equivalent npm commands are `npm ci`, `npm run dev`, `npm run build`,
 `npm run preview` and `npm run sync-content`.
@@ -85,15 +93,28 @@ file.
 ### CI / deployment
 
 The CI (`.github/workflows/ci.yaml`) builds the site on every pull request and
-deploys automatically:
+deploys as follows:
 
-- push to `develop` → GitHub environment `development` → dev-docs;
-- push to `main` → GitHub environment `production` → docs;
-- a change to `docs/` on `develop` or `main` in the application repository →
-  content sync of the matching branch, then build and deployment
-  (`repository_dispatch`, sent by the application's
-  `.github/workflows/docs.yaml`). A sync can also be started manually:
-  *Actions → CI → Run workflow* with "Refresh the content".
+| Trigger | Result |
+|---------|--------|
+| pull request | build only |
+| push to `develop` | build, then deploy to dev-docs (environment `development`) |
+| *Run workflow* on `develop` | same; with "Refresh the content", the sync runs first |
+| push to `main` | build only, **no deployment** |
+| *Run workflow* on `main` | build, then deploy to docs (environment `production`) |
+
+Production is deployed manually only. The plan has no "required reviewers"
+environment rule, so running the workflow by hand on `main` is the approval
+gate: *Actions → CI → Run workflow → branch `main`*, or
+`gh workflow run ci.yaml --ref main`.
+
+Content sync: when `docs/` changes on `develop` in the application repository,
+its `.github/workflows/docs.yaml` runs
+`gh workflow run ci.yaml -R stevenCayla/synapse-docs --ref develop -f sync=true`.
+The run executes on `develop`, refreshes the snapshot, commits it, then builds
+and deploys that commit to dev-docs. The `sync` input is refused on any other
+branch. (A `repository_dispatch` is not used: GitHub always runs it on the
+default branch `main`, which the `development` environment rejects.)
 
 Manual deployment if needed (after `npx wrangler login`):
 
@@ -116,5 +137,21 @@ Environments `development` (branch `develop` only) and `production` (branch
 `main` only), under *Settings → Environments*.
 
 In the application repository: secret `DOCS_DISPATCH_TOKEN`, a fine-grained
-token on this repository with *Contents: Read and write* (required by
-`repository_dispatch`).
+token on this repository with *Actions: Read and write* (required to run the
+workflow with `gh workflow run`).
+
+## Branches & releases
+
+- Work branches always start from `develop` (`feat/…`, `fix/…`, `docs/…`,
+  `ci/…`, `chore/…`) and their pull request targets `develop`. Never commit to
+  `main`, and no hotfix starts from `main`.
+- `develop` is deployed automatically to dev-docs.
+- Promotion to `main` happens only on explicit request, through a
+  `release/<YYYY-MM-DD>` branch created from `origin/develop` and a pull request
+  `release/…` → `main`. Never open a pull request whose head is `develop`: with
+  auto-delete of merged branches, merging it would delete `develop`.
+- A push to `main` only builds. Production is deployed manually: *Actions → CI →
+  Run workflow → branch `main`*, or `gh workflow run ci.yaml --ref main`.
+- `Closes #x` in a pull request only closes the issue when the merge goes into
+  the default branch `main`. Pull requests into `develop` do not close it:
+  close the issue by hand, or reference it again in the release pull request.
