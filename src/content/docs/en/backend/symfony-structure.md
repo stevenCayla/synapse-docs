@@ -104,6 +104,7 @@ Standard voter pattern: **check workspace isolation first**, then super-admin by
 ## 5. Events
 
 ### EventSubscriber (`kernel.*`)
+
 | Subscriber | Role |
 |------------|------|
 | `TwoFactorSubscriber` | Enforces 2FA (4-state machine) |
@@ -118,6 +119,7 @@ Standard voter pattern: **check workspace isolation first**, then super-admin by
 | `LocaleSubscriber` | Locale |
 
 ### EventListener (Doctrine)
+
 | Listener | Role |
 |----------|------|
 | `PatientEncryptionListener` | Transparent encryption of patient PII + blind index |

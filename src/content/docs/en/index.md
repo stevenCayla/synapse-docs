@@ -9,7 +9,7 @@ sidebar:
 > 🌐 English version · [Version française](../)
 
 Clinical study management and electronic data capture (eCRF) platform.
-Stack: **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 16 · Mercure · AssetMapper/Stimulus**.
+Stack: **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 18 · Mercure · AssetMapper/Stimulus**.
 
 :::tip[New to the project?]
 Start with the **[Quick Start — run Synapse Medical in 5 minutes](/en/getting-started/)**.

@@ -100,7 +100,7 @@ A single command generates a complete environment (workspace, admin, sites, user
 make sf c="app:seed --reset"
 ```
 
-Default credentials: `steven@example.com` / `Password1!` (see [commands/README.md](/commands/readme/) for all options).
+The seed asks which super administrator to create (e-mail, first name, last name, password; there is no default administrator and `--admin=<email>` is required in non-interactive mode) and prints the generated password once at the end; it must be changed at first login (see [commands/README.md](/commands/readme/) for all options).
 
 > **2FA is mandatory**: on first login, the app redirects to TOTP enrollment (`/2fa/setup`). Scan the QR code with a TOTP app, or provision via `app:totp:provision-missing`.
 
@@ -144,10 +144,10 @@ Coverage focuses on **security, access control, encryption and eCRF compliance**
 
 ## 7. Git workflow & contributing
 
-1. Branch from `main`: `feature/<topic>` or `fix/<topic>`.
+1. Branch from `develop`: `feature/<topic>` or `fix/<topic>`.
 2. Conventional commits: `feat(scope): …`, `fix(scope): …`, `docs: …`, `refactor: …`.
 3. Before pushing: `make test` green + `doctrine:schema:validate`.
-4. Open a PR against `main`; the `.github/workflows/ci.yaml` builds images and runs health checks.
+4. Open a PR against `develop`; the `.github/workflows/ci.yaml` builds images and runs health checks.
 5. Respect the critical architecture rules (checklist below).
 
 ### Pre-PR checklist

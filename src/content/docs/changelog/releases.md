@@ -17,12 +17,12 @@ Chaque version publiée est matérialisée par un **tag Git `vX.Y.Z`** et une
 
 | Incrément | Quand | Exemple |
 |-----------|-------|---------|
-| **MAJOR** | Changement incompatible | `2.0.4` → `3.0.0` |
-| **MINOR** | Fonctionnalité rétrocompatible | `2.0.4` → `2.1.0` |
-| **PATCH** | Correction rétrocompatible | `2.0.4` → `2.0.5` |
+| **MAJOR** | Changement incompatible | `3.0.0` → `4.0.0` |
+| **MINOR** | Fonctionnalité rétrocompatible | `3.0.0` → `3.1.0` |
+| **PATCH** | Correction rétrocompatible | `3.0.0` → `3.0.1` |
 
 La version courante est exposée par la variable d'environnement `APP_VERSION`
-(**`2.0.4`** actuellement).
+(**`3.0.0`** actuellement).
 
 ## Processus de publication
 

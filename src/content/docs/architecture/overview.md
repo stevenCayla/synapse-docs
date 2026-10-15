@@ -30,7 +30,7 @@ Document de référence sur l'architecture de la plateforme. Pour le détail du 
 | Couche | Technologie | Version |
 |--------|-------------|---------|
 | Langage | PHP | 8.5 |
-| Framework | Symfony | 8.0 |
+| Framework | Symfony | 8.1 |
 | Serveur applicatif | FrankenPHP (Caddy) | 1.x — **mode worker** |
 | ORM | Doctrine ORM | 3.6 |
 | Base de données | PostgreSQL | 16 |
@@ -59,7 +59,7 @@ flowchart TB
         vulcain["Vulcain"]
     end
 
-    pg[("PostgreSQL 16<br/>Row-Level Security")]
+    pg[("PostgreSQL 18<br/>Row-Level Security")]
     files[/"private_uploads/<br/>hors webroot · chiffré"/]
     audit[["Pistes d'audit<br/>chaînées HMAC · append-only"]]
 
@@ -237,14 +237,14 @@ kernel.terminate
 
 ## 8. Infrastructure & déploiement
 
-Dockerfile **multi-stage** (`dunglas/frankenphp:1-php8.5`) :
+Dockerfile **multi-stage** (`dunglas/frankenphp:1.13.1-php8.5.11`) :
 
 | Cible | Base | Usage |
 |-------|------|-------|
 | `frankenphp_base` | frankenphp | Extensions PHP + Composer |
 | `frankenphp_dev` | base + Xdebug | Hot-reload, user non-root |
 | `frankenphp_prod_builder` | base | `composer install --no-dev`, compile assets, `dump-env prod` |
-| `frankenphp_prod` | `debian:13-slim` | Image finale (~150 Mo), `www-data`, OPcache preload |
+| `frankenphp_prod` | `debian:13.7-slim` | Image finale (~150 Mo), `www-data`, OPcache preload |
 
 Compose en couches : `compose.yaml` (base) · `compose.override.yaml` (dev : Mailpit, watch, HTTP/3) · `compose.prod.yaml` (prod : Apache devant, secrets `${VAR:?}`, service `backup`).
 

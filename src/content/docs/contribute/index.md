@@ -60,10 +60,10 @@ Détail : [Guide de démarrage](/backend/getting-started/).
 
 ### Workflow Git
 
-1. Branche depuis `main` : `git switch -c feature/ma-fonctionnalite`
-   (préfixes : `feature/`, `fix/`, `docs/`, `refactor/`, `chore/`).
+1. Branche depuis `develop` : `git switch -c feature/ma-fonctionnalite`
+   (préfixes : `feature/`, `fix/`, `docs/`, `refactor/`, `ci/`, `chore/`).
 2. Commits atomiques et descriptifs.
-3. Pull Request vers `main`, CI verte (tests + lint).
+3. Pull Request vers `develop`, CI verte (tests + lint).
 4. Revue, puis itérations par nouveaux commits.
 
 :::caution
@@ -95,8 +95,9 @@ Toute nouvelle logique métier doit être **couverte par des tests**.
 
 La documentation vit dans `docs/` (FR à la racine, EN sous `docs/en/`). Le site
 (**Astro + Starlight**) est maintenu dans le dépôt séparé `synapse-docs` ; une modification
-de `docs/` fusionnée sur `develop` ou `main` y déclenche la publication
-(`develop` → dev-docs.synapse-medical.fr, `main` → docs.synapse-medical.fr).
+de `docs/` fusionnée sur `develop` met à jour automatiquement le site de développement
+(dev-docs.synapse-medical.fr). Le site de production (docs.synapse-medical.fr) est publié
+via une PR de release dans `synapse-docs`, puis déployé à la main.
 
 Prévisualisation locale, depuis un checkout de `synapse-docs` :
 

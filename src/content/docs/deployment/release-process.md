@@ -24,19 +24,19 @@ release et le déploiement sont réalisés à la main en suivant cette page.
 ## Vue d'ensemble
 
 ```
-feature/*  ──PR──▶  develop  ──PR de release──▶  main  ──tag vX.Y.Z──▶  GitHub Release
-                                                   │
-                                                   └──▶ serveur : git pull + build frankenphp_prod + up -d
-                                                                  (migrations appliquées au démarrage)
+feature/*  ──PR──▶  develop  ──▶  release/AAAA-MM-JJ  ──PR──▶  main  ──tag vX.Y.Z──▶  GitHub Release
+                                                                  │
+                                                                  └──▶ serveur : git pull + build frankenphp_prod + up -d
+                                                                                 (migrations appliquées au démarrage)
 ```
 
 | Élément | Emplacement | Rôle |
 |---------|-------------|------|
 | Journal des modifications | `CHANGELOG.md` (racine) | Format [Keep a Changelog 1.1.0](https://keepachangelog.com/fr/1.1.0/), section `[Unreleased]` |
-| Version applicative | `APP_VERSION` dans `.env` (actuellement `2.0.4`) | Exposée à Twig (`app_version`) et au site de documentation |
+| Version applicative | `APP_VERSION` dans `.env` (actuellement `3.0.0`) | Exposée à Twig (`app_version`) et au site de documentation |
 | Version de la doc | Dépôt `synapse-docs` : `astro.config.mjs` → `src/version.ts` | Dérivée de `APP_VERSION` au build |
-| CI | `.github/workflows/ci.yaml` | Build Docker, smoke-tests HTTP/Mercure, `composer audit`, lint |
-| Image de production | `Dockerfile`, cible `frankenphp_prod` + `compose.prod.yaml` | Image slim `debian:13-slim`, utilisateur `www-data` |
+| CI | `.github/workflows/ci.yaml` | Build Docker, smoke-tests HTTP/Mercure, migrations + PHPUnit, `composer audit`, lint |
+| Image de production | `Dockerfile`, cible `frankenphp_prod` + `compose.prod.yaml` | Image slim `debian:13.7-slim`, utilisateur `www-data` |
 | Migrations | `frankenphp/docker-entrypoint.sh` | `doctrine:migrations:migrate --all-or-nothing` au démarrage du conteneur |
 
 ## 1. Branches
@@ -45,21 +45,21 @@ Le dépôt suit un flux à trois niveaux :
 
 | Branche | Contenu | Alimentée par |
 |---------|---------|---------------|
-| `feature/*`, `fix/*`, `refactor/*`, `docs/*`, `chore/*` | Une modification isolée | Création depuis `develop` |
+| `feature/*` (ou `feat/*`), `fix/*`, `refactor/*`, `docs/*`, `ci/*`, `chore/*` | Une modification isolée | Création depuis `develop` |
 | `develop` | Prochaine version en cours d'intégration | Pull Requests des branches de travail |
-| `main` | Dernière version publiée | Pull Request de release depuis `develop` |
+| `release/AAAA-MM-JJ` | Promotion de `develop` vers `main` | Création depuis `origin/develop` à la demande |
+| `main` | Dernière version publiée | Pull Request `release/…` → `main` |
 
+- Les branches de travail partent **toujours** de `develop` et leur Pull Request
+  cible `develop`. On ne commite jamais directement sur `main`.
 - Chaque Pull Request doit passer la CI avant fusion (voir [§ 3](#3-ce-que-la-ci-vérifie)).
 - Les messages de commit suivent [Conventional Commits](https://www.conventionalcommits.org/),
-  en anglais (voir le [guide de contribution](/contribute/)).
-- Un correctif urgent peut partir de `main` (`fix/*`) ; il doit ensuite être
-  réintégré dans `develop` pour ne pas être perdu à la release suivante.
-
-:::caution[Écart avec CONTRIBUTING.md]
-`CONTRIBUTING.md` indique encore de créer les branches depuis `main` et d'ouvrir
-les PR vers `main`. En pratique, les Pull Requests sont fusionnées dans
-`develop`, et `main` ne reçoit que les releases.
-:::
+  en anglais : `type(scope): résumé (#issue)` (voir le [guide de contribution](/contribute/)).
+- Il n'existe pas de branche de hotfix depuis `main` : un correctif urgent passe
+  aussi par `develop` (branche `fix/*`), puis par une release.
+- `Closes #x` ne ferme automatiquement une issue que lors d'une fusion dans la
+  branche par défaut `main`. Après la fusion d'une PR dans `develop`, **fermer
+  l'issue à la main**.
 
 ## 2. Tenir le changelog au fil de l'eau
 
@@ -86,16 +86,17 @@ push direct sur `develop` ni sur un tag.
 
 | Job | Étapes réellement exécutées |
 |-----|-----------------------------|
-| **Tests** | Build des images (`compose.yaml` + `compose.override.yaml`, donc la cible **dev**), `docker compose up --wait`, `curl` sur `http://localhost`, vérification du hub Mercure (`/.well-known/mercure`) |
-| **Security** | `composer install` puis `composer audit` (PHP 8.4 via `setup-php`) |
-| **Lint** | `super-linter/slim` (YAML, Markdown, Shell, GitHub Actions…) |
+| **Tests** | Ignoré sur une Pull Request qui ne touche que `docs/**` ou des fichiers `*.md`. Build des images (`compose.yaml` + `compose.override.yaml`, donc la cible **dev**), `docker compose up --wait`, `curl` sur `http://localhost`, vérification du hub Mercure (`/.well-known/mercure`), création de la base de test, migrations, **PHPUnit**, `doctrine:schema:validate` |
+| **Security** | Sur une Pull Request, uniquement si `composer.json` ou `composer.lock` changent. `composer install` puis `composer audit` (PHP 8.5 via `setup-php`) |
+| **Lint** | `super-linter/slim` (YAML, Markdown, Shell, GitHub Actions…), toujours exécuté |
 
-:::danger[PHPUnit et la validation du schéma ne tournent pas en CI]
-Les étapes de création de la base de test, de migration, de **PHPUnit** et de
-`doctrine:schema:validate` sont présentes dans `ci.yaml` mais **commentées**.
-La CI ne construit pas non plus l'image `frankenphp_prod`. Ces contrôles
-doivent donc être exécutés **localement** avant chaque release (voir la
-checklist ci-dessous).
+Un job ignoré compte comme réussi pour les vérifications requises. Les failles publiées entre deux changements de dépendances sont détectées par le workflow hebdomadaire `.github/workflows/dependency-audit.yaml` (lundi 05:00 UTC, ou manuellement) : `composer audit` et `importmap:audit` sur `main` et `develop`. En cas de faille, il ouvre (ou met à jour) une issue `security` et échoue.
+
+:::caution[Ce que la CI ne couvre pas]
+La CI ne construit pas l'image `frankenphp_prod`. Ce contrôle doit donc être
+exécuté **localement** avant chaque release (voir la checklist ci-dessous).
+La validation du mapping Doctrine (`doctrine:schema:validate`) est, elle,
+exécutée par le job **Tests**.
 :::
 
 ## 4. Checklist de pré-release
@@ -143,14 +144,19 @@ pour les commandes de backfill associées.
 
 0. **Archiver la documentation** de la version précédente (nouvelle version mineure ou
    majeure uniquement), dans le dépôt `synapse-docs`, **avant** le commit de release : ce
-   commit déclenche la synchronisation du contenu, qui remplacerait les pages actuelles.
+   commit déclenche la synchronisation du contenu vers le site de développement, qui
+   remplacerait les pages actuelles.
    ```bash
    make archive VERSION=2.0   # garde la doc 2.0 en ligne sous /2.0/
    ```
    Commiter le résultat sur `develop` (voir le README de `synapse-docs`).
 1. **Commit de release** sur `develop` : changelog daté + `APP_VERSION` mis à jour, par exemple
    `chore(release): 2.1.0`.
-2. **PR de release** `develop` → `main`. La CI s'exécute sur la PR ; fusionner une fois verte.
+2. **Branche et PR de release**, uniquement sur demande explicite : créer
+   `release/AAAA-MM-JJ` depuis `origin/develop`, la pousser, puis ouvrir la PR
+   `release/AAAA-MM-JJ` → `main`. Ne jamais ouvrir une PR dont la branche source est
+   `develop` : avec la suppression automatique des branches fusionnées, `develop` serait
+   supprimée. La CI s'exécute sur la PR ; fusionner une fois verte.
 3. **Tag annoté** sur le commit de `main` :
    ```bash
    git switch main && git pull
@@ -159,7 +165,13 @@ pour les commandes de backfill associées.
    ```
 4. **GitHub Release** créée à la main depuis le tag ; les notes reprennent mot pour mot la
    section du `CHANGELOG.md` (voir [Versions & processus de release](/changelog/releases/)).
-5. **Resynchroniser** `develop` avec `main` si un correctif y a été fusionné directement.
+5. **Fermer à la main** les issues des PR fusionnées dans `develop` : `Closes #x` ne
+   les ferme automatiquement que pour une fusion dans `main`.
+6. **Publier la documentation** : le site de développement (dev-docs.synapse-medical.fr)
+   est mis à jour automatiquement à chaque fusion dans `develop` touchant `docs/` ou
+   `.env`. Le contenu atteint `main` via la PR de release de `synapse-docs`, et la
+   production (docs.synapse-medical.fr) n'est déployée **qu'à la main** (lancement du
+   workflow sur `main` dans `synapse-docs`).
 
 :::tip[Mettre à jour APP_VERSION avant le build]
 `APP_VERSION` est lue dans `.env` et **figée dans l'image** au build
@@ -184,7 +196,7 @@ L'image de production est construite depuis la cible `frankenphp_prod` du
 | `composer dump-autoload --classmap-authoritative` | Autoloader optimisé |
 | `composer dump-env prod` | Compile `.env` en `.env.local.php` (dont `APP_VERSION`) |
 | `asset-map:compile` | Compilation des assets AssetMapper |
-| `frankenphp_prod` | Image finale `debian:13-slim`, bits setuid retirés, exécution en `www-data` |
+| `frankenphp_prod` | Image finale `debian:13.7-slim`, bits setuid retirés, exécution en `www-data` |
 
 Le `.dockerignore` exclut `tests/`, `docs/`, `.env.local`, `.env.test` et les
 fichiers `compose.*` : l'image ne contient ni les tests ni les secrets. Ceux-ci

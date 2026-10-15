@@ -4,7 +4,7 @@
 # The pages in src/content/docs/ are a snapshot of the application's docs/
 # folder (except audit/, maintained here). Refresh it with:
 #   make sync SYNAPSE_DIR=../symfony-docker  # from a local checkout
-#   make sync SYNAPSE_REF=main               # from a branch of the application
+#   make sync SYNAPSE_REF=feat/my-branch    # from another branch (CI syncs develop only)
 
 SYNAPSE_DIR ?=
 SYNAPSE_REF ?= develop

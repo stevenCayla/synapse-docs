@@ -100,7 +100,7 @@ Une seule commande génère un environnement complet (workspace, admin, sites, u
 make sf c="app:seed --reset"
 ```
 
-Identifiants par défaut : `steven@example.com` / `Password1!` (voir [commands/README.md](/commands/readme/) pour toutes les options).
+Le seed te demande le super-administrateur à créer (e-mail, prénom, nom, mot de passe ; aucun administrateur par défaut, `--admin=<email>` est obligatoire en mode non interactif) et affiche son mot de passe généré une seule fois à la fin ; il devra être changé à la première connexion (voir [commands/README.md](/commands/readme/) pour toutes les options).
 
 > La **2FA est obligatoire** : au premier login, l'application redirige vers l'enrôlement TOTP (`/2fa/setup`). Scanner le QR code avec une app TOTP, ou provisionner via `app:totp:provision-missing`.
 
@@ -144,10 +144,10 @@ La couverture est orientée **sécurité, contrôle d'accès, chiffrement et con
 
 ## 7. Workflow Git & contribution
 
-1. Brancher depuis `main` : `feature/<sujet>` ou `fix/<sujet>`.
+1. Brancher depuis `develop` : `feature/<sujet>` ou `fix/<sujet>`.
 2. Commits conventionnels : `feat(scope): …`, `fix(scope): …`, `docs: …`, `refactor: …`.
 3. Avant push : `make test` au vert + `doctrine:schema:validate`.
-4. Ouvrir une PR vers `main` ; la `.github/workflows/ci.yaml` build les images et lance les health checks.
+4. Ouvrir une PR vers `develop` ; la `.github/workflows/ci.yaml` build les images et lance les health checks.
 5. Respecter les règles d'architecture critiques (voir checklist ci-dessous).
 
 ### Checklist avant PR

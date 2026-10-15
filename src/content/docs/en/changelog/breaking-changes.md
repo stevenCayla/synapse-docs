@@ -25,6 +25,10 @@ The `[Unreleased]` branch currently contains **no breaking change**.
 
 | Version | Break | Migration |
 |---------|-------|-----------|
+| `3.0.0` | PostgreSQL 18: new `database_data_pg18` volume, `POSTGRES_VERSION` removed | [Upgrading to PostgreSQL 18](/en/deployment/postgresql-18-upgrade/) |
+| `3.0.0` | `app:seed`: `--admin-email` / `--admin-password` options removed | Use `--admin=<email>` and `SEED_ADMIN_PASSWORD`; `--reset` requires a named super administrator (no default account) |
+| `3.0.0` | `backup` service behind the `backup` Compose profile | `--profile backup` or `COMPOSE_PROFILES=backup` |
+| `3.0.0` | Mercure 1.0 hub: `issuer` block, `match=` instead of `topic=` | Adapt any custom Caddy configuration |
 | `2.0.0` | Encryption keys now required (`APP_TOTP_ENCRYPTION_KEY`, `APP_PATIENT_ENCRYPTION_KEY`, `APP_PATIENT_SEARCH_HMAC_KEY`) | Generate the keys — see [Quick Start §2](/en/getting-started/#-step-2--generate-the-encryption-keys) |
 
 :::caution[Before a major upgrade]

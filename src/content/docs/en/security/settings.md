@@ -50,17 +50,17 @@ This file complements the general security documentation.
 
 Defines the maximum allowed inactivity duration, in seconds, before an authenticated session is considered expired.
 
-### Recommended bounds
+#### Recommended bounds
 - Minimum: `60`
 - Recommended: `900`
 - Maximum: depends on business requirements and risk profile
 
-### Security impact
+#### Security impact
 - Lower values reduce session hijacking exposure on unattended workstations.
 - Higher values improve user comfort but increase exposure if a session is left open.
 - Must always be enforced server-side.
 
-### Notes
+#### Notes
 - This value should remain consistent with the session warning countdown.
 - Must be greater than `session_warning_countdown_seconds`.
 
@@ -74,17 +74,17 @@ Defines the maximum allowed inactivity duration, in seconds, before an authentic
 
 Defines how many seconds before session expiration the warning modal is displayed to the user.
 
-### Recommended bounds
+#### Recommended bounds
 - Minimum: `10`
 - Recommended: `60`
 - Maximum: must remain lower than session inactivity timeout
 
-### Security impact
+#### Security impact
 - Gives the user a chance to extend the session explicitly.
 - Improves usability without weakening server-side enforcement.
 - Should never be the only mechanism controlling session expiration.
 
-### Notes
+#### Notes
 - This value must always be lower than `session_inactivity_timeout_seconds`.
 
 ---
@@ -97,16 +97,16 @@ Defines how many seconds before session expiration the warning modal is displaye
 
 Defines the minimum number of characters required for a valid password.
 
-### Recommended bounds
+#### Recommended bounds
 - Minimum: `8`
 - Recommended: `12`
 - Higher values may be required for privileged accounts
 
-### Security impact
+#### Security impact
 - Longer passwords significantly improve resistance to guessing and brute-force attempts.
 - Excessively low values weaken account protection.
 
-### Notes
+#### Notes
 - Must be evaluated alongside throttling, lockout, and password composition rules.
 
 ---
@@ -119,11 +119,11 @@ Defines the minimum number of characters required for a valid password.
 
 Requires at least one uppercase letter in passwords.
 
-### Security impact
+#### Security impact
 - Increases password composition complexity.
 - May slightly reduce user convenience.
 
-### Notes
+#### Notes
 - Should be combined with a reasonable minimum length.
 - Must be validated server-side.
 
@@ -137,7 +137,7 @@ Requires at least one uppercase letter in passwords.
 
 Requires at least one lowercase letter in passwords.
 
-### Security impact
+#### Security impact
 - Increases password composition diversity.
 - Has limited impact alone, but strengthens the global policy when combined with other rules.
 
@@ -151,7 +151,7 @@ Requires at least one lowercase letter in passwords.
 
 Requires at least one numeric digit in passwords.
 
-### Security impact
+#### Security impact
 - Increases password composition diversity.
 - Must be part of a broader password quality policy.
 
@@ -165,11 +165,11 @@ Requires at least one numeric digit in passwords.
 
 Requires at least one special character in passwords.
 
-### Security impact
+#### Security impact
 - Increases password composition diversity.
 - Can slightly reduce usability if the UI does not clearly explain the requirement.
 
-### Notes
+#### Notes
 - Allowed special characters should be clearly documented and safely handled everywhere.
 
 ---
@@ -182,16 +182,16 @@ Requires at least one special character in passwords.
 
 Defines how many previous password hashes are checked to prevent password reuse.
 
-### Recommended bounds
+#### Recommended bounds
 - Minimum: `0`
 - Recommended: `5`
 - Higher values may be used for privileged accounts
 
-### Security impact
+#### Security impact
 - Reduces repeated reuse of weak or familiar passwords.
 - Improves long-term password hygiene.
 
-### Notes
+#### Notes
 - `0` disables password history checks.
 - Only hashes must be stored, never plaintext passwords.
 
@@ -205,11 +205,11 @@ Defines how many previous password hashes are checked to prevent password reuse.
 
 Forces a user to change the password after the first successful login.
 
-### Security impact
+#### Security impact
 - Strongly recommended when accounts are provisioned with an initial or temporary password.
 - Reduces risk from shared, default, or administrator-assigned credentials.
 
-### Notes
+#### Notes
 - Should also be reused for password reset or temporary password flows.
 
 ---
@@ -222,15 +222,15 @@ Forces a user to change the password after the first successful login.
 
 Defines the number of days after which a password must be renewed.
 
-### Recommended bounds
+#### Recommended bounds
 - `null` for standard users unless a risk-based policy requires otherwise
 - `30` to `180` only where justified by account sensitivity or internal policy
 
-### Security impact
+#### Security impact
 - Can reduce exposure in some contexts, especially for privileged accounts.
 - Blindly enforcing periodic rotation for all users may reduce usability without meaningful security benefit.
 
-### Notes
+#### Notes
 - Best used selectively for privileged accounts or risk-sensitive scopes.
 - Should not be enabled globally without justification.
 
@@ -244,12 +244,12 @@ Defines the number of days after which a password must be renewed.
 
 Defines the maximum number of failed login attempts allowed before temporary lockout logic is triggered.
 
-### Recommended bounds
+#### Recommended bounds
 - Minimum: `3`
 - Recommended: `5`
 - Maximum: depends on risk appetite and support model
 
-### Security impact
+#### Security impact
 - Reduces brute-force and credential-stuffing effectiveness.
 - Too high a value weakens protection.
 - Too low a value may increase support burden.
@@ -264,16 +264,16 @@ Defines the maximum number of failed login attempts allowed before temporary loc
 
 Defines how long login is blocked after too many failed attempts.
 
-### Recommended bounds
+#### Recommended bounds
 - Minimum: `1`
 - Recommended: `15`
 - Higher values may be used for sensitive environments
 
-### Security impact
+#### Security impact
 - Slows down repeated attack attempts.
 - Longer lockouts improve protection but may frustrate legitimate users.
 
-### Notes
+#### Notes
 - Must be combined with non-revealing error messages.
 
 ---
@@ -286,11 +286,11 @@ Defines how long login is blocked after too many failed attempts.
 
 Enables rate limiting / throttling on login attempts.
 
-### Security impact
+#### Security impact
 - Strongly reduces the feasibility of automated repeated login attempts.
 - Should generally remain enabled in production.
 
-### Notes
+#### Notes
 - Recommended for all environments handling real user accounts.
 
 ---
@@ -303,11 +303,11 @@ Enables rate limiting / throttling on login attempts.
 
 Enables security-oriented logging of relevant authentication and session events.
 
-### Security impact
+#### Security impact
 - Improves traceability, incident response, and forensic analysis.
 - Must remain proportionate and avoid logging secrets or excessive personal data.
 
-### Notes
+#### Notes
 - Should be paired with a defined retention and access policy.
 
 ---
@@ -390,7 +390,7 @@ Restrict access to security setting administration.
 Keep a trace of security setting changes.
 Change management recommendations
 
-## Any modification to security settings should:
+## Any modification to security settings should
 
 be restricted to authorized roles,
 be logged,
@@ -399,7 +399,7 @@ be tested before deployment,
 be documented in release notes if it changes application behavior.
 Future settings that may be added
 
-## The following settings may be introduced later if the project evolves:
+## The following settings may be introduced later if the project evolves
 
 enforce_mfa_for_privileged_accounts
 security_headers_enabled

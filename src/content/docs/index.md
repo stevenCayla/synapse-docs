@@ -9,7 +9,7 @@ sidebar:
 > 🌐 Version française · [English version](en/)
 
 Plateforme de gestion d'études cliniques et de recueil de données électroniques (eCRF).
-Stack : **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 16 · Mercure · AssetMapper/Stimulus**.
+Stack : **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 18 · Mercure · AssetMapper/Stimulus**.
 
 <div class="sl-flex" style="gap:1.25rem;flex-wrap:wrap;margin:1rem 0;font-weight:600;">
   <a href="https://github.com/stevenCayla/SYNAPSE-MEDICAL" class="sl-flex" style="gap:.4em;align-items:center;">🐙 Voir le code sur GitHub</a>

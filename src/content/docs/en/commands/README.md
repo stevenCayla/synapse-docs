@@ -68,17 +68,17 @@ php bin/console <command> [arguments] [--options]
 These options recur across several commands with the same meaning. They are not
 systematically repeated in each command's details below.
 
-#### `-w, --workspace <id>`
+### `-w, --workspace <id>`
 
 Target workspace ID. If omitted and the command needs one, it is **prompted
 interactively**. Guarantees isolation: every entity created is attached to this workspace.
 
-#### `--dry-run`
+### `--dry-run`
 
 Simulates the run **without writing** anything to the database. Shows what would happen.
 Recommended to validate a maintenance command before running it for real.
 
-#### `--force (-f)`
+### `--force (-f)`
 
 Runs **without interactive confirmation**. Use it in scripts and CI, where no input is
 possible.
@@ -101,8 +101,8 @@ php bin/console app:seed [options]
 |---|---|---|---|
 | `--reset` | flag | — | Fully empties the database before generating data |
 | `--workspace-name` | string | `Développement` | Name of the workspace created after the reset |
-| `--admin-email` | string | `steven@example.com` | Email of the created administrator |
-| `--admin-password` | string | `Password1!` | Password of the administrator |
+| `--admin` | string (repeatable) | — | Email of an administrator to create (one per admin; first and last name derived from the email). Without it: interactive prompts, or the command is refused in non-interactive mode, before any data is wiped; there is no default administrator |
+| `SEED_ADMIN_PASSWORD` | env variable | — | Password of the administrators in non-interactive mode. If unset, a random password is generated and printed once at the end |
 | `-w, --workspace` | int | — | Target workspace ID (ignored if `--reset`) |
 | `--users` | int | `10` | Number of investigator users to create |
 | `--patients` | int | `30` | Number of patients to create |
@@ -119,6 +119,13 @@ php bin/console app:seed --reset --users=5 --studies=2
 # Seed into an existing workspace
 php bin/console app:seed -w 1 --patients=50 --all-sites
 ```
+
+**Administrators:** with `--reset`, at least one super administrator must be named: there is no default administrator.
+In interactive mode, the seed asks for the e-mail (required), first and last name (proposed from the e-mail, editable),
+then the password (hidden input with confirmation, validated against the password policy; Enter to generate one),
+and offers to add another administrator. In non-interactive mode, `--admin=<email>` is required: without it, the command
+fails before wiping the database.
+Each administrator is `ROLE_SUPER_ADMIN`, linked to both workspaces, and **must change the password at first login**. The command is refused in the `prod` environment.
 
 **Internal pipeline:** reset (optional) → workspace + admin → sites → users (with site assignment) → teams (9 standard teams with members) → patients → studies (with enrolled patients and visit occurrences) → eCRF templates.
 
@@ -380,7 +387,7 @@ php bin/console app:create-fake-users [options]
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `-c, --count` | int | `10` | Number of users to create |
-| `-p, --password` | string | `Password1!` | Common password for all users |
+| `-p, --password` | string | random | Common password for all users. If omitted, a random password is generated on each run and printed in the summary |
 | `-r, --role` | string[] | — | Role(s) to assign (`ROLE_USER`, `ROLE_ADMIN`, `ROLE_MODERATOR`) |
 | `-w, --workspace` | int | — | Target workspace ID (prompted interactively if absent) |
 | `--assign-sites` | flag | — | Randomly assigns users to sites of the workspace |
