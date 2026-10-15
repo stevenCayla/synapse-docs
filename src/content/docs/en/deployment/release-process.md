@@ -35,7 +35,7 @@ feature/*  ──PR──▶  develop  ──▶  release/YYYY-MM-DD  ──PR�
 | Application version | `APP_VERSION` in `.env` (currently `2.0.4`) | Exposed to Twig (`app_version`) and to the documentation site |
 | Docs version | `synapse-docs` repository: `astro.config.mjs` → `src/version.ts` | Derived from `APP_VERSION` at build time |
 | CI | `.github/workflows/ci.yaml` | Docker build, HTTP/Mercure smoke tests, migrations + PHPUnit, `composer audit`, lint |
-| Production image | `Dockerfile`, target `frankenphp_prod` + `compose.prod.yaml` | Slim `debian:13-slim` image, runs as `www-data` |
+| Production image | `Dockerfile`, target `frankenphp_prod` + `compose.prod.yaml` | Slim `debian:13.7-slim` image, runs as `www-data` |
 | Migrations | `frankenphp/docker-entrypoint.sh` | `doctrine:migrations:migrate --all-or-nothing` on container startup |
 
 ## 1. Branches
@@ -187,7 +187,7 @@ The production image is built from the `frankenphp_prod` target of the
 | `composer dump-autoload --classmap-authoritative` | Optimised autoloader |
 | `composer dump-env prod` | Compiles `.env` into `.env.local.php` (including `APP_VERSION`) |
 | `asset-map:compile` | AssetMapper asset compilation |
-| `frankenphp_prod` | Final `debian:13-slim` image, setuid bits stripped, runs as `www-data` |
+| `frankenphp_prod` | Final `debian:13.7-slim` image, setuid bits stripped, runs as `www-data` |
 
 `.dockerignore` excludes `tests/`, `docs/`, `.env.local`, `.env.test` and the
 `compose.*` files: the image contains neither tests nor secrets. Secrets are

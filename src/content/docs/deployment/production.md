@@ -35,7 +35,7 @@ Internet ──HTTPS──▶ Apache2 (hôte Debian, :443, TLS via Let's Encrypt
 
 - Le **TLS** est géré par Apache sur l'hôte, pas dans le conteneur.
 - **PostgreSQL n'est jamais exposé** sur l'hôte en production.
-- Un service **`backup`** réalise des sauvegardes PostgreSQL automatiques (voir [Sauvegardes](/deployment/backup/)).
+- Un service **`backup`** réalise des sauvegardes PostgreSQL automatiques, **désactivé par défaut** (profil Compose `backup`, à activer avec `--profile backup` ou `COMPOSE_PROFILES=backup` avant tout stockage de données réelles ; voir [Sauvegardes](/deployment/backup/)).
 
 ## Prérequis
 
@@ -115,6 +115,20 @@ Toujours construire avec `--no-cache` (ou vérifier l'empreinte de l'image) à
 chaque release pour éviter d'embarquer une couche périmée.
 :::
 
+### Versions des images
+
+Toutes les images sont épinglées sur une version explicite (aucun tag flottant), les images de production en plus sur une empreinte `@sha256:`. Dependabot propose les mises à jour.
+
+| Image | Fichier | Version |
+|-------|---------|---------|
+| `dunglas/frankenphp` | `Dockerfile` | `1.13.1-php8.5.11` |
+| `debian` (base `frankenphp_prod`) | `Dockerfile` | `13.7-slim@sha256:a29215f6…` |
+| `postgres` | `compose.yaml` (`POSTGRES_VERSION`) | `16.15-alpine` |
+| `axllent/mailpit` (dev) | `compose.override.yaml` | `v1.31.6` |
+| `nfrastack/db-backup` | `compose.prod.yaml` | `5.0.5@sha256:01212206…` |
+
+Pour mettre à jour une image : changer le tag (et l'empreinte), reconstruire avec `--pull --no-cache`, puis valider la pile. Les changements de version majeure de PostgreSQL suivent une procédure dédiée.
+
 ## 3. Étapes post-déploiement
 
 À exécuter une fois par déploiement, dans le conteneur `php`
@@ -170,7 +184,7 @@ ISO 27001 A.12.3).
 - [ ] `TRUSTED_PROXIES` correspond à la gateway Docker réelle.
 - [ ] PostgreSQL **non** exposé sur l'hôte.
 - [ ] Migrations appliquées ; `app:totp:provision-missing` exécuté.
-- [ ] Service `backup` actif ; une restauration a été testée.
+- [ ] Service `backup` actif (`--profile backup`, obligatoire avant toute donnée réelle) ; une restauration a été testée.
 - [ ] Vérification de la chaîne d'audit planifiée.
 
 ## Voir aussi

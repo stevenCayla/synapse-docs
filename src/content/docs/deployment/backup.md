@@ -50,37 +50,45 @@ DATABASE_URL=postgresql://user:pass@db:5432/app
 
 ## Déploiement avec Docker Compose (production)
 
+> **Service désactivé par défaut** : tant que la plateforme ne contient que des données fictives, le service `backup` est rattaché au profil Compose `backup` et n'est ni téléchargé ni démarré.
+>
+> Il est **obligatoire de l'activer avant tout stockage de données réelles (de santé)** en production : `docker compose -f compose.yaml -f compose.prod.yaml --profile backup up -d` ou `COMPOSE_PROFILES=backup` dans l'environnement.
+
 Le service `backup` dans `compose.prod.yaml` exécute un pg_dump chiffré toutes les heures et l'envoie vers le stockage objet :
 
 ```yaml
 # Extrait de compose.prod.yaml
 services:
   backup:
-    image: ghcr.io/tiredofit/db-backup:latest
+    profiles: [backup]   # désactivé par défaut
+    image: docker.io/nfrastack/db-backup:5.0.5@sha256:012122061dc0851030207f70b3d6187ba7d1ef60cc58180507d157b80646f5fb
     environment:
-      DB_TYPE: pgsql
-      DB_HOST: database
-      DB_NAME: ${POSTGRES_DB}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASS: ${POSTGRES_PASSWORD}
-      DB_DUMP_FREQ: 60           # toutes les 60 minutes
-      DB_DUMP_BEGIN: +0          # démarre immédiatement
-      DB_CLEANUP_TIME: 10080     # conserve 7 jours en local (minutes)
-      COMPRESSION: GZ
-      SPLIT_DB: false
-      # Upload S3
-      S3_ENDPOINT: ${BACKUP_S3_ENDPOINT}
-      S3_BUCKET: ${BACKUP_BUCKET}
-      S3_PATH: /postgresql
-      S3_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY}
-      S3_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_KEY}
-      S3_REGION: ${BACKUP_S3_REGION}
+      DB01_TYPE: postgres
+      DB01_HOST: database
+      DB01_NAME: ${POSTGRES_DB}
+      DB01_USER: ${POSTGRES_USER}
+      DB01_PASS: ${POSTGRES_PASSWORD}
+      DB01_BACKUP_INTERVAL: 60   # toutes les 60 minutes
+      DB01_BACKUP_BEGIN: +0      # démarre immédiatement
+      DB01_CLEANUP_TIME: 10080   # conserve 7 jours en local (minutes)
+      DB01_COMPRESSION: GZ
+      DB01_SPLIT_DB: false
+      # Local (filesystem) par défaut ; BACKUP_LOCATION=s3 active l'upload S3
+      DB01_BACKUP_LOCATION: ${BACKUP_LOCATION:-filesystem}
+      DB01_S3_HOST: ${BACKUP_S3_ENDPOINT}
+      DB01_S3_BUCKET: ${BACKUP_BUCKET}
+      DB01_S3_PATH: /postgresql
+      DB01_S3_KEY_ID: ${BACKUP_S3_ACCESS_KEY}
+      DB01_S3_KEY_SECRET: ${BACKUP_S3_SECRET_KEY}
+      DB01_S3_REGION: ${BACKUP_S3_REGION}
     volumes:
       - backup_data:/backup
     depends_on:
       - database
     restart: unless-stopped
 ```
+
+L'image est épinglée par version et par empreinte (`@sha256:`). Le projet `tiredofit/db-backup` est devenu `nfrastack/db-backup` (v5) ; les variables `DB_*` historiques sont remplacées par `DB01_*`. Pour mettre à jour : changer le tag et l'empreinte ensemble (Dependabot propose les deux).
 
 ---
 
