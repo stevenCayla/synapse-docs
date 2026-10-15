@@ -114,6 +114,7 @@ développement** (workspace, admin, sites, utilisateurs, patients, études, eCRF
 ```bash
 make seed c="--reset --all-sites"
 # équivalent : make sf c="app:seed --reset --all-sites"
+# sans terminal interactif : ajoute --admin=prenom.nom@example.com (obligatoire)
 ```
 
 :::tip
@@ -132,14 +133,15 @@ Tu devrais voir les tables `study`, `patient`, `ecrf_form`, `workspace`, `user`,
 ## ✅ Étape 5 — Se connecter
 
 1. Ouvre **https://localhost** dans ton navigateur.
-2. Connecte-toi avec l'administrateur créé par le seed. Le seed te demande l'administrateur à créer
-   (ou crée John Doe, `admin@example.com`, en mode non interactif) et affiche son mot de passe
-   **une seule fois** à la fin de son exécution : note-le. Tu devras le changer dès la première connexion.
+2. Connecte-toi avec le super-administrateur que tu as nommé lors du seed (aucun administrateur
+   par défaut n'existe : le seed te demande son e-mail, son prénom, son nom et son mot de passe).
+   Si tu as laissé le mot de passe vide, un mot de passe est généré et affiché **une seule fois**
+   à la fin de l'exécution : note-le. Tu devras le changer dès la première connexion.
 
-   | Champ | Valeur par défaut |
-   |-------|-------------------|
-   | **Email** | `admin@example.com` |
-   | **Mot de passe** | généré, affiché à la fin du seed |
+   | Champ | Valeur |
+   |-------|--------|
+   | **Email** | celui saisi lors du seed |
+   | **Mot de passe** | celui saisi, ou généré et affiché à la fin du seed |
 
 :::note[2FA obligatoire]
 L'authentification à deux facteurs (**TOTP**) est obligatoire. À la première connexion, scanne
@@ -186,7 +188,7 @@ interface web avec `docker compose port mailer 8025`.
 | Conteneurs lancés | ✅ | `make ps` (services `php`, `database`, `mailer` en `running`) |
 | Base initialisée | ✅ | `make pgsql` puis `\dt` |
 | Application accessible | ✅ | `curl -k https://localhost` (retourne du HTML) |
-| Connexion admin | ✅ | https://localhost (`admin@example.com` + mot de passe affiché par le seed) |
+| Connexion admin | ✅ | https://localhost (e-mail saisi lors du seed + mot de passe saisi ou affiché par le seed) |
 
 ---
 

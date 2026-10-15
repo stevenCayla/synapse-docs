@@ -36,7 +36,7 @@ Aucun changement en attente.
 ### Changements incompatibles
 
 - **PostgreSQL 18** : nouveau volume `database_data_pg18`, migration manuelle (voir [Migration vers PostgreSQL 18](/deployment/postgresql-18-upgrade/)) ; `POSTGRES_VERSION` supprimée.
-- **`app:seed`** : options `--admin-email` / `--admin-password` supprimées (utiliser `--admin` et `SEED_ADMIN_PASSWORD`).
+- **`app:seed`** : options `--admin-email` / `--admin-password` supprimées (utiliser `--admin` et `SEED_ADMIN_PASSWORD`) ; plus d'administrateur par défaut : `--reset` exige un super-administrateur nommé (`--admin=<email>` hors mode interactif).
 - Service **`backup`** derrière le profil Compose `backup`.
 - **Hub Mercure 1.0** : bloc `issuer`, `match=` à la place de `topic=`.
 
@@ -49,7 +49,8 @@ Aucun changement en attente.
 ### Modifié
 
 - **PostgreSQL 18**, **Symfony 8.1**, **PHP 8.5.11** minimum, images conteneur épinglées, choices.js 11.
-- Refonte de plusieurs pages de l'interface et seed sans données personnelles.
+- Refonte de plusieurs pages de l'interface et seed sans données personnelles ni administrateur par défaut.
+- Connexion : un utilisateur sans 2FA configurée arrive sur la page de configuration `/2fa/setup` au lieu d'un code inexistant.
 
 ### Sécurité
 

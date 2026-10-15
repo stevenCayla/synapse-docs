@@ -113,6 +113,7 @@ admin, sites, users, patients, studies, eCRF):
 ```bash
 make seed c="--reset --all-sites"
 # equivalent: make sf c="app:seed --reset --all-sites"
+# without an interactive terminal: add --admin=first.last@example.com (required)
 ```
 
 :::tip
@@ -131,12 +132,15 @@ You should see the `study`, `patient`, `ecrf_form`, `workspace`, `user`… table
 ## ✅ Step 5 — Log in
 
 1. Open **https://localhost** in your browser.
-2. Log in with the administrator created by the seed:
+2. Log in with the super administrator you named when running the seed (there is no default
+   administrator: the seed asks for the e-mail, first name, last name and password). If you left
+   the password empty, a generated one is printed **once** at the end of the run: write it down.
+   You must change it at first login.
 
-   | Field | Default value |
-   |-------|---------------|
-   | **Email** | `admin@example.com` |
-   | **Password** | generated, printed at the end of the seed |
+   | Field | Value |
+   |-------|-------|
+   | **Email** | the one entered during the seed |
+   | **Password** | the one entered, or generated and printed at the end of the seed |
 
 :::note[2FA mandatory]
 Two-factor authentication (**TOTP**) is mandatory. On your first login, scan the QR code with
@@ -181,7 +185,7 @@ Outgoing emails are captured by **Mailpit** (no real sending). Get its web UI UR
 | Containers running | ✅ | `make ps` (`php`, `database`, `mailer` services `running`) |
 | Database initialized | ✅ | `make pgsql` then `\dt` |
 | Application reachable | ✅ | `curl -k https://localhost` (returns HTML) |
-| Admin login | ✅ | https://localhost (`admin@example.com` + password printed by the seed) |
+| Admin login | ✅ | https://localhost (e-mail entered during the seed + password entered or printed by the seed) |
 
 ---
 

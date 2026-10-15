@@ -101,7 +101,7 @@ php bin/console app:seed [options]
 |---|---|---|---|
 | `--reset` | flag | — | Vide entièrement la base avant de générer les données |
 | `--workspace-name` | string | `Développement` | Nom du workspace créé après le reset |
-| `--admin` | string (répétable) | — | Email d'un administrateur à créer (un par admin ; prénom et nom déduits de l'email). Sans cette option : mode interactif, ou John Doe `admin@example.com` en mode non interactif |
+| `--admin` | string (répétable) | — | Email d'un administrateur à créer (un par admin ; prénom et nom déduits de l'email). Sans cette option : mode interactif (invites), ou refus de la commande en mode non interactif, avant toute suppression de données ; il n'existe aucun administrateur par défaut |
 | `SEED_ADMIN_PASSWORD` | variable d'env. | — | Mot de passe des administrateurs en mode non interactif. Sans elle, un mot de passe aléatoire est généré et affiché une seule fois à la fin |
 | `-w, --workspace` | int | — | ID du workspace cible (ignoré si `--reset`) |
 | `--users` | int | `10` | Nombre d'utilisateurs investigateurs à créer |
@@ -120,8 +120,11 @@ php bin/console app:seed --reset --users=5 --studies=2
 php bin/console app:seed -w 1 --patients=50 --all-sites
 ```
 
-**Administrateurs :** en mode interactif, le seed propose de créer l'administrateur par défaut John Doe (`admin` / `admin@example.com`) ou d'en saisir un autre,
-puis demande le mot de passe (saisie masquée, validée par la politique de mot de passe).
+**Administrateurs :** avec `--reset`, au moins un super-administrateur doit être nommé : il n'existe aucun administrateur par défaut.
+En mode interactif, le seed demande l'e-mail (obligatoire), le prénom et le nom (proposés d'après l'e-mail, modifiables),
+puis le mot de passe (saisie masquée avec confirmation, validée par la politique de mot de passe ; Entrée pour en générer un),
+et propose d'ajouter un autre administrateur. En mode non interactif, `--admin=<email>` est obligatoire : sans lui, la commande
+échoue avant de vider la base.
 Chaque administrateur est `ROLE_SUPER_ADMIN`, rattaché aux deux workspaces, et **doit changer son mot de passe à la première connexion**. La commande est refusée en environnement `prod`.
 
 **Pipeline interne :** reset (optionnel) → workspace + admin → sites → users (avec assignation aux sites) → équipes (9 équipes standard avec membres) → patients → études (avec patients inclus et occurrences de visites) → templates eCRF.

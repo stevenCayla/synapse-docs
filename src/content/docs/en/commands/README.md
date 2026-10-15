@@ -101,7 +101,7 @@ php bin/console app:seed [options]
 |---|---|---|---|
 | `--reset` | flag | — | Fully empties the database before generating data |
 | `--workspace-name` | string | `Développement` | Name of the workspace created after the reset |
-| `--admin` | string (repeatable) | — | Email of an administrator to create (one per admin; first and last name derived from the email). Without it: interactive prompts, or John Doe `admin@example.com` in non-interactive mode |
+| `--admin` | string (repeatable) | — | Email of an administrator to create (one per admin; first and last name derived from the email). Without it: interactive prompts, or the command is refused in non-interactive mode, before any data is wiped; there is no default administrator |
 | `SEED_ADMIN_PASSWORD` | env variable | — | Password of the administrators in non-interactive mode. If unset, a random password is generated and printed once at the end |
 | `-w, --workspace` | int | — | Target workspace ID (ignored if `--reset`) |
 | `--users` | int | `10` | Number of investigator users to create |
@@ -120,8 +120,11 @@ php bin/console app:seed --reset --users=5 --studies=2
 php bin/console app:seed -w 1 --patients=50 --all-sites
 ```
 
-**Administrators:** in interactive mode, the seed offers to create the default administrator John Doe (`admin` / `admin@example.com`) or to enter another one,
-then asks for the password (hidden input, validated against the password policy).
+**Administrators:** with `--reset`, at least one super administrator must be named: there is no default administrator.
+In interactive mode, the seed asks for the e-mail (required), first and last name (proposed from the e-mail, editable),
+then the password (hidden input with confirmation, validated against the password policy; Enter to generate one),
+and offers to add another administrator. In non-interactive mode, `--admin=<email>` is required: without it, the command
+fails before wiping the database.
 Each administrator is `ROLE_SUPER_ADMIN`, linked to both workspaces, and **must change the password at first login**. The command is refused in the `prod` environment.
 
 **Internal pipeline:** reset (optional) → workspace + admin → sites → users (with site assignment) → teams (9 standard teams with members) → patients → studies (with enrolled patients and visit occurrences) → eCRF templates.
