@@ -24,13 +24,40 @@ format.
 - **PATCH** — backward-compatible fixes.
 :::
 
-## Current version — `3.0.0`
+## Current version — `3.0.1`
 
-First version published as a release; application version (`APP_VERSION`).
+Patch release of `3.0.0`; application version (`APP_VERSION`).
 
 ## In progress (`Unreleased`)
 
-No pending change.
+Nothing yet.
+
+## `3.0.1`
+
+Patch release: no new feature, no breaking change.
+
+:::caution[Check before deploying]
+- Migration `Version20261015110000` (#62) **stops without changing anything** and lists the duplicates if the database holds several eCRF records for the same study patient, form and visit. The detection query and how to resolve them are described in the migration header. Back up the database before deploying.
+- `make db-setup` no longer exists: use `make up` then `make migrate`.
+:::
+
+### Removed
+
+- **`make db-setup`, `bin/setup-db.sh` and `docker/db/provision.sql`** (#52): obsolete (the PostgreSQL container creates the role and database, the `php` entrypoint applies the migrations).
+
+### Fixed
+
+- **CSP** (#48): inline scripts carry a nonce and inline event handlers are replaced by `data-*` attributes.
+- **eCRF builder preview** (#49): multiple-choice dropdown no longer clipped, theme colours.
+- **2FA** (#59): backup codes generated at setup, shown once and managed from the profile; 2FA code submission on the login page fixed.
+- **eCRF** (#62): partial unique indexes of `ecrf_record` recreated; the migration lists any duplicates.
+- **Invitations** (#63): `assigned_role` default aligned on `member`.
+- **Study members** (#74): add and edit pages, users limited to the workspace.
+- **Study eCRF creation** (#75): `/studies/{id}/ecrf/new` no longer returns HTTP 500.
+
+### Changed
+
+- CI: Composer authenticated to avoid HTTP 429 errors (#67).
 
 ## `3.0.0`
 

@@ -22,7 +22,7 @@ HDS, GDPR/CNIL, ANSSI and 21 CFR Part 11.
 | Disabled or soft-deleted accounts blocked before the password check | Implemented | `Security/UserChecker` |
 | Mandatory TOTP 2FA for every user (HDS) | Implemented | `EventSubscriber/TwoFactorSubscriber`, `Service/TotpService`, `Controller/TotpController` |
 | TOTP secret created automatically for new accounts | Implemented | `UserController`, `InvitationService`, `app:totp:provision-missing` |
-| 2FA backup codes (10 codes, `XXXX-XXXX`, SHA-256 hashed, single use) | Implemented | `Service/BackupCodeService`, `Entity/UserBackupCode` |
+| 2FA backup codes (10 codes, `XXXX-XXXX`, SHA-256 hashed, single use; shown once right after the 2FA setup, regenerated from the profile) | Implemented | `Service/BackupCodeService`, `Entity/UserBackupCode`, `Controller/TotpController` |
 | Admin reset of a user's 2FA (audited) | Implemented | `UserController` → `logTwoFactorReset` |
 | Rate limiting of TOTP / backup-code attempts on `/2fa/check` | **Not implemented** | `TotpController::check()` has no attempt counter |
 | Automatic disabling of accounts inactive for 90 days | Implemented (the command must be scheduled) | `app:users:auto-disable-inactive` (`--days`, default 90) |

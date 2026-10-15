@@ -23,13 +23,40 @@ Synapse Medical suit le **[Semantic Versioning](https://semver.org/lang/fr/)**
 - **PATCH** — corrections rétrocompatibles.
 :::
 
-## Version actuelle — `3.0.0`
+## Version actuelle — `3.0.1`
 
-Première version publiée en release ; version applicative (`APP_VERSION`).
+Version corrective de `3.0.0` ; version applicative (`APP_VERSION`).
 
 ## En cours (`Unreleased`)
 
-Aucun changement en attente.
+Rien pour le moment.
+
+## `3.0.1`
+
+Version corrective : aucune fonctionnalité nouvelle, pas de changement incompatible.
+
+:::caution[À vérifier avant déploiement]
+- La migration `Version20261015110000` (#62) **s'arrête sans rien modifier** et liste les doublons si la base contient plusieurs saisies eCRF pour un même patient d'étude, formulaire et visite. La requête de détection et la résolution sont décrites dans l'en-tête de la migration. Sauvegarder la base avant de déployer.
+- `make db-setup` n'existe plus : utiliser `make up` puis `make migrate`.
+:::
+
+### Supprimé
+
+- **`make db-setup`, `bin/setup-db.sh` et `docker/db/provision.sql`** (#52) : obsolètes (le conteneur PostgreSQL crée le rôle et la base, l'entrypoint de `php` applique les migrations).
+
+### Corrigé
+
+- **CSP** (#48) : scripts en ligne avec nonce et gestionnaires d'événements en ligne remplacés par des attributs `data-*`.
+- **Aperçu du builder eCRF** (#49) : menu déroulant des choix multiples non coupé, couleurs du thème.
+- **2FA** (#59) : codes de secours générés à la configuration, affichés une seule fois et gérés depuis le profil ; soumission du code 2FA de la page de connexion corrigée.
+- **eCRF** (#62) : index uniques partiels de `ecrf_record` recréés ; la migration liste les doublons éventuels.
+- **Invitations** (#63) : valeur par défaut de `assigned_role` alignée sur `member`.
+- **Membres d'étude** (#74) : pages d'ajout et de modification, utilisateurs limités au workspace.
+- **Création d'un eCRF d'étude** (#75) : la page `/studies/{id}/ecrf/new` ne renvoie plus d'erreur 500.
+
+### Modifié
+
+- CI : Composer authentifié pour éviter les erreurs HTTP 429 (#67).
 
 ## `3.0.0`
 
