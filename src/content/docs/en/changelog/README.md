@@ -30,7 +30,9 @@ First version published as a release; application version (`APP_VERSION`).
 
 ## In progress (`Unreleased`)
 
-No pending change.
+### Removed
+
+- **`make db-setup`, `bin/setup-db.sh` and `docker/db/provision.sql`**: obsolete (the PostgreSQL container creates the role and database, the `php` entrypoint applies the migrations). Use `make up` then `make migrate`.
 
 ## `3.0.0`
 
