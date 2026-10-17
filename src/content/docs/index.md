@@ -27,6 +27,7 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/getting
 |----------|---------|
 | [Guide de démarrage](/backend/getting-started/) | Installer, lancer et contribuer en local |
 | [Structure du code backend](/backend/symfony-structure/) | Organisation `src/`, couches, conventions |
+| [Service d'import de données](/backend/import/) | Lecture, mapping, conversion, validation, reprise |
 | [Modèle de données](/database/data-model/) | Entités, relations, conventions transverses |
 | [Commandes console](/commands/readme/) | Référence des commandes `app:*` |
 | [Documentation API](/api/readme/) | Endpoints, Swagger, conventions OpenAPI |
