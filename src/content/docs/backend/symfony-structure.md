@@ -64,7 +64,7 @@ src/
 | Sécurité / session | `SecurityController`, `TotpController`, `ForcePasswordChangeController`, `PasswordResetController`, `SessionExpireController`, `UserSessionController` |
 | Workspace | `WorkspaceController`, `WorkspaceSwitchController`, `WorkspaceModuleController`, `HomeController` |
 | Utilisateurs / accès | `UserController`, `TeamController`, `UserAccessController`, `InvitationController`, `SiteController` |
-| Étude | `StudyController`, `StudyPatientController`, `StudyProtocolController`, `StudyScheduleController`, `StudyImportController` |
+| Étude | `StudyController`, `StudyPatientController`, `StudyProtocolController`, `StudyScheduleController` |
 | eCRF | `EcrfController`, `EcrfRecordController`, `EcrfBuilderController`, `EcrfTemplateController`, `EcrfQueryController`, `EcrfSignatureController` |
 | Patient / GDPR | `PatientController`, `DeathCheckerController`, `ConsentAdminController`, `ConsentPatientController`, `DpoContactController` |
 | Fichiers / audit | `PrivateFileController`, `AuditExportController`, `AdminNotificationController` |
@@ -82,7 +82,7 @@ Logique métier dans `src/Service/`, autowirés. Regroupement logique :
 | Workspace | `ActiveWorkspaceContext`, `WorkspaceModuleManager` |
 | Accès | `StudyAccessService`, `SiteAccessService`, `UserAssignmentService` |
 | eCRF | `EcrfRuleEngine`, `EcrfFormulaEngine`, `EcrfQueryService`, `EcrfSignatureService`, `EcrfAuditWriter`, `EcrfTemplateCloner`, `StudyEcrfExportService`, `StudyProgressService` |
-| Étude | `StudyExportService`, `StudyImportService`, `VisitSchedulingService`, `SubjectIdService` |
+| Étude | `StudyExportService`, `VisitSchedulingService`, `SubjectIdService` |
 | Patient / GDPR | `EncryptionService`, `PatientSearchHashService`, `ConsentService`, `ErasePatientService`, `PatientRestrictionService`, `PatientDataExportService`, `DataRetentionService`, `MatchIdService` |
 | Sécurité | `TotpService`, `BackupCodeService`, `PasswordResetService`, `InvitationService`, `ActivityLogService`, `ActivityLogIntegrityService`, `SecureFileUploadService` |
 
