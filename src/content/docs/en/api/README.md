@@ -117,21 +117,21 @@ To add a reusable schema, add it to the YAML file under `components.schemas`.
 
 | Command | Description |
 |---|---|
-| `make openapi` | Export the spec of the `default` area to `docs/api/openapi.json` |
+| `make openapi` | Export the spec of the `default` area to `openapi/openapi.json` |
 | `make sf c="nelmio:apidoc:dump --format=json"` | Generate the JSON spec (validation) |
 | `make sf c="nelmio:apidoc:dump --format=yaml"` | Generate the YAML spec |
 | `make sf c="debug:router --show-aliases"` | List all registered routes |
 
-### Schema exported for the documentation site
+### Exported schema (private)
 
-`docs/api/openapi.json` is the spec of the `default` area, committed so that the
-documentation site generates the API reference without running the application: it is
-synced with the rest of `docs/`.
+`openapi/openapi.json` (at the repository root) is the spec of the `default` area (internal
+API). It stays in the private repository and is never published on the public
+documentation site, because `docs/` is synced to a public repository.
 
 - After changing a documented endpoint (`#[OA\*]` attributes or `nelmio_api_doc.yaml`),
   run `make openapi` and commit the file.
 - The CI **Tests** job regenerates the spec and fails when it differs from the committed file.
-- The `public` area is not exported while it has no endpoint.
+- Only the `public` area, once it has endpoints, may be published later (separate decision).
 
 ## Documented security
 
