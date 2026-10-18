@@ -170,6 +170,22 @@ docker compose exec php bin/console app:patient:encrypt-existing --dry-run
 
 ---
 
+## Fichiers déposés (`private_uploads`)
+
+Les fichiers déposés (avatars, pièces jointes, documents cliniques, imports archivés) sont dans le volume Docker `private_uploads` : le service `backup` ne sauvegarde que PostgreSQL. Ce volume doit être sauvegardé au niveau de l'hôte, au même rythme que la base (RPO ≤ 1 h pour les documents cliniques, sinon quotidien), puis copié hors du serveur.
+
+```bash
+# Sauvegarde (archive horodatée dans le dossier courant)
+docker run --rm -v synapse-medical_private_uploads:/data:ro -v "$PWD":/out alpine \
+  tar czf "/out/private_uploads_$(date +%Y%m%dT%H%M%S).tar.gz" -C /data .
+
+# Restauration dans un volume vide (propriétaire www-data, uid 33), puis redémarrage de php et worker
+docker run --rm -v synapse-medical_private_uploads:/data -v "$PWD":/in alpine \
+  sh -c 'tar xzf /in/private_uploads_<horodatage>.tar.gz -C /data && chown -R 33:33 /data'
+```
+
+Le nom du volume est `<projet Compose>_private_uploads` (`docker volume ls`). La restauration d'une base sans les fichiers laisserait des références orphelines : restaurer les deux ensemble et tester dans le test mensuel.
+
 ## Surveillance
 
 | Alerte | Seuil | Canal |
