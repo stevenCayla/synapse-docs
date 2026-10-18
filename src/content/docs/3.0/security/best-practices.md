@@ -11,7 +11,7 @@ sidebar:
 slug: 3.0/security/best-practices
 ---
 
-> 🌐 Version française · [English version](/3.0/en/security/best-practices/)
+> 🌐 Version française · [English version](/en/3.0/security/best-practices/)
 
 Synapse Medical traite des **données de santé** (HDS, RGPD, ANSSI, 21 CFR Part 11). Les
 règles ci-dessous sont **non négociables** et s'appliquent à toute contribution. Voir aussi :

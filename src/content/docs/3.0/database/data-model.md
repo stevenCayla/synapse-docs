@@ -6,7 +6,7 @@ description: "Modèle de données Doctrine : ~50 entités regroupées par domain
 slug: 3.0/database/data-model
 ---
 
-> 🌐 Version française · [English version](/3.0/en/database/data-model/)
+> 🌐 Version française · [English version](/en/3.0/database/data-model/)
 
 Entités Doctrine, relations et conventions transverses.
 Voir aussi : [Structure du code backend](/3.0/backend/symfony-structure/) · [Architecture](/3.0/architecture/overview/).
@@ -156,7 +156,7 @@ Contraintes d'intégrité notables : `WorkspaceUserRepository` garantit **≥ 1 
 | `AppSetting` | Réglages globaux clé/valeur |
 | `AdminNotification` | Notifications admin |
 
-Détails fonctionnels : [security/README.md](/3.0/en/security/readme/).
+Détails fonctionnels : [security/README.md](/en/3.0/security/readme/).
 
 ***
 

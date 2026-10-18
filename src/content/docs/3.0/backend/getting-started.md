@@ -6,7 +6,7 @@ description: "Installer, lancer et contribuer à l'application en local : mise e
 slug: 3.0/backend/getting-started
 ---
 
-> 🌐 Version française · [English version](/3.0/en/backend/getting-started/)
+> 🌐 Version française · [English version](/en/3.0/backend/getting-started/)
 
 Mettre en place l'environnement, lancer l'application et contribuer en local.
 

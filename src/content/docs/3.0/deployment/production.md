@@ -9,7 +9,7 @@ sidebar:
 slug: 3.0/deployment/production
 ---
 
-> 🌐 Version française · [English version](/3.0/en/deployment/production/)
+> 🌐 Version française · [English version](/en/3.0/deployment/production/)
 
 Cette page est le **point d'entrée** d'un déploiement en production. Elle décrit
 l'architecture cible, les secrets obligatoires et le flux complet de
@@ -195,5 +195,5 @@ ISO 27001 A.12.3).
 * [Déploiement Debian + Apache + Docker](/3.0/deployment/debian-apache-docker/) — configuration hôte complète
 * [Politique de sauvegarde](/3.0/deployment/backup/) · [Processus de release](/3.0/deployment/release-process/)
 * [Migration PostgreSQL 16 vers 18](/3.0/deployment/postgresql-18-upgrade/)
-* [Sécurité](/3.0/en/security/readme/) · [Conformité](/3.0/en/security/compliance/)
+* [Sécurité](/en/3.0/security/readme/) · [Conformité](/en/3.0/security/compliance/)
 * [Vue d'ensemble de l'architecture](/3.0/architecture/overview/)

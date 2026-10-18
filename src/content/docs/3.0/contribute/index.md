@@ -11,7 +11,7 @@ sidebar:
 slug: 3.0/contribute
 ---
 
-> 🌐 Version française · [English version](/3.0/en/contribute/)
+> 🌐 Version française · [English version](/en/3.0/contribute/)
 
 Merci de votre intérêt pour **Synapse Medical** ! Les contributions de **toute taille et
 tout niveau** sont les bienvenues — du correctif de typo à une nouvelle fonctionnalité.

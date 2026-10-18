@@ -8,7 +8,7 @@ sidebar:
 slug: 3.0/changelog/breaking-changes
 ---
 
-> 🌐 Version française · [English version](/3.0/en/changelog/breaking-changes/)
+> 🌐 Version française · [English version](/en/3.0/changelog/breaking-changes/)
 
 Cette page recense les **ruptures de compatibilité** (changements `MAJOR` au sens
 [SemVer](https://semver.org/lang/fr/)) et les actions de migration nécessaires.

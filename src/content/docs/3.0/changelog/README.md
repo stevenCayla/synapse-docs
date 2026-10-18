@@ -8,7 +8,7 @@ sidebar:
 slug: 3.0/changelog/readme
 ---
 
-> 🌐 Version française · [English version](/3.0/en/changelog/readme/)
+> 🌐 Version française · [English version](/en/3.0/changelog/readme/)
 
 Synapse Medical suit le **[Semantic Versioning](https://semver.org/lang/fr/)**
 (`MAJOR.MINOR.PATCH`) et le format **[Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)**.

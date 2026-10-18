@@ -5,7 +5,7 @@ description: Organisation de src/ — contrôleurs, services, voters, événemen
 slug: 3.0/backend/symfony-structure
 ---
 
-> 🌐 Version française · [English version](/3.0/en/backend/symfony-structure/)
+> 🌐 Version française · [English version](/en/3.0/backend/symfony-structure/)
 
 Organisation de `src/`, conventions de code et règles à respecter.
 Voir aussi : [Vue d'ensemble de l'architecture](/3.0/architecture/overview/) · [Modèle de données](/3.0/database/data-model/).

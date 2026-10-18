@@ -39,7 +39,7 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/3.0/get
 | Document | Contenu |
 |----------|---------|
 | [Vue d'ensemble](/3.0/architecture/overview/) | Architecture technique globale |
-| [Décisions d'architecture (ADR)](/3.0/en/architecture/adr/readme/) | Journal des choix structurants *(EN)* |
+| [Décisions d'architecture (ADR)](/en/3.0/architecture/adr/readme/) | Journal des choix structurants *(EN)* |
 | Architecture, sécurité & TMA | Document de référence complet |
 
 ## 🔒 Sécurité & conformité
@@ -48,7 +48,7 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/3.0/get
 |----------|---------|
 | [Bonnes pratiques de sécurité](/3.0/security/best-practices/) 📌 | Règles de codage sécurisé non négociables |
 | [Permissions](/3.0/security/permissions/) | Modèle d'autorisation |
-| [Sécurité — vue d'ensemble](/3.0/en/security/readme/) | Mécanismes de sécurité *(EN)* |
+| [Sécurité — vue d'ensemble](/en/3.0/security/readme/) | Mécanismes de sécurité *(EN)* |
 | [Conformité & audits](/audit/checklist/) · [RGPD](/3.0/rgpd/registre-traitements/) | HDS / CNIL / ANSSI / 21 CFR Part 11 |
 | [Checklist QA sécurité](/3.0/qa/security-checklist/) | Contrôles de revue |
 

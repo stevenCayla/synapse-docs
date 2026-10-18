@@ -8,7 +8,7 @@ sidebar:
 slug: 3.0/changelog/releases
 ---
 
-> 🌐 Version française · [English version](/3.0/en/changelog/releases/)
+> 🌐 Version française · [English version](/en/3.0/changelog/releases/)
 
 Chaque version publiée est matérialisée par un **tag Git `vX.Y.Z`** et une
 **[GitHub Release](https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases)** associée.
