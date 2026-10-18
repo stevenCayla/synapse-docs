@@ -137,6 +137,7 @@ Pour mettre à jour une image : changer le tag (et l'empreinte), reconstruire av
 | Étape | Commande | Quand |
 |-------|----------|-------|
 | **Provisionner la 2FA** | `app:totp:provision-missing` (aperçu avec `--dry-run`) | Après activation de la 2FA obligatoire. Les utilisateurs sans TOTP sont redirigés vers `/2fa/setup` au prochain login (attendu, non bloquant). |
+| **Charger les packs réglementaires** | `app:regulatory-packs:seed` | Après les migrations, à chaque déploiement : idempotent, ne crée que ce qui manque (jamais de modification des packs existants). Sans cette étape, les packs réglementaires sont vides. |
 | **Chiffrer les PII patient** | `app:patient:encrypt-existing --batch-size=200` (idempotent ; `--dry-run` pour vérifier) | Backfill ponctuel lors de l'introduction du chiffrement patient. Faire un `pg_dump` au préalable. |
 | **Vérifier la rétention** | `app:retention:check-studies` | Code de sortie `2` si des études dépassent la rétention — intégrable dans Nagios/Zabbix. |
 | **Vérifier les chaînes d'audit** | `app:verify-audit-chain` · `app:audit:verify-chain` | Contrôle d'intégrité périodique des journaux inviolables. |
@@ -226,7 +227,7 @@ La file `failed` n'est volontairement pas consommée par le worker : une relance
 - [ ] TLS Apache valide ; redirection HTTP→HTTPS OK ; `certbot renew --dry-run` OK.
 - [ ] `TRUSTED_PROXIES` correspond à la gateway Docker réelle.
 - [ ] PostgreSQL **non** exposé sur l'hôte.
-- [ ] Migrations appliquées ; `app:totp:provision-missing` exécuté.
+- [ ] Migrations appliquées ; `app:totp:provision-missing` et `app:regulatory-packs:seed` exécutés.
 - [ ] Service `worker` actif (`ps` → `healthy`), volume `private_uploads` présent (`docker volume ls`), fichiers existants copiés dedans (voir ci-dessus).
 - [ ] Service `backup` actif (`--profile backup`, obligatoire avant toute donnée réelle) ; une restauration a été testée.
 - [ ] Vérification de la chaîne d'audit planifiée.
