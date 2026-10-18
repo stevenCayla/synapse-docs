@@ -84,3 +84,22 @@ Numbers accept the decimal comma or dot, thousand separators and scientific nota
 ## Unmapped columns
 
 `TypeInferer` proposes a field per unmapped base column: boolean (oui / non), small integer code set 0 to 20 (list of values), number (comma, dot, scientific), date, list (few repeating values), text (TNM strings stay text). The proposal carries the unit from the header and the observed range.
+
+## Defining fields from the columns (`App\Import\FieldDefinition`)
+
+An unmapped base column can become an eCRF field, then be mapped to it so that a later pass imports it (resume never overwrites).
+
+- **Proposals** (`FieldProposer`, from the `ImportReport`, never from the client): one per unmapped base column, in file order. Label = header without unit or suffix, technical name unique in the study (lower case, no accent, `_`), type from `TypeInferer`, unit from the header, observed range for a number.
+  A **list of values** takes the options of the column note (`code`, `label`), then adds, to be labelled, the values found in the data but missing from the note: a value is never dropped. A note that does not read as codes becomes the help text.
+  Suffixed columns (`X_1`) feed the same field (`visitSuffixes`).
+- **Category**: an existing form of the study (draft or active) or a new one, and one section per header colour group ("Groupe 1", "Groupe 2"… in order of appearance, editable); columns without colour go to the "Champs importés" section. An existing section of the form can be chosen (`sectionId`).
+- **Creation** (`FieldCreator`, one transaction): a draft form just gets the fields; an **active** form is **amended**: `EcrfForm::amend()` raises `version` (records already entered keep theirs, existing fields do not change) and the activity log gets `ecrf.form.amended` (previous and new version, fields, mandatory reason). Draft: `ecrf.fields.created_from_import`; new form: `ecrf.form.created_from_import`.
+  A closed or archived form, a frozen study or a finished import is refused. The field carries the import rules: type, range, unit, options (the code the cells hold; the label of the note is kept in the field help) and a synonym of the header. Each column is then mapped to the new field (`ImportAnalyzer::mapColumn`).
+- **Isolation**: the form and the section are looked up among those of the import's study (never by id alone); the import is read with its workspace and study; the study admin right (`StudyVoter::ADMIN`) is required. Otherwise 404 / 403.
+
+JSON endpoints (`ImportFieldDefinitionController`), for the import UI:
+
+| Route | Purpose |
+|---|---|
+| `GET /studies/{studyId}/imports/{importId}/field-proposals` | proposals, default sections, existing forms, CSRF token. Reads the archived file again through `ImportFileProvider` (409 when missing). |
+| `POST /studies/{studyId}/imports/{importId}/fields` | creates the chosen fields (`formId` or `newFormTitle`, `reason`, `fields[]`); CSRF token in the `X-CSRF-Token` header. |

@@ -89,3 +89,24 @@ patient : nouveau ou existant ; par valeur : ajout, identique ou conflit (jamais
 ## Colonnes non mappées
 
 `TypeInferer` propose un champ par colonne de base non mappée : booléen (oui / non), petit jeu de codes entiers de 0 à 20 (liste de valeurs), nombre (virgule, point, scientifique), date, liste (peu de valeurs répétées), texte (les chaînes TNM restent du texte). La proposition porte l'unité de l'en-tête et la plage observée.
+
+## Définir des champs depuis les colonnes (`App\Import\FieldDefinition`)
+
+Une colonne de base non mappée peut devenir un champ eCRF, puis être mappée dessus pour être importée par une passe suivante (la reprise n'écrase rien).
+
+- **Propositions** (`FieldProposer`, depuis l'`ImportReport`, jamais depuis le client) : une par colonne de base non mappée, dans l'ordre du fichier. Libellé = en-tête sans unité ni suffixe, nom technique unique dans l'étude (minuscules, sans accent, `_`), type de `TypeInferer`, unité de l'en-tête, plage observée pour un nombre.
+  Une **liste de valeurs** reprend les options de la note de colonne (`code`, `label`) puis ajoute, à libeller, les valeurs présentes dans les données mais absentes de la note : une valeur n'est jamais écartée. Une note qui ne se lit pas comme des codes devient le texte d'aide.
+  Les colonnes suffixées (`X_1`) nourrissent le même champ (`visitSuffixes`).
+- **Catégorie** : un formulaire existant de l'étude (brouillon ou actif) ou un nouveau, et une section par groupe de couleur d'en-tête (« Groupe 1 », « Groupe 2 »… dans l'ordre d'apparition, modifiable) ;
+  les colonnes sans couleur vont dans la section « Champs importés ». Une section existante du formulaire peut être choisie (`sectionId`).
+- **Création** (`FieldCreator`, une transaction) : le formulaire brouillon reçoit les champs ; un formulaire **actif** reçoit un **amendement** : `EcrfForm::amend()` incrémente `version` (les enregistrements déjà saisis gardent la leur, les champs existants ne changent pas) et le journal d'activité reçoit `ecrf.form.amended` (ancienne et nouvelle version, champs, motif obligatoire).
+  Brouillon : `ecrf.fields.created_from_import` ; nouveau formulaire : `ecrf.form.created_from_import`.
+  Un formulaire fermé ou archivé, une étude gelée ou un import terminé sont refusés. Le champ porte les règles de l'import : type, plage, unité, options (le code que contiennent les cellules ; le libellé de la note est conservé dans l'aide du champ) et un synonyme de l'en-tête. Ensuite chaque colonne est mappée au nouveau champ (`ImportAnalyzer::mapColumn`).
+- **Cloisonnement** : le formulaire et la section sont cherchés parmi ceux de l'étude de l'import (jamais par identifiant seul) ; l'import est lu avec son espace de travail et son étude ; le droit d'administrateur de l'étude (`StudyVoter::ADMIN`) est requis. Sinon 404 / 403.
+
+Points d'accès JSON (`ImportFieldDefinitionController`), pour l'interface d'import :
+
+| Route | Rôle |
+|---|---|
+| `GET /studies/{studyId}/imports/{importId}/field-proposals` | propositions, sections par défaut, formulaires existants, jeton CSRF. Relit le fichier archivé via `ImportFileProvider` (409 si absent). |
+| `POST /studies/{studyId}/imports/{importId}/fields` | crée les champs choisis (`formId` ou `newFormTitle`, `reason`, `fields[]`) ; jeton CSRF dans l'en-tête `X-CSRF-Token`. |
