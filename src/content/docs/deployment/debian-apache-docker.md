@@ -306,17 +306,8 @@ docker compose -f compose.yaml -f compose.prod.yaml exec php \
     chown -R www-data:www-data var/
 ```
 
-Les fichiers uploadés (`private_uploads/`) sont dans le conteneur. Pour la persistance,
-ajouter un volume dans `compose.prod.yaml` :
-
-```yaml
-services:
-  php:
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
-      - uploads_data:/app/private_uploads  # ← persistance des fichiers uploadés
-```
+Les fichiers uploadés (`private_uploads/`) sont dans le volume nommé `private_uploads` de `compose.prod.yaml`
+(partagé par `php` et `worker`) : voir [Fichiers déposés](/deployment/production/#fichiers-déposés-private_uploads).
 
 ---
 

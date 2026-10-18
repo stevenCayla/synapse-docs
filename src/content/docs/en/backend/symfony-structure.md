@@ -64,7 +64,7 @@ Symfony `AbstractController`, grouped by domain. The
 | Security / session | `SecurityController`, `TotpController`, `ForcePasswordChangeController`, `PasswordResetController`, `SessionExpireController`, `UserSessionController` |
 | Workspace | `WorkspaceController`, `WorkspaceSwitchController`, `WorkspaceModuleController`, `HomeController` |
 | Users / access | `UserController`, `TeamController`, `UserAccessController`, `InvitationController`, `SiteController` |
-| Study | `StudyController`, `StudyPatientController`, `StudyProtocolController`, `StudyScheduleController`, `StudyImportController` |
+| Study | `StudyController`, `StudyPatientController`, `StudyProtocolController`, `StudyScheduleController` |
 | eCRF | `EcrfController`, `EcrfRecordController`, `EcrfBuilderController`, `EcrfTemplateController`, `EcrfQueryController`, `EcrfSignatureController` |
 | Patient / GDPR | `PatientController`, `DeathCheckerController`, `ConsentAdminController`, `ConsentPatientController`, `DpoContactController` |
 | Files / audit | `PrivateFileController`, `AuditExportController`, `AdminNotificationController` |
@@ -82,7 +82,7 @@ Business logic in `src/Service/`, autowired. Logical grouping:
 | Workspace | `ActiveWorkspaceContext`, `WorkspaceModuleManager` |
 | Access | `StudyAccessService`, `SiteAccessService`, `UserAssignmentService` |
 | eCRF | `EcrfRuleEngine`, `EcrfFormulaEngine`, `EcrfQueryService`, `EcrfSignatureService`, `EcrfAuditWriter`, `EcrfTemplateCloner`, `StudyEcrfExportService`, `StudyProgressService` |
-| Study | `StudyExportService`, `StudyImportService`, `VisitSchedulingService`, `SubjectIdService` |
+| Study | `StudyExportService`, `VisitSchedulingService`, `SubjectIdService` |
 | Patient / GDPR | `EncryptionService`, `PatientSearchHashService`, `ConsentService`, `ErasePatientService`, `PatientRestrictionService`, `PatientDataExportService`, `DataRetentionService`, `MatchIdService` |
 | Security | `TotpService`, `BackupCodeService`, `PasswordResetService`, `InvitationService`, `ActivityLogService`, `ActivityLogIntegrityService`, `SecureFileUploadService` |
 

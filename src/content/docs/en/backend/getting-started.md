@@ -45,7 +45,7 @@ cd synapse-medical
 
 # Copy and adapt the local configuration
 cp .env.local.example .env.local
-# → fill in DATABASE_URL and the encryption keys (see §3)
+# → optional: DATABASE_URL and your own encryption keys (see below)
 
 make build      # docker compose build --pull --no-cache
 make up         # start containers in the background
@@ -55,7 +55,10 @@ On first start, the entrypoint (`frankenphp/docker-entrypoint.sh`) automatically
 
 ### Encryption keys (mandatory)
 
-The application encrypts patient data and TOTP secrets. Generate the keys and place them in `.env.local`:
+The application encrypts patient data and TOTP secrets. In development, the entrypoint automatically generates, when the container starts, the variables that are still empty into `.env.dev.local` (Git-ignored).
+A variable already defined (environment, `.env.local`…) is never overwritten or regenerated. In production nothing is generated: a missing variable makes the start fail with a message naming it.
+
+To use your own values, put them in `.env.local` before the first start:
 
 ```bash
 # 32-byte base64 key (repeat for each key)

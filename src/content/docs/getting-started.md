@@ -47,10 +47,15 @@ Pas d'accès au dépôt ? Demande-le à l'équipe ou travaille sur un **fork**. 
 sera publié sur [GitHub](https://github.com/stevenCayla/SYNAPSE-MEDICAL).
 :::
 
-## ✅ Étape 2 — Générer les clés de chiffrement
+## ✅ Étape 2 — Clés de chiffrement (générées automatiquement)
 
 L'application chiffre les données de santé au repos (libsodium) et signe les sessions. Quatre
-clés **doivent** être définies. Génère-les dans un fichier `.env.local` (ignoré par Git) :
+clés **doivent** être définies. **Rien à faire en développement** : au démarrage du conteneur
+(étape 3), l'entrypoint génère les clés encore vides et les écrit dans `.env.dev.local`
+(ignoré par Git). Une clé déjà définie (environnement, `.env.local`, `.env.dev`…) n'est
+**jamais** modifiée ni régénérée : changer une clé rend illisibles les données déjà chiffrées.
+
+Pour utiliser tes propres valeurs, définis-les dans `.env.local` avant le premier démarrage :
 
 ```bash
 {
@@ -71,7 +76,9 @@ clés **doivent** être définies. Génère-les dans un fichier `.env.local` (ig
 :::caution
 Les valeurs `POSTGRES_PASSWORD`, mots de passe et clés du fichier `.env` sont des **valeurs
 de développement**. Ne les réutilise **jamais** en production — voir
-[Déploiement en production](/deployment/production/).
+[Déploiement en production](/deployment/production/). La génération automatique ne s'exécute
+jamais en production : un secret manquant fait échouer le démarrage du conteneur avec un
+message qui nomme la variable.
 :::
 
 ## ✅ Étape 3 — Lancer les conteneurs
@@ -184,7 +191,7 @@ interface web avec `docker compose port mailer 8025`.
 | Étape | Statut | Commande de vérification |
 |-------|--------|--------------------------|
 | Dépôt cloné | ✅ | `ls` (affiche `Makefile`, `compose.yaml`, `Dockerfile`…) |
-| Clés générées | ✅ | `cat .env.local` (4 clés présentes) |
+| Clés générées | ✅ | `cat .env.dev.local` ou `.env.local` (noms des 4 clés présents) |
 | Conteneurs lancés | ✅ | `make ps` (services `php`, `database`, `mailer` en `running`) |
 | Base initialisée | ✅ | `make pgsql` puis `\dt` |
 | Application accessible | ✅ | `curl -k https://localhost` (retourne du HTML) |

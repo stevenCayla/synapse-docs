@@ -45,7 +45,7 @@ cd synapse-medical
 
 # Copier et adapter la configuration locale
 cp .env.local.example .env.local
-# → renseigner DATABASE_URL et les clés de chiffrement (voir §3)
+# → optionnel : DATABASE_URL et vos propres clés de chiffrement (voir ci-dessous)
 
 make build      # docker compose build --pull --no-cache
 make up         # démarre les conteneurs en arrière-plan
@@ -55,7 +55,10 @@ Au premier démarrage, l'entrypoint (`frankenphp/docker-entrypoint.sh`) exécute
 
 ### Clés de chiffrement (obligatoires)
 
-L'application chiffre les données patient et les secrets TOTP. Générer les clés et les placer dans `.env.local` :
+L'application chiffre les données patient et les secrets TOTP. En développement, l'entrypoint génère automatiquement, au démarrage du conteneur, les variables encore vides dans `.env.dev.local` (ignoré par Git).
+Une variable déjà définie (environnement, `.env.local`…) n'est jamais écrasée ni régénérée. En production, rien n'est généré : une variable manquante fait échouer le démarrage avec un message qui la nomme.
+
+Pour utiliser ses propres valeurs, les placer dans `.env.local` avant le premier démarrage :
 
 ```bash
 # Clé 32 octets base64 (à faire pour chaque clé)

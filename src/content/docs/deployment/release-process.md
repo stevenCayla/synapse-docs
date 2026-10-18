@@ -243,13 +243,13 @@ propres à la version et un smoke-test :
 - [ ] Connexion avec 2FA, ouverture d'une étude ; la nouvelle version s'affiche sur la page de connexion et dans le pied de page (`v{{ app_version }}`).
 - [ ] Hub Mercure joignable (`/.well-known/mercure`).
 - [ ] Tous les conteneurs `healthy` / `running`.
+- [ ] Le service `worker` a été recréé avec la nouvelle image (`ps` : `healthy`) ; `logs worker` sans erreur répétée. Les messages en échec se consultent avec `messenger:failed:show` (voir [Worker Messenger](/deployment/production/#worker-messenger-imports-en-arrière-plan)).
 
 :::caution[Persistance de `private_uploads/`]
-Les fichiers uploadés (avatars, pièces jointes, documents cliniques eCRF) sont
-stockés dans `private_uploads/` à la racine de l'application. `compose.prod.yaml`
-ne déclare de volume que pour `/app/var`, `/data` et `/config` : vérifier sur le
-serveur que `private_uploads/` est bien persisté (volume ou bind-mount) **avant**
-de recréer le conteneur, sous peine de perdre ces fichiers.
+Les fichiers uploadés (avatars, pièces jointes, documents cliniques eCRF, imports archivés) sont dans le volume
+nommé `private_uploads` (`compose.prod.yaml`, partagé par `php` et `worker`). Au **premier** déploiement qui
+introduit ce volume, copier d'abord les fichiers hors du conteneur (voir
+[Fichiers déposés](/deployment/production/#fichiers-déposés-private_uploads)), sous peine de les perdre.
 :::
 
 ## 8. Rollback

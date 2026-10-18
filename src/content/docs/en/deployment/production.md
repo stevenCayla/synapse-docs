@@ -28,7 +28,7 @@ Internet ──HTTPS──▶ Apache2 (Debian host, :443, TLS via Let's Encrypt)
                         ▼
                  FrankenPHP/Caddy (container, 127.0.0.1:8080 → :80, auto_https off)
                         │
-                 PHP 8.5 worker (Symfony 8)
+                 PHP 8.5 worker (Symfony 8)         Messenger worker (`worker` container)
                         │
                  PostgreSQL 18 (container, internal network only)
 ```
@@ -154,7 +154,7 @@ curl -I https://your-domain.example.com            # → HTTP/2 200
 
 - Apache redirects HTTP → HTTPS (301) and proxies HTTPS → `127.0.0.1:8080`.
 - Mercure is reachable at `/.well-known/mercure` (WebSocket upgrade proxied by Apache).
-- All containers report `healthy`/`running`.
+- All containers report `healthy`/`running` (the `worker` is `healthy` while `messenger:consume` is its main process; `logs worker` should show no repeated error).
 
 ## 5. Updates & rollback
 
@@ -164,7 +164,7 @@ flow (pull, rebuild, migrate, smoke-test) and rollback strategy. In short:
 ```bash
 git pull
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
-docker compose -f compose.yaml -f compose.prod.yaml up -d   # migrations run on boot
+docker compose -f compose.yaml -f compose.prod.yaml up -d   # migrations run on boot, worker recreated
 ```
 
 ## 6. Backups
@@ -172,6 +172,48 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d   # migrations run on 
 PostgreSQL is backed up by the `backup` service (RPO ≤ 1h, local retention,
 optional S3 offload). Targets, encryption and restore drills are documented in
 **[Backup policy](/deployment/backup/)** (HDS v1.1 §8.4 / ISO 27001 A.12.3).
+
+## Uploaded files (`private_uploads/`)
+
+Uploaded files (avatars, attachments, clinical eCRF documents, archived import files) are stored in `/app/private_uploads`, which is the **`private_uploads`** named volume of `compose.prod.yaml`, shared by `php` and `worker` and owned by `www-data`. They survive container recreation (new image, `--force-recreate`).
+They are **not** in the PostgreSQL backups: see the [Backup policy](/deployment/backup/#fichiers-déposés-private_uploads) (French).
+
+**Before the first deployment with this volume** (existing files sit in the writable layer of the `php` container and are lost when it is recreated):
+
+```bash
+# 1. Copy the files out of the running container
+docker compose -f compose.yaml -f compose.prod.yaml cp php:/app/private_uploads ./private_uploads-backup
+
+# 2. Deploy (build then up -d): the volume is created empty, owned by www-data
+# 3. Copy the files into the volume and check the owner
+docker compose -f compose.yaml -f compose.prod.yaml cp ./private_uploads-backup/. php:/app/private_uploads/
+docker compose -f compose.yaml -f compose.prod.yaml exec -u root php chown -R www-data:www-data /app/private_uploads
+
+# 4. Check: an avatar uploaded before the deployment is still served afterwards
+docker compose -f compose.yaml -f compose.prod.yaml up -d --force-recreate php worker
+```
+
+Delete `./private_uploads-backup` only once this check has passed.
+
+## Messenger worker (background imports)
+
+The **`worker`** service (`bin/console messenger:consume async`, same image and variables as `php`, no port and no Caddy) reads and validates large data imports in the background (at least `IMPORT_ASYNC_THRESHOLD` rows, 2000 by default); small files are still processed inside the request. The message queue is the `messenger_messages` table of **the same PostgreSQL database**: no extra service to host.
+
+- The worker stops by itself after 1 h or 256 MB (`--time-limit`, `--memory-limit`) and `restart: unless-stopped` starts it again; if it is killed while reading a file, Docker restarts it and the message is picked up again after `redeliver_timeout` (300 s, in `MESSENGER_TRANSPORT_DSN`).
+- A failing message is retried 3 times (waits of 2 s, 6 s then 18 s), then the import is marked `failed` with a generic reason (never a value or a header from the file) and the message moves to the `failed` queue.
+- **On every deployment the worker must restart on the new code**: `docker compose -f compose.yaml -f compose.prod.yaml up -d` recreates it with the rebuilt image; without a rebuild (a variable change only), force it with `docker compose -f compose.yaml -f compose.prod.yaml up -d --force-recreate worker`. It first finishes the message in progress (60 s stop grace period).
+- The worker reads the archived import files in `private_uploads/`: that directory is the `private_uploads` volume, shared by `php` and `worker` (see [Uploaded files](#uploaded-files-private_uploads)).
+
+Failed messages (from the `php` container):
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml exec php php bin/console messenger:failed:show
+docker compose -f compose.yaml -f compose.prod.yaml exec php php bin/console messenger:failed:retry <id>
+docker compose -f compose.yaml -f compose.prod.yaml exec php php bin/console messenger:failed:remove <id>
+docker compose -f compose.yaml -f compose.prod.yaml logs -f worker
+```
+
+The `failed` queue is deliberately not consumed by the worker: a retry is a human decision, taken once the cause is fixed.
 
 ## Production checklist
 
@@ -181,6 +223,7 @@ optional S3 offload). Targets, encryption and restore drills are documented in
 - [ ] `TRUSTED_PROXIES` matches the actual Docker gateway.
 - [ ] PostgreSQL **not** exposed on the host.
 - [ ] Migrations applied; `app:totp:provision-missing` run.
+- [ ] `worker` service running (`ps` → `healthy`), `private_uploads` volume present (`docker volume ls`), existing files copied into it (see above).
 - [ ] `backup` service running (`--profile backup`, mandatory before any real data); a restore has been tested.
 - [ ] Audit chain verification scheduled.
 
