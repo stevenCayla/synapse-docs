@@ -32,7 +32,7 @@ feature/*  ──PR──▶  develop  ──▶  release/YYYY-MM-DD  ──PR�
 | Item | Location | Role |
 |------|----------|------|
 | Changelog | `CHANGELOG.md` (root) | [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format, `[Unreleased]` section |
-| Application version | `APP_VERSION` in `.env` (currently `3.0.1`) | Exposed to Twig (`app_version`) and to the documentation site |
+| Application version | `APP_VERSION` in `.env` (currently `3.1.0`) | Exposed to Twig (`app_version`) and to the documentation site |
 | Docs version | `synapse-docs` repository: `astro.config.mjs` → `src/version.ts` | Derived from `APP_VERSION` at build time |
 | CI | `.github/workflows/ci.yaml` | Docker build, HTTP/Mercure smoke tests, migrations + PHPUnit, `composer audit`, lint |
 | Production image | `Dockerfile`, target `frankenphp_prod` + `compose.prod.yaml` | Slim `debian:13.7-slim` image, runs as `www-data` |
@@ -236,13 +236,13 @@ Then run the version-specific
 - [ ] Log in with 2FA, open a study; the new version shows on the login page and in the footer (`v{{ app_version }}`).
 - [ ] Mercure hub reachable (`/.well-known/mercure`).
 - [ ] All containers `healthy` / `running`.
+- [ ] The `worker` service was recreated with the new image (`ps`: `healthy`); `logs worker` shows no repeated error. Failed messages are listed with `messenger:failed:show` (see [Messenger worker](/en/deployment/production/#messenger-worker-background-imports)).
 
 :::caution[Persisting `private_uploads/`]
-Uploaded files (avatars, feedback attachments, eCRF clinical documents) are
-stored in `private_uploads/` at the application root. `compose.prod.yaml` only
-declares volumes for `/app/var`, `/data` and `/config`: check on the server that
-`private_uploads/` is persisted (volume or bind mount) **before** recreating the
-container, or these files will be lost.
+Uploaded files (avatars, attachments, clinical eCRF documents, archived imports) are in the `private_uploads`
+named volume (`compose.prod.yaml`, shared by `php` and `worker`). On the **first** deployment that introduces
+this volume, copy the files out of the container first (see
+[Uploaded files](/en/deployment/production/#uploaded-files-private_uploads)), or they will be lost.
 :::
 
 ## 8. Rollback

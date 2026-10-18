@@ -22,7 +22,7 @@ Chaque version publiée est matérialisée par un **tag Git `vX.Y.Z`** et une
 | **PATCH** | Correction rétrocompatible | `3.0.0` → `3.0.1` |
 
 La version courante est exposée par la variable d'environnement `APP_VERSION`
-(**`3.0.1`** actuellement).
+(**`3.1.0`** actuellement).
 
 ## Processus de publication
 

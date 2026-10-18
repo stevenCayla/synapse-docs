@@ -47,10 +47,15 @@ No repository access? Ask the team or work from a **fork**. The source code will
 on [GitHub](https://github.com/stevenCayla/SYNAPSE-MEDICAL).
 :::
 
-## ✅ Step 2 — Generate the encryption keys
+## ✅ Step 2 — Encryption keys (generated automatically)
 
 The application encrypts health data at rest (libsodium) and signs sessions. Four keys
-**must** be defined. Generate them into a `.env.local` file (Git-ignored):
+**must** be defined. **Nothing to do in development**: when the container starts (step 3),
+the entrypoint generates the keys that are still empty and writes them to `.env.dev.local`
+(Git-ignored). A key already defined (environment, `.env.local`, `.env.dev`…) is **never**
+changed or regenerated: changing a key makes the data already encrypted unreadable.
+
+To use your own values, define them in `.env.local` before the first start:
 
 ```bash
 {
@@ -71,6 +76,8 @@ The application encrypts health data at rest (libsodium) and signs sessions. Fou
 :::caution
 The `POSTGRES_PASSWORD`, passwords and keys in the `.env` file are **development values**.
 Never reuse them in production — see [Production deployment](/en/deployment/production/).
+The automatic generation never runs in production: a missing secret makes the container fail
+to start with a message naming the variable.
 :::
 
 ## ✅ Step 3 — Start the containers
@@ -181,7 +188,7 @@ Outgoing emails are captured by **Mailpit** (no real sending). Get its web UI UR
 | Step | Status | Verification command |
 |------|--------|----------------------|
 | Repository cloned | ✅ | `ls` (shows `Makefile`, `compose.yaml`, `Dockerfile`…) |
-| Keys generated | ✅ | `cat .env.local` (4 keys present) |
+| Keys generated | ✅ | `cat .env.dev.local` or `.env.local` (the 4 key names present) |
 | Containers running | ✅ | `make ps` (`php`, `database`, `mailer` services `running`) |
 | Database initialized | ✅ | `make pgsql` then `\dt` |
 | Application reachable | ✅ | `curl -k https://localhost` (returns HTML) |

@@ -24,13 +24,46 @@ format.
 - **PATCH** — backward-compatible fixes.
 :::
 
-## Current version — `3.0.1`
+## Current version — `3.1.0`
 
-Patch release of `3.0.0`; application version (`APP_VERSION`).
+Intermediate release towards the study creation wizard: data foundation, import service, worker and study closing; application version (`APP_VERSION`).
 
 ## In progress (`Unreleased`)
 
 Nothing yet.
+
+## `3.1.0`
+
+Intermediate release: it ships the foundation of the study creation wizard and the closing of a study, **without any new creation or import screen**.
+
+:::caution[Check before deploying]
+- **No import screen**: the old import is removed (#82) and the new one has no interface yet (service, worker and JSON endpoints only).
+- **Start the new `worker` service** (#88) and recreate it on every deployment (`up -d --force-recreate worker` without a rebuild); failed messages are handled with `messenger:failed:show` / `retry` / `remove`.
+- **Named volume `private_uploads`** (#108): if files have already been uploaded in production, copy them out before deploying and back into the volume (see the production guide).
+- **Two migrations**, applied at startup: `Version20261017160000` (#83) and `Version20261018091435` (#88). Back up the database before deploying; no manual data migration.
+- `MESSENGER_TRANSPORT_DSN` is built into the image (nothing to add); `IMPORT_ASYNC_THRESHOLD` is optional (2000 by default).
+:::
+
+### Added
+
+- **Closing a prospective study** (#84): "Clôturer l'étude" button, restricted to administrators, once the data are locked.
+- **Wizard v2 data model** (#83), **data import** service (#87), **Messenger worker** for large files (#88) and **eCRF field definition from the columns** (#92): no screen in this release.
+- Playwright **end-to-end tests**, run in CI (#80).
+
+### Changed
+
+- CI dependencies and Composer patches (#96); the `worker` service also starts in development.
+
+### Removed
+
+- **Old data import** (#82) and its menu entries.
+
+### Fixed
+
+- **Uploaded files** kept when the container is recreated in production (#108).
+- **Freezing and unfreezing a study**: no more HTTP 500 (#84).
+- **Fresh clone**: no more HTTP 500 on `/login`, development secrets generated (#50).
+- **eCRF autosave**: same rules as the full entry (#82); a duplicated study stays in its workspace.
 
 ## `3.0.1`
 

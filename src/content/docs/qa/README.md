@@ -115,6 +115,41 @@ moins un test **« ressource d'un autre workspace → refus »**, conformément 
 règle d'isolation stricte par workspace.
 :::
 
+## Tests de bout en bout (Playwright)
+
+Une suite `@playwright/test` (Chromium) pilote l'application dans un vrai
+navigateur : `tests/e2e/` (`package.json`, `playwright.config.ts`, `specs/`,
+`support/`). Elle couvre :
+
+- la première connexion (configuration 2FA, codes de secours, changement de mot
+  de passe forcé, seconde connexion avec un code TOTP) ;
+- la connexion avec un code de secours, puis le refus du même code ;
+- un test de fumée des pages principales (accueil, étude, patients, membres,
+  centres, eCRF, utilisateurs, matrice d'accès, modèles eCRF et aperçu,
+  paramètres de sécurité, profil) : HTTP 200, aucune erreur console, aucune
+  violation de la Content Security Policy ;
+- l'ajout et la modification d'un membre d'étude, la création d'un eCRF depuis
+  zéro et depuis un modèle.
+
+Tout message d'erreur de la console ou de la CSP fait échouer le test en cours.
+
+```bash
+make up                  # la pile de développement doit tourner (https://localhost)
+make e2e                 # installe les dépendances et Chromium au besoin, puis lance la suite
+make e2e c="--headed"    # options Playwright
+```
+
+La suite **réinitialise la base** (`app:seed --reset`) avec le super-administrateur
+`e2e.admin@example.com` : ne la lancer que sur un environnement jetable.
+La suite refuse de démarrer sans `CI` ou `E2E_ALLOW_RESET=1` ; `make e2e` affiche
+le projet Compose et l'URL de base, puis attend que l'on tape `yes`.
+Variables : `E2E_BASE_URL` (défaut `https://localhost`), `E2E_ALLOW_RESET=1`
+(confirme la réinitialisation), `E2E_SKIP_SEED=1`
+(ne pas réinitialiser la base, pour relancer un seul projet avec `--no-deps`),
+`E2E_OUTPUT_DIR` (rapport HTML et traces, par défaut un dossier temporaire :
+ils sont écrits hors de l'arborescence, car le rechargement à chaud de
+FrankenPHP rechargerait les pages à chaque image écrite).
+
 ## Intégration continue
 
 | Contrôle | Exécuté en CI ? |
@@ -123,16 +158,17 @@ règle d'isolation stricte par workspace.
 | Accessibilité HTTP et hub Mercure | Oui (**Tests**) |
 | Création de la base de test + migrations | Oui (**Tests**) |
 | **PHPUnit** | Oui (**Tests**) |
+| **Tests de bout en bout Playwright** (navigateur, aucune erreur console ni violation CSP) | Oui (job **E2E** ; rapport HTML et traces en artefact en cas d'échec) |
 | php-cs-fixer, PHPStan (niveau 6, avec baseline), Rector | Oui (job **Quality**) |
 | `composer audit` | Oui (job **Security**, quand `composer.json` ou `composer.lock` change ; audit hebdomadaire `dependency-audit.yaml`) |
 | Lint (`super-linter/slim`) | Oui (**Lint**) |
 | **`doctrine:schema:validate`** | Oui (**Tests**, sur la base issue des migrations) |
 
-Sur une Pull Request qui ne touche que `docs/**` ou des fichiers `*.md`, le job
-**Tests** est sauté (job **Changes**) ; **Lint** tourne toujours.
+Sur une Pull Request qui ne touche que `docs/**` ou des fichiers `*.md`, les jobs
+**Tests** et **E2E** sont sautés (job **Changes**) ; **Lint** tourne toujours.
 
 :::note[Avant une release]
-La CI couvre les tests et l'analyse statique, mais pas les parcours complets :
+La CI couvre les tests, l'analyse statique et quelques parcours navigateur, mais pas tous les parcours :
 dérouler aussi la checklist de recette manuelle ci-dessous.
 :::
 

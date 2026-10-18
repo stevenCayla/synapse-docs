@@ -114,6 +114,40 @@ new voter or service handling business resources must include at least one
 workspace isolation rule.
 :::
 
+## End-to-end tests (Playwright)
+
+A `@playwright/test` suite (Chromium) drives the application in a real browser:
+`tests/e2e/` (`package.json`, `playwright.config.ts`, `specs/`, `support/`). It
+covers:
+
+- the first login (2FA setup, backup codes, forced password change, second
+  login with a TOTP code);
+- login with a backup code, then the same code being refused;
+- a smoke test of the main pages (home, study, patients, members, sites, eCRF,
+  users, access matrix, eCRF templates and preview, security settings,
+  profile): HTTP 200, no console error, no Content Security Policy violation;
+- adding and editing a study member, creating an eCRF from scratch and from a
+  template.
+
+Any console error or CSP message fails the running test.
+
+```bash
+make up                  # the development stack must be running (https://localhost)
+make e2e                 # installs the dependencies and Chromium if needed, then runs the suite
+make e2e c="--headed"    # Playwright options
+```
+
+The suite **resets the database** (`app:seed --reset`) with the super
+administrator `e2e.admin@example.com`: only run it on a disposable environment.
+The suite refuses to start unless `CI` or `E2E_ALLOW_RESET=1` is set; `make e2e`
+prints the Compose project and the base URL and waits for you to type `yes`.
+Variables: `E2E_BASE_URL` (default `https://localhost`), `E2E_ALLOW_RESET=1`
+(confirms the reset), `E2E_SKIP_SEED=1`
+(keep the database, to rerun one project with `--no-deps`), `E2E_OUTPUT_DIR`
+(HTML report and traces, a temporary folder by default: they are written outside
+the source tree because FrankenPHP hot reload would reload the pages on every
+image written).
+
 ## Continuous integration
 
 | Check | Run in CI? |
@@ -122,17 +156,18 @@ workspace isolation rule.
 | HTTP and Mercure hub reachability | Yes (**Tests**) |
 | Test database creation + migrations | Yes (**Tests**) |
 | **PHPUnit** | Yes (**Tests**) |
+| **Playwright end-to-end tests** (browser, no console error or CSP violation) | Yes (**E2E** job; HTML report and traces uploaded as an artifact on failure) |
 | php-cs-fixer, PHPStan (level 6, with a baseline), Rector | Yes (**Quality** job) |
 | `composer audit` | Yes (**Security** job, when `composer.json` or `composer.lock` changes; weekly `dependency-audit.yaml` audit) |
 | Lint (`super-linter/slim`) | Yes (**Lint**) |
 | **`doctrine:schema:validate`** | Yes (**Tests**, on the database built from the migrations) |
 
 On a pull request that only touches `docs/**` or `*.md` files, the **Tests**
-job is skipped (**Changes** job); **Lint** always runs.
+and **E2E** jobs are skipped (**Changes** job); **Lint** always runs.
 
 :::note[Before a release]
-CI covers the tests and static analysis, not the end-to-end flows: also run the
-manual QA checklist below.
+CI covers the tests, static analysis and a few browser flows, not every flow: also
+run the manual QA checklist below.
 :::
 
 ## Manual QA checklist

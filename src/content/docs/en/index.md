@@ -21,6 +21,7 @@ Start with the **[Quick Start — run Synapse Medical in 5 minutes](/en/getting-
 |----------|---------|
 | [Getting started](/en/backend/getting-started/) | Install, run and contribute locally |
 | [Backend code structure](/en/backend/symfony-structure/) | `src/` layout, layers, conventions |
+| [Data import service](/en/backend/import/) | Reading, mapping, conversion, validation, resume |
 | [Data model](/en/database/data-model/) | Entities, relationships, cross-cutting conventions |
 | [Console commands](/commands/readme/) | `app:*` command reference *(FR)* |
 | [API documentation](/api/readme/) | Endpoints, Swagger, OpenAPI conventions *(FR)* |
