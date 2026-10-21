@@ -139,6 +139,7 @@ Run these once per deployment, inside the `php` container
 | **Provision 2FA** | `app:totp:provision-missing` (preview with `--dry-run`) | After enabling mandatory 2FA. Existing users without TOTP are redirected to `/2fa/setup` on next login (expected, non-blocking). |
 | **Encrypt patient PII** | `app:patient:encrypt-existing --batch-size=200` (idempotent; `--dry-run` to check) | One-off backfill when introducing patient encryption. Take a `pg_dump` first. |
 | **Check retention** | `app:retention:check-studies` | Exit code `2` if studies exceed retention — integrate into Nagios/Zabbix. |
+| **Remind GCP certificates** | `app:gcp:send-expiry-reminders` (preview with `--dry-run`) | Schedule it daily (cron): sends a single reminder before the GCP certificate of a user expires. Informative, blocks no access. |
 | **Verify audit chains** | `app:verify-audit-chain` · `app:audit:verify-chain` | Periodic integrity check of the tamper-evident logs. |
 
 :::note[No automatic clinical data deletion]

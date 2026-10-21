@@ -49,6 +49,12 @@ php bin/console <commande> [arguments] [--options]
 | [`app:retention:check-studies`](#appretentioncheck-studies) | Vérifie la rétention HDS des études (15 ans) | `app:retention:check-studies --warning-days=180` |
 | [`app:retention:purge-security-logs`](#appretentionpurge-security-logs) | Purge les logs de sécurité périmés | `app:retention:purge-security-logs --older-than=P3M` |
 
+### Équipe & formation
+
+| Commande | Description | Exemple |
+|---|---|---|
+| [`app:gcp:send-expiry-reminders`](#appgcpsend-expiry-reminders) | Rappelle l'expiration prochaine des certificats GCP | `app:gcp:send-expiry-reminders --days=30` |
+
 ### Données de test (fixtures)
 
 | Commande | Description | Exemple |
@@ -309,6 +315,32 @@ php bin/console app:retention:check-studies --workspace=3
 
 :::tip[Cron recommandé]
 Mensuel. Surveiller le code de sortie en CI/CD.
+:::
+
+---
+
+## `app:gcp:send-expiry-reminders`
+
+Envoie un e-mail de rappel aux utilisateurs dont le certificat GCP (formation aux bonnes pratiques
+cliniques) expire dans la fenêtre donnée. Un rappel est envoyé une seule fois par certificat, et
+seulement si c'est le certificat qui expire le plus tard pour l'utilisateur (un renouvellement déjà
+déposé annule le rappel). Informatif : aucun accès n'est modifié ni bloqué.
+
+```bash
+php bin/console app:gcp:send-expiry-reminders [options]
+```
+
+### Flags
+
+| Option | Type | Défaut | Description |
+|---|---|---|---|
+| `--days` | int | `30` | Rappeler les certificats qui expirent dans ce nombre de jours |
+| `--dry-run` | flag | — | Liste les rappels sans les envoyer |
+
+Le code de sortie est `1` si au moins un envoi a échoué (il sera retenté au passage suivant).
+
+:::tip[Cron recommandé]
+Quotidien, par exemple `0 7 * * *`. Sans cette planification, aucun rappel n'est envoyé.
 :::
 
 ---

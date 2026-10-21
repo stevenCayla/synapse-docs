@@ -140,6 +140,7 @@ Pour mettre à jour une image : changer le tag (et l'empreinte), reconstruire av
 | **Charger les packs réglementaires** | `app:regulatory-packs:seed` | Après les migrations, à chaque déploiement : idempotent, ne crée que ce qui manque (jamais de modification des packs existants). Sans cette étape, les packs réglementaires sont vides. |
 | **Chiffrer les PII patient** | `app:patient:encrypt-existing --batch-size=200` (idempotent ; `--dry-run` pour vérifier) | Backfill ponctuel lors de l'introduction du chiffrement patient. Faire un `pg_dump` au préalable. |
 | **Vérifier la rétention** | `app:retention:check-studies` | Code de sortie `2` si des études dépassent la rétention — intégrable dans Nagios/Zabbix. |
+| **Rappeler les certificats GCP** | `app:gcp:send-expiry-reminders` (aperçu avec `--dry-run`) | Planifier chaque jour (cron) : envoie un rappel unique avant l'expiration du certificat GCP d'un utilisateur. Informatif, ne bloque aucun accès. |
 | **Vérifier les chaînes d'audit** | `app:verify-audit-chain` · `app:audit:verify-chain` | Contrôle d'intégrité périodique des journaux inviolables. |
 
 :::note[Aucune suppression automatique de données cliniques]
