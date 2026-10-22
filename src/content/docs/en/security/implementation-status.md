@@ -75,14 +75,15 @@ Details: [Permissions](/en/security/permissions/).
 |---------|--------|-------------------|
 | Workspace / study / site roles, enforced by Voters | Implemented | `Security/StudyVoter`, `Security/SiteVoter`, `Security/Voter/*` |
 | Application-level filtering by the active workspace | Implemented | `ActiveWorkspaceContext`, `WorkspaceContextSubscriber`, repositories |
-| PostgreSQL Row-Level Security | **Partial** | `study`, `patient` and `ecrf_record` only (migrations `Version20260429200000`, `Version20260429500000`), set by `WorkspaceRlsSubscriber` |
+| PostgreSQL Row-Level Security | **Partial** | `study`, `patient` and `ecrf_record` only (migrations `Version20260429200000`, `Version20260429500000`, `Version20261022110000`), set by `WorkspaceRlsSubscriber` through `Security/Rls/RowLevelSecurity`; fails closed, application role `app_runtime` |
 | Access-denied events logged | Implemented | `EventSubscriber/AccessDeniedSubscriber` → `logAccessDenied` |
 | Study freeze (locks data entry) | Implemented | `Study::freeze()`, `StudyController` `app_study_freeze` |
 
 :::note
-When `app.workspace_id` is empty, which is the case for console commands and migrations,
-the RLS policies make **all** rows visible. Isolation for CLI code depends on the
-application code.
+The policies fail closed: an empty `app.workspace_id` shows no row. Console commands, the worker and platform code
+that read across workspaces on purpose use the audited `RowLevelSecurity` helper (workspace of the processed object, or
+a logged bypass). Tables other than the three above carry `workspace_id` but no policy: only the application checks
+protect them.
 :::
 
 ## Audit trail and e-signatures

@@ -165,6 +165,15 @@ image written).
 On a pull request that only touches `docs/**` or `*.md` files, the **Tests**
 and **E2E** jobs are skipped (**Changes** job); **Lint** always runs.
 
+To limit the GitHub Actions minutes used:
+
+- **Tests** and **E2E** are skipped while the pull request is a **draft**; they start when it is marked ready
+  (`gh pr ready`) and are still required before the merge, which is refused for a draft.
+- A new push cancels the run in progress of the same pull request.
+- **Lint** only checks the changed files on a pull request, and the whole codebase on a push to `develop` or `main`.
+- The Docker build cache is written by the pushes to `develop` and `main` (which do not run **Quality**
+  on `develop`) and only read by the pull requests.
+
 :::note[Before a release]
 CI covers the tests, static analysis and a few browser flows, not every flow: also
 run the manual QA checklist below.
