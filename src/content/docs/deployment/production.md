@@ -70,6 +70,7 @@ Générer les valeurs :
 openssl rand -hex 32                              # APP_SECRET
 openssl rand -hex 32                              # CADDY_MERCURE_JWT_SECRET
 openssl rand -base64 24                           # POSTGRES_PASSWORD
+openssl rand -hex 24                              # POSTGRES_APP_PASSWORD
 php -r "echo base64_encode(random_bytes(32));"    # APP_TOTP_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
@@ -82,7 +83,8 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
 | `APP_PATIENT_ENCRYPTION_KEY` | Chiffre les PII patient au repos |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | Index aveugle pour la recherche sur données chiffrées |
 | `CADDY_MERCURE_JWT_SECRET` | JWT publisher/subscriber Mercure |
-| `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Identifiants base de données |
+| `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Identifiants base de données (propriétaire : migrations et maintenance) |
+| `POSTGRES_APP_PASSWORD` | Mot de passe du rôle restreint `app_runtime` que l'application utilise ([voir plus bas](#rôle-de-base-de-données-de-lapplication)) |
 | `DOMAIN` | Domaine public (URL publique Mercure, URI par défaut) |
 | `TRUSTED_PROXIES` | Défaut `127.0.0.1,172.16.0.0/12` (couvre les bridges Docker) |
 
@@ -91,6 +93,51 @@ La perte de `APP_PATIENT_ENCRYPTION_KEY` ou `APP_TOTP_ENCRYPTION_KEY` rend les
 données concernées définitivement illisibles. Conserver toutes les clés dans un
 coffre de secrets et les sauvegarder **séparément** de la base de données.
 :::
+
+## Rôle de base de données de l'application
+
+L'application ne se connecte **pas** avec le propriétaire de la base. `POSTGRES_USER` est un superutilisateur
+PostgreSQL : il ignore les politiques de sécurité par ligne (RLS) des tables `study`, `patient` et `ecrf_record`,
+même avec `FORCE ROW LEVEL SECURITY`. L'application utilise donc le rôle restreint `app_runtime` (ni propriétaire,
+ni superuser, ni `BYPASSRLS`, droits DML seulement) via `DATABASE_URL` ; le propriétaire ne sert qu'aux migrations et
+aux commandes de maintenance (`DATABASE_MIGRATIONS_URL`), et l'entrypoint le retire de l'environnement du serveur
+web et du worker une fois les migrations passées. Le service `backup` garde le propriétaire : `pg_dump` doit lire
+toutes les lignes.
+
+Nouvelle variable obligatoire : `POSTGRES_APP_PASSWORD` (`openssl rand -hex 24`, hexadécimal pour rester valide
+dans l'URL), distincte de `POSTGRES_PASSWORD`.
+
+**Mise en place sur une base existante** (une fois, avant ou pendant le déploiement qui introduit ce rôle) :
+
+```bash
+DC="docker compose -f compose.yaml -f compose.prod.yaml"
+
+# 0. Sauvegarde, puis état actuel (attendu avant : rolsuper = t)
+$DC exec -T database psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+  "select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user"
+
+# 1. Ajouter POSTGRES_APP_PASSWORD à .env.local, puis récupérer le code
+git pull
+
+# 2. Recréer la base avec la nouvelle variable et le script monté (le volume est conservé)
+$DC up -d database
+
+# 3. Créer le rôle (idempotent : peut être relancé, met aussi à jour le mot de passe)
+$DC exec -T database sh /docker-entrypoint-initdb.d/10-create-app-role.sh
+
+# 4. Reconstruire et démarrer : la migration Version20261022100000 donne les droits DML au rôle
+$DC build --pull --no-cache
+$DC up -d
+
+# 5. Vérifier la connexion réellement utilisée par l'application (attendu : app_runtime | f | f)
+$DC exec php php bin/console dbal:run-sql \
+  "select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user"
+```
+
+Sur une base neuve (volume vide), le script du service `database` crée le rôle tout seul. Si `app_runtime` n'existe
+pas quand la migration passe, celle-ci n'accorde rien et affiche un avertissement : créer le rôle (étape 3) puis
+relancer `doctrine:migrations:migrate`. **Retour arrière** : remettre l'ancienne valeur de `DATABASE_URL` (propriétaire)
+dans `compose.prod.yaml`, relancer `up -d` ; le rôle peut rester.
 
 ## 2. Build & démarrage
 

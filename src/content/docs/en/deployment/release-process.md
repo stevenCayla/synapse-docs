@@ -121,7 +121,7 @@ opening the release PR:
 ```bash
 # Isolated test database (_test suffix, see config/packages/doctrine.yaml)
 make sf c="-e test doctrine:database:drop --force --if-exists"
-make sf c="-e test doctrine:database:create"
+make sf c="-e test doctrine:database:create --connection=migrations"  # owner: the application role cannot create a database
 make sf c="-e test doctrine:migrations:migrate --no-interaction --all-or-nothing"
 make sf c="-e test doctrine:schema:validate"
 ```

@@ -70,6 +70,7 @@ Generate the values:
 openssl rand -hex 32                              # APP_SECRET
 openssl rand -hex 32                              # CADDY_MERCURE_JWT_SECRET
 openssl rand -base64 24                           # POSTGRES_PASSWORD
+openssl rand -hex 24                              # POSTGRES_APP_PASSWORD
 php -r "echo base64_encode(random_bytes(32));"    # APP_TOTP_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
@@ -82,7 +83,8 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
 | `APP_PATIENT_ENCRYPTION_KEY` | Encrypts patient PII at rest |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | Blind-index search over encrypted patient data |
 | `CADDY_MERCURE_JWT_SECRET` | Mercure publisher/subscriber JWT |
-| `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Database credentials |
+| `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Database credentials (owner: migrations and maintenance) |
+| `POSTGRES_APP_PASSWORD` | Password of the restricted role `app_runtime` the application uses ([see below](#application-database-role)) |
 | `DOMAIN` | Public domain (Mercure public URL, default URI) |
 | `TRUSTED_PROXIES` | Defaults to `127.0.0.1,172.16.0.0/12` (covers Docker bridges) |
 
@@ -91,6 +93,50 @@ Losing `APP_PATIENT_ENCRYPTION_KEY` or `APP_TOTP_ENCRYPTION_KEY` makes the
 corresponding data permanently unreadable. Store all keys in a secrets vault and
 back them up **separately** from the database.
 :::
+
+## Application database role
+
+The application does **not** connect as the database owner. `POSTGRES_USER` is a PostgreSQL superuser: it ignores the
+row level security (RLS) policies of `study`, `patient` and `ecrf_record`, even with `FORCE ROW LEVEL SECURITY`. The
+application therefore uses the restricted role `app_runtime` (not owner, not superuser, no `BYPASSRLS`, DML rights
+only) through `DATABASE_URL`; the owner is only used by the migrations and the maintenance commands
+(`DATABASE_MIGRATIONS_URL`), and the entrypoint removes it from the environment of the web server and of the worker
+once the migrations ran. The `backup` service keeps the owner: `pg_dump` must read every row.
+
+New mandatory variable: `POSTGRES_APP_PASSWORD` (`openssl rand -hex 24`, hexadecimal so that it stays valid in the
+URL), different from `POSTGRES_PASSWORD`.
+
+**Setting it up on an existing database** (once, before or during the deployment that introduces the role):
+
+```bash
+DC="docker compose -f compose.yaml -f compose.prod.yaml"
+
+# 0. Back up, then the current state (expected before: rolsuper = t)
+$DC exec -T database psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+  "select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user"
+
+# 1. Add POSTGRES_APP_PASSWORD to .env.local, then fetch the code
+git pull
+
+# 2. Recreate the database service with the new variable and the mounted script (the volume is kept)
+$DC up -d database
+
+# 3. Create the role (idempotent: can be run again, it also updates the password)
+$DC exec -T database sh /docker-entrypoint-initdb.d/10-create-app-role.sh
+
+# 4. Rebuild and start: migration Version20261022100000 grants the DML rights to the role
+$DC build --pull --no-cache
+$DC up -d
+
+# 5. Check the connection the application really uses (expected: app_runtime | f | f)
+$DC exec php php bin/console dbal:run-sql \
+  "select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user"
+```
+
+On a new database (empty volume) the script of the `database` service creates the role by itself. If `app_runtime`
+does not exist when the migration runs, it grants nothing and prints a warning: create the role (step 3), then run
+`doctrine:migrations:migrate` again. **Rollback**: put the previous `DATABASE_URL` value (owner) back in
+`compose.prod.yaml` and run `up -d`; the role can stay.
 
 ## 2. Build & start
 
