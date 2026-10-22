@@ -163,7 +163,8 @@ Full details: [Data model](/en/database/data-model/).
 `assets/` — **AssetMapper** (no Node build), driven by `importmap.php`.
 
 - **Stimulus** 3.2 (`bootstrap.js`, `controllers/`).
-- Libs: `sortablejs` (drag-and-drop builder), `choices.js`, vendored Bootstrap.
+- Libraries: `sortablejs` (drag-and-drop builder), `choices.js`, Bootstrap 5.3 and Bootstrap Icons (through `importmap:require`, versioned and covered by `importmap:audit`), Inter and Fraunces fonts (woff2 under `assets/fonts/`, OFL licence).
+  Nothing is loaded from a CDN or a third-party service: the CSP only allows `'self'` for scripts, styles and fonts. The Bootstrap JS bundle is vendored in `assets/lib/bootstrap/` (classic script: inline scripts use the global `bootstrap` object) and must stay on the same version as the CSS.
 - Entry points: `app`, `login`, `2fa-check`, `2fa-setup`, `ecrf-builder`, `study-wizard`.
 - UX modules (`assets/js/`): `session-guard`, `confirm-modal`, `drawer-manager`, `password-strength`, `toast`, `theme`, `ecrf-builder`, `ecrf-engine`, `study-wizard`…
 - CSS: **BEM + Nesting** convention — see [code-convention/CSS-convention.md](/en/code-convention/css-convention/).
