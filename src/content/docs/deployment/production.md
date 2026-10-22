@@ -74,6 +74,7 @@ openssl rand -hex 24                              # POSTGRES_APP_PASSWORD
 php -r "echo base64_encode(random_bytes(32));"    # APP_TOTP_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
+php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 ```
 
 | Variable | Rôle |
@@ -82,6 +83,7 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
 | `APP_TOTP_ENCRYPTION_KEY` | Chiffre les secrets 2FA au repos |
 | `APP_PATIENT_ENCRYPTION_KEY` | Chiffre les PII patient au repos |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | Index aveugle pour la recherche sur données chiffrées |
+| `APP_FILE_ENCRYPTION_KEY` | Chiffre au repos l'archive des imports de données appliqués (`private_uploads/arc`) |
 | `CADDY_MERCURE_JWT_SECRET` | JWT publisher/subscriber Mercure |
 | `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Identifiants base de données (propriétaire : migrations et maintenance) |
 | `POSTGRES_APP_PASSWORD` | Mot de passe du rôle restreint `app_runtime` que l'application utilise ([voir plus bas](#rôle-de-base-de-données-de-lapplication)) |
@@ -89,8 +91,8 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
 | `TRUSTED_PROXIES` | Défaut `127.0.0.1,172.16.0.0/12` (couvre les bridges Docker) |
 
 :::danger[Clés de chiffrement irrécupérables en cas de perte]
-La perte de `APP_PATIENT_ENCRYPTION_KEY` ou `APP_TOTP_ENCRYPTION_KEY` rend les
-données concernées définitivement illisibles. Conserver toutes les clés dans un
+La perte de `APP_PATIENT_ENCRYPTION_KEY`, `APP_TOTP_ENCRYPTION_KEY` ou `APP_FILE_ENCRYPTION_KEY` rend les
+données concernées définitivement illisibles (pour la dernière : les fichiers archivés des imports). Conserver toutes les clés dans un
 coffre de secrets et les sauvegarder **séparément** de la base de données.
 :::
 
@@ -276,12 +278,16 @@ Ne supprimer `./private_uploads-backup` qu'une fois ce contrôle fait.
 
 ## Worker Messenger (imports en arrière-plan)
 
-Le service **`worker`** (`bin/console messenger:consume async`, même image et mêmes variables que `php`, sans port ni Caddy) lit et valide en arrière-plan les imports de données volumineux (au moins `IMPORT_ASYNC_THRESHOLD` lignes, 2000 par défaut) ; les petits fichiers restent traités dans la requête.
+Le service **`worker`** (`bin/console messenger:consume async`, même image et mêmes variables que `php`, sans port ni Caddy) lit et valide en arrière-plan les imports de données volumineux (au moins `IMPORT_ASYNC_THRESHOLD` lignes, 2000 par défaut ; les petits fichiers restent traités dans la requête) et **applique à l'étude** les imports validés (signés), par lots de
+`IMPORT_APPLY_BATCH` lignes (50 par défaut), une transaction par lot.
 La file de messages est la table `messenger_messages` de **la même base PostgreSQL** : aucun service supplémentaire à héberger.
 
 - Le worker s'arrête de lui-même après 1 h ou 256 Mo (`--time-limit`, `--memory-limit`) et `restart: unless-stopped` le relance ; s'il est tué en cours de lecture, Docker le relance et le message est repris après `redeliver_timeout` (300 s, dans `MESSENGER_TRANSPORT_DSN`).
 - Un message en échec est retenté 3 fois (attentes de 2 s, 6 s puis 18 s), puis l'import passe en `failed` avec un motif générique (jamais une valeur ni un en-tête du fichier) et le message est déplacé dans la file `failed`.
 - **À chaque déploiement, le worker doit repartir sur le nouveau code** : `docker compose -f compose.yaml -f compose.prod.yaml up -d` le recrée avec l'image reconstruite ; sans reconstruction (changement de variables seul), forcer avec `docker compose -f compose.yaml -f compose.prod.yaml up -d --force-recreate worker`. Il termine d'abord le message en cours (délai d'arrêt de 60 s).
+- Un import appliqué laisse dans `private_uploads/arc/` une copie **chiffrée** avec `APP_FILE_ENCRYPTION_KEY` (copie expurgée de ses colonnes identifiantes ; le SHA-256 de l'original est conservé en base). Sans cette clé l'archive est illisible : la conserver dans le coffre et la sauvegarder séparément, comme les autres clés. Le fichier téléversé
+  (`private_uploads/imp/`) est supprimé une fois l'import appliqué.
+- Une application interrompue (échec, worker arrêté) reprend après le dernier lot validé ; après les 3 reprises automatiques, elle apparaît en échec sur l'écran d'import (« Reprendre l'application ») ou par `messenger:failed:retry`.
 - Le worker lit les fichiers d'import archivés dans `private_uploads/` : ce dossier est le volume `private_uploads`, partagé par `php` et `worker` (voir [Fichiers déposés](#fichiers-déposés-private_uploads)).
 
 Messages en échec (depuis le conteneur `php`) :

@@ -5,7 +5,7 @@ description: "Le service d'import côté serveur de l'assistant d'étude : lectu
 
 > 🌐 Version française · [English version](/en/backend/import/)
 
-Référence développeur de `App\Import` (pas d'interface, aucune donnée d'étude écrite : l'application d'un import est une étape distincte).
+Référence développeur de `App\Import` (la lecture et la validation n'écrivent rien dans l'étude ; l'application d'un import validé est décrite en fin de page).
 
 ---
 
@@ -116,4 +116,24 @@ Points d'accès JSON (`ImportFieldDefinitionController`), pour l'interface d'imp
 `StudyImportController` (`/studies/{studyId}/imports`) sert l'étape Import de l'assistant et Patients › Importer avec les mêmes panneaux Twig (`templates/import/`), échangés par `assets/js/import-flow.js` (JSON, jeton CSRF dans `X-CSRF-Token`). Les règles sont dans
 `App\Import\Flow\ImportSessionService` : session modifiable seulement en brouillon et hors lecture par le worker, sous-étape refusée (409) tant que le rapport la bloque, validation = rapport non bloquant + certification + mot de passe + signification (`ImportSignatureMeaning`), avec
 `DataImport::certify()` et le statut `ready`. Le fichier est déplacé directement dans `private_uploads/imp/` (`SecureFileUploadService::storeImport`), jamais copié ailleurs. Dans l'assistant, `ImportStep::validate()` refuse « Continuer » tant qu'un import est ouvert (brouillon ou en lecture).
-L'application des données est #90.
+Les données sont appliquées par le worker, voir ci-dessous.
+
+## Application d'un import validé (`App\Import\Apply`)
+
+Un import signé (`ready`) est appliqué à l'étude par le worker Messenger (`ApplyImport` : identifiants seulement, aucune valeur dans la file). Il part dès la signature si l'étude est déjà lancée (Configuration ou En cours), et au lancement de l'étude pour les imports validés dans l'assistant (`StudyWizardLauncher`, après la validation de la transaction du lancement).
+Un brouillon, une étude terminée, archivée ou gelée refuse l'application. `ImportApplyScheduler` met l'import en file ; `ApplyImportHandler` recharge l'import **dans le workspace du message** (jamais par identifiant seul) et exécute tout dans `RowLevelSecurity::inWorkspace()`.
+
+- **Par lots, un lot = une transaction** (`ImportApplier`, `IMPORT_APPLY_BATCH` lignes, 50 par défaut) : les patients, visites, formulaires, valeurs, audits et requêtes du lot sont enregistrés avec le curseur (`apply_cursor`, dernière ligne du fichier) et les compteurs de l'import. Un échec annule le lot : rien n'est à moitié appliqué ; la reprise (nouvelle livraison,
+  `messenger:failed:retry`, ou « Reprendre l'application » à l'écran) repart après le dernier lot validé. L'application est **idempotente** : un patient est retrouvé par son identifiant dans l'étude (cloisonné par workspace), une valeur identique est ignorée, une requête déjà levée n'est pas relevée.
+- **Patients** : créés dans le workspace de l'import, **réels** (`is_test = false`, jamais des données de recette : la purge de mise en production ne les touche pas), numéro de sujet = identifiant patient du fichier (64 caractères au plus), site = le site par défaut choisi à la confirmation (automatique si l'étude n'a qu'un site ouvert, sinon `site_required` avant la
+  signature ; le choix est couvert par la signature), ou le site propre à la ligne si une colonne est mappée à la cible système « Site » (code ou nom, sans casse ni accent ; valeur inconnue = erreur `unrecognised_value` remplaçable). Un site d'une autre étude ou d'un autre workspace est refusé, date d'inclusion = première visite.
+  La garde d'inclusion (`StudyInclusionGuard`, option `$validatedImport`) admet l'import validé en Configuration et En cours sans attendre l'ouverture des inclusions du site ; l'inclusion manuelle d'un patient réel reste refusée en Configuration. **Aucune valeur identifiante n'est enregistrée** avec la politique par défaut ; elle ne l'est que sous « conserver »
+  (champs chiffrés du patient, `ImportIdentityWriter`), option refusée tant qu'une étude ne porte pas l'option réglementaire (`ImportIdentityPolicy`).
+- **Visites** : visite du protocole du suffixe (planifiée puis passée à « Réalisée » avec sa date), sinon créée depuis la date (« Visite du jj/mm/aaaa ») ; sans date ni visite, valeurs dans un formulaire libre. **Formulaires** : un enregistrement par formulaire et visite, avec les instantanés des champs comme à la saisie.
+- **Valeurs** : jamais écrasées. Absente : écrite avec une entrée `EcrfValueAudit` chaînée (`source = import`, motif `import #id (ligne n)`, plus « cellule corrigée (avant : … ) » ou « converti depuis … »). Identique : ignorée. Différente : requête `import_conflict` sur la valeur, comptée dans le résumé. Chaque avertissement accepté donne une requête `import_warning`.
+- **Archive** (`ImportArchiver`) : le fichier téléversé (colonnes identifiantes comprises) est supprimé et remplacé par une copie **chiffrée** (`FileEncryptionService`, libsodium secretstream, clé `APP_FILE_ENCRYPTION_KEY`, `private_uploads/arc/…`, jamais servie). Par défaut c'est la copie expurgée (`RedactedCopyWriter` : sans colonne identifiante ni ignorée, sans
+  ligne d'annotation, mêmes numéros de ligne) ; le SHA-256 du fichier d'origine est conservé (`original_sha256`) avec celui de la copie (`archive_sha256`, vérifié à chaque relecture). Sous « conserver », l'original est chiffré tel quel. `ArchivedImportFileProvider` déchiffre vers un fichier temporaire supprimé à la fin de la requête ou du message (`reset()`).
+- **Traçabilité** : une entrée `import.applied` du journal d'activité (compteurs, lignes exclues, SHA-256, sceau ; jamais une valeur) et le résumé signé de l'import (`summary`, `summary_hash`) : certification (signataire, signification, empreinte), SHA-256 de l'original et de l'archive, compteurs, lignes exclues avec leur règle, corrections (avant → après),
+  avertissements acceptés. `EcrfAuditWriter::verifyChain()` reste valide pour chaque enregistrement, `app:verify-audit-chain` aussi.
+- **Statut** : `applied`, ou `partial` si des colonnes restent en attente (elles seront importées plus tard depuis l'archive, sans rien écraser). Un import en cours d'application ou appliqué ne peut plus être annulé.
+- **Sans fichier temporaire** : le téléversement reste dans `private_uploads/imp/` (non chiffré, hors webroot) jusqu'à l'application ; l'archive chiffrée est ensuite la seule copie.

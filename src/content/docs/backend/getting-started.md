@@ -71,6 +71,7 @@ php -r "echo base64_encode(random_bytes(32)).PHP_EOL;"
 | `APP_TOTP_ENCRYPTION_KEY` | Chiffrement des secrets 2FA au repos |
 | `APP_PATIENT_ENCRYPTION_KEY` | Chiffrement des PII patient |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | Index aveugle pour la recherche sur données chiffrées |
+| `APP_FILE_ENCRYPTION_KEY` | Chiffrement des fichiers archivés (copie des imports de données appliqués) |
 
 > ⚠️ **La perte de `APP_PATIENT_ENCRYPTION_KEY` ou `APP_TOTP_ENCRYPTION_KEY` rend les données concernées irrécupérables.** Conserver ces clés dans un coffre.
 

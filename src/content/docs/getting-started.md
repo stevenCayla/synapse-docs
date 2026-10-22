@@ -63,6 +63,7 @@ Pour utiliser tes propres valeurs, définis-les dans `.env.local` avant le premi
   echo "APP_TOTP_ENCRYPTION_KEY=$(openssl rand -base64 32)"
   echo "APP_PATIENT_ENCRYPTION_KEY=$(openssl rand -base64 32)"
   echo "APP_PATIENT_SEARCH_HMAC_KEY=$(openssl rand -base64 32)"
+  echo "APP_FILE_ENCRYPTION_KEY=$(openssl rand -base64 32)"
 } >> .env.local
 ```
 
@@ -72,6 +73,7 @@ Pour utiliser tes propres valeurs, définis-les dans `.env.local` avant le premi
 | `APP_TOTP_ENCRYPTION_KEY` | **base64, 32 octets** | Chiffrement des secrets 2FA (TOTP) |
 | `APP_PATIENT_ENCRYPTION_KEY` | **base64, 32 octets** | Chiffrement des PII patient (`crypto_secretbox`) |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | **base64, ≥ 32 octets** | Index aveugle HMAC pour la recherche chiffrée |
+| `APP_FILE_ENCRYPTION_KEY` | **base64, 32 octets** | Chiffrement des fichiers archivés (imports de données appliqués) |
 
 :::caution
 Les valeurs `POSTGRES_PASSWORD`, mots de passe et clés du fichier `.env` sont des **valeurs

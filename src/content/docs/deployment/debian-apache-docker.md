@@ -205,6 +205,7 @@ openssl rand -base64 24        # → POSTGRES_PASSWORD
 php -r "echo base64_encode(random_bytes(32));"  # → APP_TOTP_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"  # → APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"  # → APP_PATIENT_SEARCH_HMAC_KEY
+php -r "echo base64_encode(random_bytes(32));"  # → APP_FILE_ENCRYPTION_KEY
 ```
 
 > **Ne jamais committer `.env.local`.** Il est dans `.gitignore` par défaut.

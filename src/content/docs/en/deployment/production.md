@@ -74,6 +74,7 @@ openssl rand -hex 24                              # POSTGRES_APP_PASSWORD
 php -r "echo base64_encode(random_bytes(32));"    # APP_TOTP_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
+php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 ```
 
 | Variable | Purpose |
@@ -82,6 +83,7 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
 | `APP_TOTP_ENCRYPTION_KEY` | Encrypts 2FA secrets at rest |
 | `APP_PATIENT_ENCRYPTION_KEY` | Encrypts patient PII at rest |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | Blind-index search over encrypted patient data |
+| `APP_FILE_ENCRYPTION_KEY` | Encrypts at rest the archive of the applied data imports (`private_uploads/arc`) |
 | `CADDY_MERCURE_JWT_SECRET` | Mercure publisher/subscriber JWT |
 | `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Database credentials (owner: migrations and maintenance) |
 | `POSTGRES_APP_PASSWORD` | Password of the restricted role `app_runtime` the application uses ([see below](#application-database-role)) |
@@ -89,8 +91,8 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
 | `TRUSTED_PROXIES` | Defaults to `127.0.0.1,172.16.0.0/12` (covers Docker bridges) |
 
 :::danger[Encryption keys are unrecoverable if lost]
-Losing `APP_PATIENT_ENCRYPTION_KEY` or `APP_TOTP_ENCRYPTION_KEY` makes the
-corresponding data permanently unreadable. Store all keys in a secrets vault and
+Losing `APP_PATIENT_ENCRYPTION_KEY`, `APP_TOTP_ENCRYPTION_KEY` or `APP_FILE_ENCRYPTION_KEY` makes the
+corresponding data permanently unreadable (for the last one: the archived import files). Store all keys in a secrets vault and
 back them up **separately** from the database.
 :::
 
@@ -271,11 +273,14 @@ Delete `./private_uploads-backup` only once this check has passed.
 
 ## Messenger worker (background imports)
 
-The **`worker`** service (`bin/console messenger:consume async`, same image and variables as `php`, no port and no Caddy) reads and validates large data imports in the background (at least `IMPORT_ASYNC_THRESHOLD` rows, 2000 by default); small files are still processed inside the request. The message queue is the `messenger_messages` table of **the same PostgreSQL database**: no extra service to host.
+The **`worker`** service (`bin/console messenger:consume async`, same image and variables as `php`, no port and no Caddy) reads and validates large data imports in the background (at least `IMPORT_ASYNC_THRESHOLD` rows, 2000 by default; small files are still processed inside the request) and **applies to the study** the validated (signed) imports, in batches of
+`IMPORT_APPLY_BATCH` rows (50 by default), one transaction per batch. The message queue is the `messenger_messages` table of **the same PostgreSQL database**: no extra service to host.
 
 - The worker stops by itself after 1 h or 256 MB (`--time-limit`, `--memory-limit`) and `restart: unless-stopped` starts it again; if it is killed while reading a file, Docker restarts it and the message is picked up again after `redeliver_timeout` (300 s, in `MESSENGER_TRANSPORT_DSN`).
 - A failing message is retried 3 times (waits of 2 s, 6 s then 18 s), then the import is marked `failed` with a generic reason (never a value or a header from the file) and the message moves to the `failed` queue.
 - **On every deployment the worker must restart on the new code**: `docker compose -f compose.yaml -f compose.prod.yaml up -d` recreates it with the rebuilt image; without a rebuild (a variable change only), force it with `docker compose -f compose.yaml -f compose.prod.yaml up -d --force-recreate worker`. It first finishes the message in progress (60 s stop grace period).
+- An applied import leaves in `private_uploads/arc/` a copy **encrypted** with `APP_FILE_ENCRYPTION_KEY` (the copy without its identifying columns; the SHA-256 of the original is kept in the database). Without this key the archive is unreadable: keep it in the vault and back it up separately, like the other keys. The uploaded file (`private_uploads/imp/`) is deleted once the import is applied.
+- An interrupted application (failure, worker stopped) resumes after the last committed batch; after the 3 automatic retries it shows as failed on the import screen ("Resume the application") or through `messenger:failed:retry`.
 - The worker reads the archived import files in `private_uploads/`: that directory is the `private_uploads` volume, shared by `php` and `worker` (see [Uploaded files](#uploaded-files-private_uploads)).
 
 Failed messages (from the `php` container):

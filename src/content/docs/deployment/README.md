@@ -9,6 +9,7 @@ description: "Procédure de déploiement en production"
 # 1. Générer les clés (une seule fois)
 php -r "echo base64_encode(random_bytes(32));"  # → APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"  # → APP_PATIENT_SEARCH_HMAC_KEY
+php -r "echo base64_encode(random_bytes(32));"  # → APP_FILE_ENCRYPTION_KEY
 
 # 2. pg_dump avant migration
 pg_dump $DATABASE_URL > backup_pre_encrypt_$(date +%Y%m%d).sql
