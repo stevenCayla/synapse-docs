@@ -30,6 +30,7 @@ php bin/console <command> [arguments] [--options]
 
 | Command | Description | Example |
 |---|---|---|
+| [`app:admin:create`](#appadmincreate) | Creates a super administrator (production-safe, no fake data) | `app:admin:create --email=first.last@example.com` |
 | [`app:seed`](#appseed) | Full fake dataset (orchestrated pipeline) | `app:seed --reset --users=5 --studies=2` |
 | [`app:reset-database`](#appreset-database) | Empties all application tables | `app:reset-database --force` |
 
@@ -91,11 +92,32 @@ possible.
 
 ---
 
+## `app:admin:create`
+
+Creates a super administrator, **with no fake data**: this is the command that works in `prod`
+(where `app:seed` is refused) to create the first account. It creates the first workspace when none
+exists and records the creation (security audit log, `account.created`).
+
+```bash
+php bin/console app:admin:create --email=first.last@example.com [--username=…] [--first-name=…] [--last-name=…] [--workspace-name=…]
+```
+
+The password is **never** an option: `ADMIN_PASSWORD` environment variable, otherwise a hidden prompt
+with confirmation (refused in non-interactive mode without `ADMIN_PASSWORD`). It must satisfy the
+password policy. An e-mail or username already taken is refused. At first login: password change,
+then 2FA enrolment. Full procedure: [production deployment](/en/deployment/production/).
+
+---
+
 ## `app:seed`
 
 Main orchestration command. Generates a full fake dataset in a single command: workspace,
 admin, sites, users, patients, studies, eCRF. Ideal to initialize a development or test
 environment.
+
+:::caution[Refused in `prod`]
+The command is refused in the `prod` environment. A development or staging server running the production image can allow it with `APP_ALLOW_FAKE_DATA=1` in its `.env.local` (never in production: `--reset` wipes the database). First administrator of a production: `app:admin:create`.
+:::
 
 ```bash
 php bin/console app:seed [options]

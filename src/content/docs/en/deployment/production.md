@@ -175,6 +175,33 @@ Every image is pinned to an explicit version (no floating tag); the production i
 
 To update an image: change the tag (and the digest), rebuild with `--pull --no-cache`, then validate the stack. PostgreSQL major upgrades follow a dedicated procedure: [PostgreSQL 16 to 18 migration](/en/deployment/postgresql-18-upgrade/).
 
+## First installation: the first administrator
+
+A new database holds no account. `app:seed` is **refused in `prod`** (it creates fake data): create the first super administrator with `app:admin:create`, which generates no fake data, creates the first workspace when none exists and records the creation (security audit log, `account.created` event).
+
+```bash
+PROD="docker compose -f compose.yaml -f compose.prod.yaml"
+
+# 1. Regulatory packs (idempotent): without them the packs are empty
+$PROD exec php php bin/console app:regulatory-packs:seed
+
+# 2. First super administrator: typed password (hidden, confirmed)
+$PROD exec php php bin/console app:admin:create --email=first.last@example.com --workspace-name="My organisation"
+
+# Non-interactive variant: password read from ADMIN_PASSWORD (never a command-line option)
+read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
+$PROD exec -T -e ADMIN_PASSWORD php php bin/console app:admin:create --email=first.last@example.com --no-interaction
+unset ADMIN_PASSWORD
+```
+
+Options: `--email` (required), `--username`, `--first-name`, `--last-name` (derived from the e-mail by default), `--workspace-name` (used only when no workspace exists; otherwise the account is linked to the existing workspaces). The password must satisfy the password policy; the command refuses an e-mail or a username already taken.
+
+At first login the account must **change its password**, then **enrol two-factor authentication** (TOTP).
+
+:::danger[`APP_ALLOW_FAKE_DATA=1`: never in production]
+A **development or staging** server running the production image can allow `app:seed` by adding `APP_ALLOW_FAKE_DATA=1` to its `.env.local`, then recreating the containers (`up -d`). `app:seed --reset` **wipes the database** and creates fake data: never set this variable on a production server. Without it, `app:seed` fails with an error naming the variable.
+:::
+
 ## 3. Post-deployment steps
 
 Run these once per deployment, inside the `php` container
@@ -270,6 +297,7 @@ The `failed` queue is deliberately not consumed by the worker: a retry is a huma
 - [ ] `TRUSTED_PROXIES` matches the actual Docker gateway.
 - [ ] PostgreSQL **not** exposed on the host.
 - [ ] Migrations applied; `app:totp:provision-missing` run.
+- [ ] First administrator created (`app:admin:create`); `APP_ALLOW_FAKE_DATA` absent from `.env.local`.
 - [ ] `worker` service running (`ps` → `healthy`), `private_uploads` volume present (`docker volume ls`), existing files copied into it (see above).
 - [ ] `backup` service running (`--profile backup`, mandatory before any real data); a restore has been tested.
 - [ ] Audit chain verification scheduled.

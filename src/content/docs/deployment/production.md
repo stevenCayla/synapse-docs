@@ -176,6 +176,33 @@ Toutes les images sont épinglées sur une version explicite (aucun tag flottant
 
 Pour mettre à jour une image : changer le tag (et l'empreinte), reconstruire avec `--pull --no-cache`, puis valider la pile. Les changements de version majeure de PostgreSQL suivent une procédure dédiée : [Migration PostgreSQL 16 vers 18](/deployment/postgresql-18-upgrade/).
 
+## Première installation : premier administrateur
+
+Une base neuve ne contient aucun compte. `app:seed` est **refusé en `prod`** (il crée des données fictives) : le premier super-administrateur se crée avec `app:admin:create`, qui ne génère aucune donnée fictive, crée le premier workspace s'il n'en existe aucun et journalise la création (journal d'audit de sécurité, événement `account.created`).
+
+```bash
+PROD="docker compose -f compose.yaml -f compose.prod.yaml"
+
+# 1. Packs réglementaires (idempotent) : sans eux, les packs sont vides
+$PROD exec php php bin/console app:regulatory-packs:seed
+
+# 2. Premier super-administrateur : mot de passe saisi (masqué, confirmé)
+$PROD exec php php bin/console app:admin:create --email=prenom.nom@exemple.fr --workspace-name="Mon organisation"
+
+# Variante non interactive : mot de passe lu dans ADMIN_PASSWORD (jamais en option de ligne de commande)
+read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
+$PROD exec -T -e ADMIN_PASSWORD php php bin/console app:admin:create --email=prenom.nom@exemple.fr --no-interaction
+unset ADMIN_PASSWORD
+```
+
+Options : `--email` (obligatoire), `--username`, `--first-name`, `--last-name` (déduits de l'e-mail par défaut), `--workspace-name` (utilisé seulement si aucun workspace n'existe ; sinon le compte est rattaché aux workspaces existants). Le mot de passe doit respecter la politique de mot de passe ; la commande refuse un e-mail ou un nom d'utilisateur déjà pris.
+
+Au premier login, le compte doit **changer son mot de passe** puis **activer la double authentification** (TOTP).
+
+:::danger[`APP_ALLOW_FAKE_DATA=1` : jamais en production]
+Un serveur de **développement ou de recette** qui exécute l'image de production peut autoriser `app:seed` en ajoutant `APP_ALLOW_FAKE_DATA=1` à son `.env.local`, puis en recréant les conteneurs (`up -d`). `app:seed --reset` **vide la base** et crée des données fictives : ne jamais définir cette variable sur un serveur de production. Sans elle, `app:seed` répond par une erreur qui nomme la variable.
+:::
+
 ## 3. Étapes post-déploiement
 
 À exécuter une fois par déploiement, dans le conteneur `php`
@@ -276,6 +303,7 @@ La file `failed` n'est volontairement pas consommée par le worker : une relance
 - [ ] `TRUSTED_PROXIES` correspond à la gateway Docker réelle.
 - [ ] PostgreSQL **non** exposé sur l'hôte.
 - [ ] Migrations appliquées ; `app:totp:provision-missing` et `app:regulatory-packs:seed` exécutés.
+- [ ] Premier administrateur créé (`app:admin:create`) ; `APP_ALLOW_FAKE_DATA` absent de `.env.local`.
 - [ ] Service `worker` actif (`ps` → `healthy`), volume `private_uploads` présent (`docker volume ls`), fichiers existants copiés dedans (voir ci-dessus).
 - [ ] Service `backup` actif (`--profile backup`, obligatoire avant toute donnée réelle) ; une restauration a été testée.
 - [ ] Vérification de la chaîne d'audit planifiée.
