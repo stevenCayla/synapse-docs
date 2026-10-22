@@ -110,3 +110,10 @@ Points d'accès JSON (`ImportFieldDefinitionController`), pour l'interface d'imp
 |---|---|
 | `GET /studies/{studyId}/imports/{importId}/field-proposals` | propositions, sections par défaut, formulaires existants, jeton CSRF. Relit le fichier archivé via `ImportFileProvider` (409 si absent). |
 | `POST /studies/{studyId}/imports/{importId}/fields` | crée les champs choisis (`formId` ou `newFormTitle`, `reason`, `fields[]`) ; jeton CSRF dans l'en-tête `X-CSRF-Token`. |
+
+## Écran d'import (quatre sous-étapes)
+
+`StudyImportController` (`/studies/{studyId}/imports`) sert l'étape Import de l'assistant et Patients › Importer avec les mêmes panneaux Twig (`templates/import/`), échangés par `assets/js/import-flow.js` (JSON, jeton CSRF dans `X-CSRF-Token`). Les règles sont dans
+`App\Import\Flow\ImportSessionService` : session modifiable seulement en brouillon et hors lecture par le worker, sous-étape refusée (409) tant que le rapport la bloque, validation = rapport non bloquant + certification + mot de passe + signification (`ImportSignatureMeaning`), avec
+`DataImport::certify()` et le statut `ready`. Le fichier est déplacé directement dans `private_uploads/imp/` (`SecureFileUploadService::storeImport`), jamais copié ailleurs. Dans l'assistant, `ImportStep::validate()` refuse « Continuer » tant qu'un import est ouvert (brouillon ou en lecture).
+L'application des données est #90.

@@ -103,3 +103,9 @@ JSON endpoints (`ImportFieldDefinitionController`), for the import UI:
 |---|---|
 | `GET /studies/{studyId}/imports/{importId}/field-proposals` | proposals, default sections, existing forms, CSRF token. Reads the archived file again through `ImportFileProvider` (409 when missing). |
 | `POST /studies/{studyId}/imports/{importId}/fields` | creates the chosen fields (`formId` or `newFormTitle`, `reason`, `fields[]`); CSRF token in the `X-CSRF-Token` header. |
+
+## Import screen (four sub-steps)
+
+`StudyImportController` (`/studies/{studyId}/imports`) serves the wizard Import step and Patients › Import with the same Twig panels (`templates/import/`), swapped by `assets/js/import-flow.js` (JSON, CSRF token in `X-CSRF-Token`). The rules live in `App\Import\Flow\ImportSessionService`: the
+session is editable only as a draft and while the worker is not reading it, a sub-step is refused (409) while the report blocks it, validation = non-blocking report + certification + password + meaning (`ImportSignatureMeaning`), through `DataImport::certify()` and the `ready` status. The file is
+moved straight into `private_uploads/imp/` (`SecureFileUploadService::storeImport`), never copied elsewhere. In the wizard, `ImportStep::validate()` refuses Continue while an import is open (draft or being read). Applying the data is #90.
