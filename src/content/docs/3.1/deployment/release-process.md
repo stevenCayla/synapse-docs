@@ -9,7 +9,7 @@ sidebar:
 slug: 3.1/deployment/release-process
 ---
 
-> 🌐 Version française · [English version](/3.1/en/deployment/release-process/)
+> 🌐 Version française · [English version](/en/3.1/deployment/release-process/)
 
 Cette page décrit le chemin complet d'une modification, de la branche de
 fonctionnalité jusqu'à la mise en production. La politique de numérotation et

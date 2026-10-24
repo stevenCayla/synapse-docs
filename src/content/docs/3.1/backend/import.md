@@ -6,7 +6,7 @@ description: "Le service d'import côté serveur de l'assistant d'étude : lectu
 slug: 3.1/backend/import
 ---
 
-> 🌐 Version française · [English version](/3.1/en/backend/import/)
+> 🌐 Version française · [English version](/en/3.1/backend/import/)
 
 Référence développeur de `App\Import` (la lecture et la validation n'écrivent rien dans l'étude ; l'application d'un import validé est décrite en fin de page).
 

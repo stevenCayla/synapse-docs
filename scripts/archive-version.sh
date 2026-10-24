@@ -31,4 +31,38 @@ fs.writeFileSync("versions.json", JSON.stringify(versions, null, 2) + "\n");
 
 npm run build
 
+# The plugin skips the archived versions at the root but not inside the locale
+# folder: drop the copies of the older versions it embedded in en/<slug>/.
+node -e '
+const fs = require("node:fs");
+const [slug, ...olds] = process.argv.slice(1);
+for (const old of olds) {
+  for (const dir of [`src/content/docs/${slug}/${old}`, `src/content/docs/en/${slug}/${old}`]) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+' "$slug" $(node -e 'for (const v of require("./versions.json")) if (v.slug !== process.argv[1]) console.log(v.slug)' "$slug")
+
+# The plugin prefixes the absolute links with /<slug>/ and keeps the relative
+# ones, which breaks the language switch: the English pages live under
+# /en/<slug>/, not /<slug>/en/. Rewrite those links in the new archive.
+node -e '
+const fs = require("node:fs");
+const path = require("node:path");
+const slug = process.argv[1];
+const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+  e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]);
+const esc = slug.replace(/\./g, "\\.");
+for (const [dir, en] of [[`src/content/docs/${slug}`, false], [`src/content/docs/en/${slug}`, true]]) {
+  for (const file of walk(dir).filter((f) => /\.mdx?$/.test(f))) {
+    const before = fs.readFileSync(file, "utf8");
+    let after = before.replace(new RegExp(`\\]\\(/${esc}/en/`, "g"), `](/en/${slug}/`);
+    // Relative language switch of the version home page.
+    after = en ? after.replace(/\]\(\.\.\/\)/g, `](/${slug}/)`)
+               : after.replace(/\]\(en\/\)/g, `](/en/${slug}/)`);
+    if (after !== before) fs.writeFileSync(file, after);
+  }
+}
+' "$slug"
+
 echo "Version $slug archived: commit versions.json, src/content/docs/$slug/ and src/content/versions/."

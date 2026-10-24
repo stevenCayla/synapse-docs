@@ -5,7 +5,7 @@ description: "Vue conceptuelle (DDD) du domaine : contextes métier, agrégats,
 slug: 3.1/architecture/domain-model
 ---
 
-> 🌐 Version française · [English version](/3.1/en/architecture/domain-model/)
+> 🌐 Version française · [English version](/en/3.1/architecture/domain-model/)
 
 Cette page décrit le domaine **d'un point de vue conceptuel** : quels sont les grands
 contextes métier, quels objets forment un agrégat cohérent, et quelles règles (invariants)

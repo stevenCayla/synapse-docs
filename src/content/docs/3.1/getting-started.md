@@ -12,7 +12,7 @@ sidebar:
 slug: 3.1/getting-started
 ---
 
-> 🌐 Version française · [English version](/3.1/en/getting-started/)
+> 🌐 Version française · [English version](/en/3.1/getting-started/)
 
 *Pour les développeurs — environnement local (Docker recommandé).*
 **Objectif : application opérationnelle en 5 à 10 minutes.**
