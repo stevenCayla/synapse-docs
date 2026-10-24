@@ -60,6 +60,7 @@ export default defineConfig({
         alt: 'Synapse Medical',
       },
       favicon: '/favicon.svg',
+      customCss: ['./src/styles/synapse.css', './src/styles/home.css'],
       defaultLocale: 'root',
       locales: {
         root: { label: 'Français', lang: 'fr' },

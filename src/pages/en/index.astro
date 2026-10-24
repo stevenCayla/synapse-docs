@@ -1,0 +1,16 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import Home from '../../components/home/Home.astro';
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Synapse Medical — EDC documentation',
+    description:
+      'Design, launch, run and close your clinical studies on a compliant EDC platform.',
+    template: 'splash',
+    pagefind: false,
+  }}
+>
+  <Home lang="en" />
+</StarlightPage>
