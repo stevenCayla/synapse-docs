@@ -29,7 +29,7 @@ Les rôles `is_system = true` sont fournis par défaut ; des **rôles personnali
 
 | Rôle | Code | Rôle Symfony | Description |
 |------|------|--------------|-------------|
-| **Owner** | `owner` | `ROLE_SUPER_ADMIN` | Contrôle total, **facturation incluse** — un seul par workspace |
+| **Owner** | `owner` | `ROLE_ADMIN` | Contrôle total **de son workspace**, facturation incluse — un seul par workspace |
 | **Admin** | `admin` | `ROLE_ADMIN` | Gère utilisateurs, études, intégrations — **hors facturation** |
 | **Member** | `member` | `ROLE_USER` | Accès standard — limité aux études assignées |
 | **Guest** | `guest` | `ROLE_USER` | Collaborateur externe — **expire après 90 jours** par défaut |
@@ -87,7 +87,8 @@ L'autorisation est vérifiée **côté serveur** à chaque accès :
 | `StudyVoter` | Attributs `STUDY_VIEW` / `STUDY_MANAGE` / `STUDY_ADMIN` |
 | `StudyAccessService` | `canView()` / `canManage()` / `canAdmin()` — résout le rôle effectif |
 | `SiteAccessService` | Droits au niveau centre investigateur |
-| Hiérarchie Symfony | `ROLE_SUPER_ADMIN` (Owner) **court-circuite** les Voters |
+| `WorkspaceAccess` | Distingue le niveau plateforme (`ROLE_SUPER_ADMIN`, créé par `app:admin:create`) du niveau workspace (rôle `WorkspaceUser`, non expiré, du workspace de la ressource) |
+| Hiérarchie Symfony | `ROLE_SUPER_ADMIN` (super-administrateur de la **plateforme**) et l'Owner **du workspace de la ressource** court-circuitent les Voters ; l'Owner d'un workspace n'obtient jamais `ROLE_SUPER_ADMIN` ni de droit sur un autre workspace |
 
 ```php
 // Vérification d'accès via le Voter

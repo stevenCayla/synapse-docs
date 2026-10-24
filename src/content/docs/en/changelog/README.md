@@ -24,13 +24,43 @@ format.
 - **PATCH** — backward-compatible fixes.
 :::
 
-## Current version — `3.1.0`
+## Current version — `3.2.0`
 
-Intermediate release towards the study creation wizard: data foundation, import service, worker and study closing; application version (`APP_VERSION`).
+New study creation wizard (prospective and retrospective paths, data import applied by the worker, regulatory file, signatures), per-workspace job titles and closed row-level security; application version (`APP_VERSION`).
 
 ## In progress (`Unreleased`)
 
 Nothing yet.
+
+## `3.2.0`
+
+Release that ships the study creation wizard end to end, per-workspace job titles and a hardening of data security.
+
+:::caution[Check before deploying]
+- **Database role `app_runtime`** (#155): the application no longer connects as the owner; `POSTGRES_APP_PASSWORD` is mandatory in production and the role is created before deploying (see the production guide). Row-level security is now closed by default.
+- **New `APP_FILE_ENCRYPTION_KEY` key** (#90), mandatory in production, and **recreate the worker** on every deployment.
+- **Demote former Owners** (#224): `app:security:workspace-owner-roles` (list), then `--apply --user=<email>` for each Owner who is not a platform administrator.
+- **Automatic migrations** at startup (including `Version20261024140000` and `Version20261024160000`): back up the database before deploying. Then run `app:regulatory-packs:seed`.
+- The documentation sync on `develop` is paused (#228). Known limitation (#239): an existing account invited as administrator or Owner does not reach the admin screens yet.
+:::
+
+### Added
+
+- **Study creation wizard**: prospective and retrospective paths, Essential and Advanced modes, four-step data import applied by the worker, team and GCP certificates, printable study sheet, go-live checklist.
+- **Regulatory file**, versioned packs and their administration, rules engine, electronic signatures and study lifecycle (Configuration).
+- **Per-workspace job titles**, chosen when inviting (#217, #219, #222).
+
+### Changed
+
+- Shared authentication pages (#220), fonts and icons served by the application (#157), CI suspended outside releases.
+
+### Fixed
+
+- Invitation of an address that already has an account (#223, #238), invitation and password pages (#221), adding a member who is already present (#104), adding a patient to a study that has visits (#115), TLS certificates of the production image (#214) and many wizard polish items.
+
+### Security
+
+- Restricted database role and closed row-level security (#155); a workspace Owner is no longer a super administrator (#224); an invited existing account no longer changes its global roles (#238); account actions reserved to the Owner (#234).
 
 ## `3.1.0`
 

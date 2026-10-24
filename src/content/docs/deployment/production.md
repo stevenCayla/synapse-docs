@@ -217,6 +217,7 @@ Un serveur de **développement ou de recette** qui exécute l'image de productio
 | **Chiffrer les PII patient** | `app:patient:encrypt-existing --batch-size=200` (idempotent ; `--dry-run` pour vérifier) | Backfill ponctuel lors de l'introduction du chiffrement patient. Faire un `pg_dump` au préalable. |
 | **Vérifier la rétention** | `app:retention:check-studies` | Code de sortie `2` si des études dépassent la rétention — intégrable dans Nagios/Zabbix. |
 | **Rappeler les certificats GCP** | `app:gcp:send-expiry-reminders` (aperçu avec `--dry-run`) | Planifier chaque jour (cron) : envoie un rappel unique avant l'expiration du certificat GCP d'un utilisateur. Informatif, ne bloque aucun accès. |
+| **Rétrograder les anciens Owner** (3.2.0) | `app:security:workspace-owner-roles` (liste), puis `--apply --user=<email>` par propriétaire | Une fois : avant, l'Owner recevait `ROLE_SUPER_ADMIN`. Aucune migration automatique (un administrateur peut aussi être Owner) : ne rétrograder que les Owner qui ne sont pas administrateurs de la plateforme. |
 | **Vérifier les chaînes d'audit** | `app:verify-audit-chain` · `app:audit:verify-chain` | Contrôle d'intégrité périodique des journaux inviolables. |
 
 :::note[Aucune suppression automatique de données cliniques]
