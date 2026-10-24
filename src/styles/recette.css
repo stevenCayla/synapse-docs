@@ -284,3 +284,7 @@
 .kit-key > * {
   margin-block: 0 !important;
 }
+.kpis > div,
+.kpis > div > * {
+  margin: 0 !important;
+}
