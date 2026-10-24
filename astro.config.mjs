@@ -219,12 +219,6 @@ export default defineConfig({
           translations: { en: 'Getting started' },
           items: [
             {
-              label: 'Guide de démarrage',
-              translations: { en: 'Getting started' },
-              link: '/getting-started/',
-              badge: { text: 'Nouveau', variant: 'tip' },
-            },
-            {
               label: 'Prise en main',
               translations: { en: 'Getting started guides' },
               items: [

@@ -49,10 +49,9 @@ export function findTrail(sidebar: Entry[]) {
 // application, the acceptance tests, troubleshooting and QA. Entries are
 // picked by position in the sidebar config of astro.config.mjs
 // (guide = [home, architecture, backend, security, conventions, deployment,
-// troubleshooting], start = [quick start, guides, running, resources,
-// acceptance tests, QA]).
+// troubleshooting], start = [guides, running, resources, acceptance tests, QA]).
 const MERGED_ORDER: [section: number, entry: number][] = [
-  [0, 0], [1, 0], [1, 1], [1, 2], [1, 3], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 4], [0, 6], [1, 5],
+  [0, 0], [1, 0], [1, 1], [1, 2], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 3], [0, 6], [1, 4],
 ];
 export function sidebarEntries(sections: ReturnType<typeof getSections>, active: number): Entry[] {
   if (active > 1 || sections.length < 2) return sections[active].entries ?? [];
