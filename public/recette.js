@@ -3,6 +3,11 @@
 (function () {
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var T = /^\/en\//.test(location.pathname)
+    ? { copied: 'Copied. Paste into cell A1 in Excel.', copyFail: 'Copy failed: select the table instead.', executed: ' cases executed',
+        label: { ok: 'Passed', ko: 'Failed', na: 'Blocked', '': 'Not executed' }, report: 'Acceptance test report — ', file: 'PV-REC-01.txt' }
+    : { copied: 'Copié. Collez en A1 dans Excel.', copyFail: 'Copie impossible : sélectionnez le tableau.', executed: ' cas exécutés',
+        label: { ok: 'Conforme', ko: 'Non conforme', na: 'Bloqué', '': 'Non exécuté' }, report: 'PV de recette — ', file: 'PV-REC-01.txt' };
 
   /* Test file: copy as tab-separated text. */
   var copy = $('#kitCopy');
@@ -16,8 +21,8 @@
       }).join('\n');
       var msg = $('#kitMsg');
       (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
-        function () { msg.textContent = 'Copié. Collez en A1 dans Excel.'; },
-        function () { msg.textContent = 'Copie impossible : sélectionnez le tableau.'; }
+        function () { msg.textContent = T.copied; },
+        function () { msg.textContent = T.copyFail; }
       );
     });
   }
@@ -43,7 +48,7 @@
         tr.classList.toggle('done', box.checked);
       });
     });
-    $('#runProg').textContent = done + ' / ' + cases.length + ' cas exécutés';
+    $('#runProg').textContent = done + ' / ' + cases.length + T.executed;
     save();
   };
 
@@ -67,14 +72,14 @@
     render();
   });
   $('#runExport').addEventListener('click', function () {
-    var label = { ok: 'Conforme', ko: 'Non conforme', na: 'Bloqué', '': 'Non exécuté' };
-    var text = 'PV de recette — ' + document.title.split(' | ')[0] + '\n' + new Date().toISOString() + '\n\n' +
+    var label = T.label;
+    var text = T.report + document.title.split(' | ')[0] + '\n' + new Date().toISOString() + '\n\n' +
       cases.map(function (tc) {
         return tc.dataset.tc + ' — ' + $('.tc-h b', tc).textContent + ' : ' + label[(state[tc.dataset.tc] || {}).status || ''];
       }).join('\n');
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-    a.download = 'PV-REC-01.txt';
+    a.download = T.file;
     a.click();
   });
   render();

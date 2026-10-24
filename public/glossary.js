@@ -9,7 +9,7 @@
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
 
-  fetch('/glossary.json')
+  fetch(/^\/en\//.test(location.pathname) ? '/en/glossary.json' : '/glossary.json')
     .then(function (r) {
       return r.json();
     })
