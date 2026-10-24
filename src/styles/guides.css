@@ -96,13 +96,24 @@ abbr.gl {
 .sy-gend button.on::before {
   content: '✓ ';
 }
+.sidebar-content summary .group-label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+/* Progress counter of a group: pill before the chevron (mockup ".gcount"). */
 .sidebar-content .gcount {
   margin-left: auto;
-  padding-left: 0.5rem;
-  font: 600 11px var(--sy-font-mono);
+  margin-right: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--sy-bg3);
   color: var(--sy-ink3);
+  font: 600 11px var(--sy-font-mono);
 }
 .sidebar-content .gcount.full {
+  background: var(--sy-ok-soft);
   color: var(--sy-ok);
 }
 .sidebar-content a.done span::after {
