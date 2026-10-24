@@ -117,9 +117,21 @@ Pour ajouter un schéma réutilisable, l'ajouter dans le fichier YAML sous `comp
 
 | Commande | Description |
 |---|---|
+| `make openapi` | Exporter la spec de la zone `default` dans `openapi/openapi.json` |
 | `make sf c="nelmio:apidoc:dump --format=json"` | Générer la spec JSON (validation) |
 | `make sf c="nelmio:apidoc:dump --format=yaml"` | Générer la spec YAML |
 | `make sf c="debug:router --show-aliases"` | Voir toutes les routes enregistrées |
+
+### Schéma exporté (privé)
+
+`openapi/openapi.json` (à la racine du dépôt) est la spec de la zone `default` (API
+interne). Elle reste dans le dépôt privé et n'est jamais publiée sur le site de
+documentation public, car `docs/` est synchronisé vers un dépôt public.
+
+- Après toute modification d'un endpoint documenté (attributs `#[OA\*]` ou
+  `nelmio_api_doc.yaml`), lancer `make openapi` et commiter le fichier.
+- Le job **Tests** de la CI régénère la spec et échoue si elle diffère du fichier commité.
+- Seule la zone `public`, quand elle aura des endpoints, pourra être publiée plus tard (décision séparée).
 
 ## Sécurité documentée
 

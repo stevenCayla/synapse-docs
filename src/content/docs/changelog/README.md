@@ -23,13 +23,43 @@ Synapse Medical suit le **[Semantic Versioning](https://semver.org/lang/fr/)**
 - **PATCH** — corrections rétrocompatibles.
 :::
 
-## Version actuelle — `3.1.0`
+## Version actuelle — `3.2.0`
 
-Version intermédiaire vers l'assistant de création d'étude : socle de données, service d'import, worker et clôture d'étude ; version applicative (`APP_VERSION`).
+Nouvel assistant de création d'étude (parcours prospectif et rétrospectif, import de données appliqué par le worker, dossier réglementaire, signatures), fonctions par workspace et sécurité par ligne fermée ; version applicative (`APP_VERSION`).
 
 ## En cours (`Unreleased`)
 
 Rien pour le moment.
+
+## `3.2.0`
+
+Version qui livre l'assistant de création d'étude de bout en bout, les fonctions par workspace et un durcissement de la sécurité des données.
+
+:::caution[À vérifier avant déploiement]
+- **Rôle de base de données `app_runtime`** (#155) : l'application ne se connecte plus avec le propriétaire ; `POSTGRES_APP_PASSWORD` est obligatoire en production et le rôle se crée avant le déploiement (voir le guide de production). La sécurité par ligne est désormais fermée par défaut.
+- **Nouvelle clé `APP_FILE_ENCRYPTION_KEY`** (#90), obligatoire en production, et **worker à recréer** à chaque déploiement.
+- **Rétrograder les anciens Owner** (#224) : `app:security:workspace-owner-roles` (liste), puis `--apply --user=<e-mail>` pour chaque Owner qui n'est pas administrateur de la plateforme.
+- **Migrations automatiques** au démarrage (dont `Version20261024140000` et `Version20261024160000`) : sauvegarder la base avant de déployer. Lancer ensuite `app:regulatory-packs:seed`.
+- La synchronisation de la documentation sur `develop` est en pause (#228). Limite connue (#239) : un compte existant invité administrateur ou Owner n'atteint pas encore les écrans d'administration.
+:::
+
+### Ajouté
+
+- **Assistant de création d'étude** : parcours prospectif et rétrospectif, modes Essentiel et Avancé, import de données en quatre sous-étapes appliqué par le worker, équipe et certificats GCP, fiche d'étude imprimable, checklist de mise en production.
+- **Dossier réglementaire**, packs versionnés et leur administration, moteur de règles, signatures électroniques et cycle de vie d'étude (Configuration).
+- **Fonctions par workspace**, choisies à l'invitation (#217, #219, #222).
+
+### Modifié
+
+- Pages d'authentification communes (#220), polices et icônes servies par l'application (#157), CI suspendue hors release.
+
+### Corrigé
+
+- Invitation d'une adresse qui a déjà un compte (#223, #238), pages d'invitation et de mot de passe (#221), ajout d'un membre déjà présent (#104), ajout d'un patient à une étude qui a des visites (#115), certificats TLS de l'image de production (#214) et de nombreuses finitions de l'assistant.
+
+### Sécurité
+
+- Rôle de base restreint et sécurité par ligne fermée (#155) ; l'Owner d'un workspace n'est plus super-administrateur (#224) ; un compte existant invité ne change plus ses rôles globaux (#238) ; actions de compte réservées à l'Owner (#234).
 
 ## `3.1.0`
 

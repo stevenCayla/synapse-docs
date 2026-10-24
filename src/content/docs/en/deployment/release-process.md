@@ -32,7 +32,7 @@ feature/*  ──PR──▶  develop  ──▶  release/YYYY-MM-DD  ──PR�
 | Item | Location | Role |
 |------|----------|------|
 | Changelog | `CHANGELOG.md` (root) | [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format, `[Unreleased]` section |
-| Application version | `APP_VERSION` in `.env` (currently `3.1.0`) | Exposed to Twig (`app_version`) and to the documentation site |
+| Application version | `APP_VERSION` in `.env` (currently `3.2.0`) | Exposed to Twig (`app_version`) and to the documentation site |
 | Docs version | `synapse-docs` repository: `astro.config.mjs` → `src/version.ts` | Derived from `APP_VERSION` at build time |
 | CI | `.github/workflows/ci.yaml` | Docker build, HTTP/Mercure smoke tests, migrations + PHPUnit, `composer audit`, lint |
 | Production image | `Dockerfile`, target `frankenphp_prod` + `compose.prod.yaml` | Slim `debian:13.7-slim` image, runs as `www-data` |
@@ -121,7 +121,7 @@ opening the release PR:
 ```bash
 # Isolated test database (_test suffix, see config/packages/doctrine.yaml)
 make sf c="-e test doctrine:database:drop --force --if-exists"
-make sf c="-e test doctrine:database:create"
+make sf c="-e test doctrine:database:create --connection=migrations"  # owner: the application role cannot create a database
 make sf c="-e test doctrine:migrations:migrate --no-interaction --all-or-nothing"
 make sf c="-e test doctrine:schema:validate"
 ```

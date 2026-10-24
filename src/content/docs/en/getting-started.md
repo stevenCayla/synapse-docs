@@ -63,6 +63,7 @@ To use your own values, define them in `.env.local` before the first start:
   echo "APP_TOTP_ENCRYPTION_KEY=$(openssl rand -base64 32)"
   echo "APP_PATIENT_ENCRYPTION_KEY=$(openssl rand -base64 32)"
   echo "APP_PATIENT_SEARCH_HMAC_KEY=$(openssl rand -base64 32)"
+  echo "APP_FILE_ENCRYPTION_KEY=$(openssl rand -base64 32)"
 } >> .env.local
 ```
 
@@ -72,6 +73,7 @@ To use your own values, define them in `.env.local` before the first start:
 | `APP_TOTP_ENCRYPTION_KEY` | **base64, 32 bytes** | Encryption of 2FA (TOTP) secrets |
 | `APP_PATIENT_ENCRYPTION_KEY` | **base64, 32 bytes** | Patient PII encryption (`crypto_secretbox`) |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | **base64, ≥ 32 bytes** | Blind HMAC index for encrypted search |
+| `APP_FILE_ENCRYPTION_KEY` | **base64, 32 bytes** | Encryption of archived files (applied data imports) |
 
 :::caution
 The `POSTGRES_PASSWORD`, passwords and keys in the `.env` file are **development values**.

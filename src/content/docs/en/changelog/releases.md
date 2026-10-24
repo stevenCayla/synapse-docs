@@ -21,7 +21,7 @@ Every published version is materialized by a **Git tag `vX.Y.Z`** and an associa
 | **MINOR** | Backward-compatible feature | `3.0.0` → `3.1.0` |
 | **PATCH** | Backward-compatible fix | `3.0.0` → `3.0.1` |
 
-The current version is exposed by the `APP_VERSION` environment variable (**`3.1.0`**).
+The current version is exposed by the `APP_VERSION` environment variable (**`3.2.0`**).
 
 ## Publishing process
 

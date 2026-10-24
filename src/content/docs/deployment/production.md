@@ -70,9 +70,11 @@ Générer les valeurs :
 openssl rand -hex 32                              # APP_SECRET
 openssl rand -hex 32                              # CADDY_MERCURE_JWT_SECRET
 openssl rand -base64 24                           # POSTGRES_PASSWORD
+openssl rand -hex 24                              # POSTGRES_APP_PASSWORD
 php -r "echo base64_encode(random_bytes(32));"    # APP_TOTP_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
+php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 ```
 
 | Variable | Rôle |
@@ -81,16 +83,63 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_PATIENT_SEARCH_HMAC_KEY
 | `APP_TOTP_ENCRYPTION_KEY` | Chiffre les secrets 2FA au repos |
 | `APP_PATIENT_ENCRYPTION_KEY` | Chiffre les PII patient au repos |
 | `APP_PATIENT_SEARCH_HMAC_KEY` | Index aveugle pour la recherche sur données chiffrées |
+| `APP_FILE_ENCRYPTION_KEY` | Chiffre au repos l'archive des imports de données appliqués (`private_uploads/arc`) |
 | `CADDY_MERCURE_JWT_SECRET` | JWT publisher/subscriber Mercure |
-| `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Identifiants base de données |
+| `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Identifiants base de données (propriétaire : migrations et maintenance) |
+| `POSTGRES_APP_PASSWORD` | Mot de passe du rôle restreint `app_runtime` que l'application utilise ([voir plus bas](#rôle-de-base-de-données-de-lapplication)) |
 | `DOMAIN` | Domaine public (URL publique Mercure, URI par défaut) |
 | `TRUSTED_PROXIES` | Défaut `127.0.0.1,172.16.0.0/12` (couvre les bridges Docker) |
 
 :::danger[Clés de chiffrement irrécupérables en cas de perte]
-La perte de `APP_PATIENT_ENCRYPTION_KEY` ou `APP_TOTP_ENCRYPTION_KEY` rend les
-données concernées définitivement illisibles. Conserver toutes les clés dans un
+La perte de `APP_PATIENT_ENCRYPTION_KEY`, `APP_TOTP_ENCRYPTION_KEY` ou `APP_FILE_ENCRYPTION_KEY` rend les
+données concernées définitivement illisibles (pour la dernière : les fichiers archivés des imports). Conserver toutes les clés dans un
 coffre de secrets et les sauvegarder **séparément** de la base de données.
 :::
+
+## Rôle de base de données de l'application
+
+L'application ne se connecte **pas** avec le propriétaire de la base. `POSTGRES_USER` est un superutilisateur
+PostgreSQL : il ignore les politiques de sécurité par ligne (RLS) des tables `study`, `patient` et `ecrf_record`,
+même avec `FORCE ROW LEVEL SECURITY`. L'application utilise donc le rôle restreint `app_runtime` (ni propriétaire,
+ni superuser, ni `BYPASSRLS`, droits DML seulement) via `DATABASE_URL` ; le propriétaire ne sert qu'aux migrations et
+aux commandes de maintenance (`DATABASE_MIGRATIONS_URL`), et l'entrypoint le retire de l'environnement du serveur
+web et du worker une fois les migrations passées. Le service `backup` garde le propriétaire : `pg_dump` doit lire
+toutes les lignes.
+
+Nouvelle variable obligatoire : `POSTGRES_APP_PASSWORD` (`openssl rand -hex 24`, hexadécimal pour rester valide
+dans l'URL), distincte de `POSTGRES_PASSWORD`.
+
+**Mise en place sur une base existante** (une fois, avant ou pendant le déploiement qui introduit ce rôle) :
+
+```bash
+DC="docker compose -f compose.yaml -f compose.prod.yaml"
+
+# 0. Sauvegarde, puis état actuel (attendu avant : rolsuper = t)
+$DC exec -T database psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+  "select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user"
+
+# 1. Ajouter POSTGRES_APP_PASSWORD à .env.local, puis récupérer le code
+git pull
+
+# 2. Recréer la base avec la nouvelle variable et le script monté (le volume est conservé)
+$DC up -d database
+
+# 3. Créer le rôle (idempotent : peut être relancé, met aussi à jour le mot de passe)
+$DC exec -T database sh /docker-entrypoint-initdb.d/10-create-app-role.sh
+
+# 4. Reconstruire et démarrer : la migration Version20261022100000 donne les droits DML au rôle
+$DC build --pull --no-cache
+$DC up -d
+
+# 5. Vérifier la connexion réellement utilisée par l'application (attendu : app_runtime | f | f)
+$DC exec php php bin/console dbal:run-sql \
+  "select rolname, rolsuper, rolbypassrls from pg_roles where rolname = current_user"
+```
+
+Sur une base neuve (volume vide), le script du service `database` crée le rôle tout seul. Si `app_runtime` n'existe
+pas quand la migration passe, celle-ci n'accorde rien et affiche un avertissement : créer le rôle (étape 3) puis
+relancer `doctrine:migrations:migrate`. **Retour arrière** : remettre l'ancienne valeur de `DATABASE_URL` (propriétaire)
+dans `compose.prod.yaml`, relancer `up -d` ; le rôle peut rester.
 
 ## 2. Build & démarrage
 
@@ -129,6 +178,33 @@ Toutes les images sont épinglées sur une version explicite (aucun tag flottant
 
 Pour mettre à jour une image : changer le tag (et l'empreinte), reconstruire avec `--pull --no-cache`, puis valider la pile. Les changements de version majeure de PostgreSQL suivent une procédure dédiée : [Migration PostgreSQL 16 vers 18](/deployment/postgresql-18-upgrade/).
 
+## Première installation : premier administrateur
+
+Une base neuve ne contient aucun compte. `app:seed` est **refusé en `prod`** (il crée des données fictives) : le premier super-administrateur se crée avec `app:admin:create`, qui ne génère aucune donnée fictive, crée le premier workspace s'il n'en existe aucun et journalise la création (journal d'audit de sécurité, événement `account.created`).
+
+```bash
+PROD="docker compose -f compose.yaml -f compose.prod.yaml"
+
+# 1. Packs réglementaires (idempotent) : sans eux, les packs sont vides
+$PROD exec php php bin/console app:regulatory-packs:seed
+
+# 2. Premier super-administrateur : mot de passe saisi (masqué, confirmé)
+$PROD exec php php bin/console app:admin:create --email=prenom.nom@exemple.fr --workspace-name="Mon organisation"
+
+# Variante non interactive : mot de passe lu dans ADMIN_PASSWORD (jamais en option de ligne de commande)
+read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
+$PROD exec -T -e ADMIN_PASSWORD php php bin/console app:admin:create --email=prenom.nom@exemple.fr --no-interaction
+unset ADMIN_PASSWORD
+```
+
+Options : `--email` (obligatoire), `--username`, `--first-name`, `--last-name` (déduits de l'e-mail par défaut), `--workspace-name` (utilisé seulement si aucun workspace n'existe ; sinon le compte est rattaché aux workspaces existants). Le mot de passe doit respecter la politique de mot de passe ; la commande refuse un e-mail ou un nom d'utilisateur déjà pris.
+
+Au premier login, le compte doit **changer son mot de passe** puis **activer la double authentification** (TOTP).
+
+:::danger[`APP_ALLOW_FAKE_DATA=1` : jamais en production]
+Un serveur de **développement ou de recette** qui exécute l'image de production peut autoriser `app:seed` en ajoutant `APP_ALLOW_FAKE_DATA=1` à son `.env.local`, puis en recréant les conteneurs (`up -d`). `app:seed --reset` **vide la base** et crée des données fictives : ne jamais définir cette variable sur un serveur de production. Sans elle, `app:seed` répond par une erreur qui nomme la variable.
+:::
+
 ## 3. Étapes post-déploiement
 
 À exécuter une fois par déploiement, dans le conteneur `php`
@@ -137,8 +213,11 @@ Pour mettre à jour une image : changer le tag (et l'empreinte), reconstruire av
 | Étape | Commande | Quand |
 |-------|----------|-------|
 | **Provisionner la 2FA** | `app:totp:provision-missing` (aperçu avec `--dry-run`) | Après activation de la 2FA obligatoire. Les utilisateurs sans TOTP sont redirigés vers `/2fa/setup` au prochain login (attendu, non bloquant). |
+| **Charger les packs réglementaires** | `app:regulatory-packs:seed` | Après les migrations, à chaque déploiement : idempotent, ne crée que ce qui manque (jamais de modification des packs existants). Sans cette étape, les packs réglementaires sont vides. |
 | **Chiffrer les PII patient** | `app:patient:encrypt-existing --batch-size=200` (idempotent ; `--dry-run` pour vérifier) | Backfill ponctuel lors de l'introduction du chiffrement patient. Faire un `pg_dump` au préalable. |
 | **Vérifier la rétention** | `app:retention:check-studies` | Code de sortie `2` si des études dépassent la rétention — intégrable dans Nagios/Zabbix. |
+| **Rappeler les certificats GCP** | `app:gcp:send-expiry-reminders` (aperçu avec `--dry-run`) | Planifier chaque jour (cron) : envoie un rappel unique avant l'expiration du certificat GCP d'un utilisateur. Informatif, ne bloque aucun accès. |
+| **Rétrograder les anciens Owner** (3.2.0) | `app:security:workspace-owner-roles` (liste), puis `--apply --user=<email>` par propriétaire | Une fois : avant, l'Owner recevait `ROLE_SUPER_ADMIN`. Aucune migration automatique (un administrateur peut aussi être Owner) : ne rétrograder que les Owner qui ne sont pas administrateurs de la plateforme. |
 | **Vérifier les chaînes d'audit** | `app:verify-audit-chain` · `app:audit:verify-chain` | Contrôle d'intégrité périodique des journaux inviolables. |
 
 :::note[Aucune suppression automatique de données cliniques]
@@ -200,12 +279,16 @@ Ne supprimer `./private_uploads-backup` qu'une fois ce contrôle fait.
 
 ## Worker Messenger (imports en arrière-plan)
 
-Le service **`worker`** (`bin/console messenger:consume async`, même image et mêmes variables que `php`, sans port ni Caddy) lit et valide en arrière-plan les imports de données volumineux (au moins `IMPORT_ASYNC_THRESHOLD` lignes, 2000 par défaut) ; les petits fichiers restent traités dans la requête.
+Le service **`worker`** (`bin/console messenger:consume async`, même image et mêmes variables que `php`, sans port ni Caddy) lit et valide en arrière-plan les imports de données volumineux (au moins `IMPORT_ASYNC_THRESHOLD` lignes, 2000 par défaut ; les petits fichiers restent traités dans la requête) et **applique à l'étude** les imports validés (signés), par lots de
+`IMPORT_APPLY_BATCH` lignes (50 par défaut), une transaction par lot.
 La file de messages est la table `messenger_messages` de **la même base PostgreSQL** : aucun service supplémentaire à héberger.
 
 - Le worker s'arrête de lui-même après 1 h ou 256 Mo (`--time-limit`, `--memory-limit`) et `restart: unless-stopped` le relance ; s'il est tué en cours de lecture, Docker le relance et le message est repris après `redeliver_timeout` (300 s, dans `MESSENGER_TRANSPORT_DSN`).
 - Un message en échec est retenté 3 fois (attentes de 2 s, 6 s puis 18 s), puis l'import passe en `failed` avec un motif générique (jamais une valeur ni un en-tête du fichier) et le message est déplacé dans la file `failed`.
 - **À chaque déploiement, le worker doit repartir sur le nouveau code** : `docker compose -f compose.yaml -f compose.prod.yaml up -d` le recrée avec l'image reconstruite ; sans reconstruction (changement de variables seul), forcer avec `docker compose -f compose.yaml -f compose.prod.yaml up -d --force-recreate worker`. Il termine d'abord le message en cours (délai d'arrêt de 60 s).
+- Un import appliqué laisse dans `private_uploads/arc/` une copie **chiffrée** avec `APP_FILE_ENCRYPTION_KEY` (copie expurgée de ses colonnes identifiantes ; le SHA-256 de l'original est conservé en base). Sans cette clé l'archive est illisible : la conserver dans le coffre et la sauvegarder séparément, comme les autres clés. Le fichier téléversé
+  (`private_uploads/imp/`) est supprimé une fois l'import appliqué.
+- Une application interrompue (échec, worker arrêté) reprend après le dernier lot validé ; après les 3 reprises automatiques, elle apparaît en échec sur l'écran d'import (« Reprendre l'application ») ou par `messenger:failed:retry`.
 - Le worker lit les fichiers d'import archivés dans `private_uploads/` : ce dossier est le volume `private_uploads`, partagé par `php` et `worker` (voir [Fichiers déposés](#fichiers-déposés-private_uploads)).
 
 Messages en échec (depuis le conteneur `php`) :
@@ -226,7 +309,8 @@ La file `failed` n'est volontairement pas consommée par le worker : une relance
 - [ ] TLS Apache valide ; redirection HTTP→HTTPS OK ; `certbot renew --dry-run` OK.
 - [ ] `TRUSTED_PROXIES` correspond à la gateway Docker réelle.
 - [ ] PostgreSQL **non** exposé sur l'hôte.
-- [ ] Migrations appliquées ; `app:totp:provision-missing` exécuté.
+- [ ] Migrations appliquées ; `app:totp:provision-missing` et `app:regulatory-packs:seed` exécutés.
+- [ ] Premier administrateur créé (`app:admin:create`) ; `APP_ALLOW_FAKE_DATA` absent de `.env.local`.
 - [ ] Service `worker` actif (`ps` → `healthy`), volume `private_uploads` présent (`docker volume ls`), fichiers existants copiés dedans (voir ci-dessus).
 - [ ] Service `backup` actif (`--profile backup`, obligatoire avant toute donnée réelle) ; une restauration a été testée.
 - [ ] Vérification de la chaîne d'audit planifiée.

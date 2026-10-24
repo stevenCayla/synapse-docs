@@ -205,6 +205,7 @@ openssl rand -base64 24        # → POSTGRES_PASSWORD
 php -r "echo base64_encode(random_bytes(32));"  # → APP_TOTP_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"  # → APP_PATIENT_ENCRYPTION_KEY
 php -r "echo base64_encode(random_bytes(32));"  # → APP_PATIENT_SEARCH_HMAC_KEY
+php -r "echo base64_encode(random_bytes(32));"  # → APP_FILE_ENCRYPTION_KEY
 ```
 
 > **Ne jamais committer `.env.local`.** Il est dans `.gitignore` par défaut.
@@ -247,6 +248,12 @@ docker compose -f compose.yaml -f compose.prod.yaml logs -f php
 # ── 8. Tester le site ────────────────────────────────────────────────────────
 curl -I https://votre-domaine.fr
 # → HTTP/2 200
+
+# ── 9. Packs réglementaires et premier administrateur ────────────────────────
+docker compose -f compose.yaml -f compose.prod.yaml exec php php bin/console app:regulatory-packs:seed
+docker compose -f compose.yaml -f compose.prod.yaml exec php php bin/console app:admin:create --email=prenom.nom@exemple.fr
+# Mot de passe demandé (masqué) ; changement de mot de passe + 2FA au premier login.
+# app:seed est refusé en prod (APP_ALLOW_FAKE_DATA=1 : serveurs de développement uniquement, jamais en production).
 ```
 
 ### 5.2 Déploiement de mise à jour

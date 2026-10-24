@@ -29,7 +29,7 @@ Les rôles `is_system = true` sont fournis par défaut ; des **rôles personnali
 
 | Rôle | Code | Rôle Symfony | Description |
 |------|------|--------------|-------------|
-| **Owner** | `owner` | `ROLE_SUPER_ADMIN` | Contrôle total, **facturation incluse** — un seul par workspace |
+| **Owner** | `owner` | `ROLE_ADMIN` | Contrôle total **de son workspace**, facturation incluse — un seul par workspace |
 | **Admin** | `admin` | `ROLE_ADMIN` | Gère utilisateurs, études, intégrations — **hors facturation** |
 | **Member** | `member` | `ROLE_USER` | Accès standard — limité aux études assignées |
 | **Guest** | `guest` | `ROLE_USER` | Collaborateur externe — **expire après 90 jours** par défaut |
@@ -87,7 +87,8 @@ L'autorisation est vérifiée **côté serveur** à chaque accès :
 | `StudyVoter` | Attributs `STUDY_VIEW` / `STUDY_MANAGE` / `STUDY_ADMIN` |
 | `StudyAccessService` | `canView()` / `canManage()` / `canAdmin()` — résout le rôle effectif |
 | `SiteAccessService` | Droits au niveau centre investigateur |
-| Hiérarchie Symfony | `ROLE_SUPER_ADMIN` (Owner) **court-circuite** les Voters |
+| `WorkspaceAccess` | Distingue le niveau plateforme (`ROLE_SUPER_ADMIN`, créé par `app:admin:create`) du niveau workspace (rôle `WorkspaceUser`, non expiré, du workspace de la ressource) |
+| Hiérarchie Symfony | `ROLE_SUPER_ADMIN` (super-administrateur de la **plateforme**) et l'Owner **du workspace de la ressource** court-circuitent les Voters ; l'Owner d'un workspace n'obtient jamais `ROLE_SUPER_ADMIN` ni de droit sur un autre workspace |
 
 ```php
 // Vérification d'accès via le Voter
@@ -107,3 +108,17 @@ ressource par son ID seul : toujours filtrer par `workspace_id`.
 
 Voir aussi : [Bonnes pratiques de sécurité](/security/best-practices/) ·
 [Module eCRF](/architecture/overview/#6-module-ecrf).
+
+## 5. Rôle plateforme : Affaires réglementaires
+
+`ROLE_REGULATORY_AFFAIRS` est un rôle **de niveau plateforme**, distinct des rôles de workspace ci-dessus. Il donne accès à l'administration des packs réglementaires (`/admin/regulatory-packs`) et **à rien d'autre** : aucune donnée de workspace, d'étude ou de patient (il hérite uniquement de `ROLE_USER`, et l'accès aux données reste porté par l'appartenance au workspace et par les Voters).
+
+| Point | Règle |
+|-------|-------|
+| Attribution | Par un super administrateur uniquement, depuis le tiroir utilisateur (« Affaires réglementaires »), pas depuis le formulaire d'édition |
+| Hiérarchie | `ROLE_SUPER_ADMIN` inclut `ROLE_REGULATORY_AFFAIRS` ; `ROLE_ADMIN` (admin de workspace) ne l'inclut pas |
+| Modifier / publier | Réservé à ce rôle et aux super administrateurs |
+| Versions | Modifier une exigence d'une version publiée crée une version `YYYY.MM-draft` ; la version publiée reste en vigueur et les études gardent la version appliquée |
+| Publication | Cas de test rejoués côté serveur (tous réussis), sources vérifiées, signature électronique avec mot de passe (`RegulatoryPackSignature`) |
+| Journal | Les actions de plateforme n'ont pas de workspace : elles sont écrites dans `platform_activity_log` (table à chaîne de hachage HMAC, sans donnée de workspace), pas dans `activity_log` |
+| Impact | Seule lecture inter-workspaces : identifiant d'étude, nom du workspace et statut des études qui ont appliqué une version, jamais de donnée d'étude |

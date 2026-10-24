@@ -42,6 +42,27 @@ $study = $repo->findOneBy(['id' => $id, 'workspace' => $activeWorkspace]);
 Defense in depth: **PostgreSQL Row-Level Security** (`FORCE ROW LEVEL SECURITY`) doubles
 the application check on `study`, `patient`, `ecrf_record`.
 
+### Row-Level Security: closed by default
+
+The `workspace_isolation` policy only shows a row when its `workspace_id` equals `app.workspace_id` (set by
+`WorkspaceRlsSubscriber` on every request) **or** when `app.rls_bypass` is `on`. An empty or missing `app.workspace_id`
+shows **no** row: a request without an active workspace, a console command, the Messenger worker or code running after
+`kernel.terminate` sees nothing unless it asked for it.
+
+- The application connects as the restricted role `app_runtime` (not owner, not superuser, no `BYPASSRLS`): a
+  superuser ignores the policies even with `FORCE`. See [Production deployment](/deployment/production/).
+- **One place writes the settings**: `App\Security\Rls\RowLevelSecurity`. A test fails when another file in `src/`
+  writes them.
+- Prefer **the workspace of the processed object**: `inWorkspace($id, fn () => …)` (Messenger handlers, commands working
+  on one workspace), restored in a `finally`.
+- A legitimate cross-workspace read goes through `bypass($reason, fn () => …)`: scoped to one transaction (a crash never
+  leaves the connection in bypass mode in the FrankenPHP worker), restored in a `finally`, logged with its reason.
+  Current use: the regulatory packs impact tab.
+- Console commands that work across all workspaces carry `#[BypassesRowLevelSecurity('reason')]` (seed and fixtures,
+  retention, encryption of existing patients); the bypass lasts for the command.
+- A data migration that touches these tables opens the bypass for its transaction:
+  `SELECT set_config('app.rls_bypass', 'on', true)`.
+
 ## 🗄️ Secure file storage
 
 :::danger[Golden rule]

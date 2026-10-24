@@ -33,7 +33,7 @@ feature/*  ──PR──▶  develop  ──▶  release/AAAA-MM-JJ  ──PR�
 | Élément | Emplacement | Rôle |
 |---------|-------------|------|
 | Journal des modifications | `CHANGELOG.md` (racine) | Format [Keep a Changelog 1.1.0](https://keepachangelog.com/fr/1.1.0/), section `[Unreleased]` |
-| Version applicative | `APP_VERSION` dans `.env` (actuellement `3.1.0`) | Exposée à Twig (`app_version`) et au site de documentation |
+| Version applicative | `APP_VERSION` dans `.env` (actuellement `3.2.0`) | Exposée à Twig (`app_version`) et au site de documentation |
 | Version de la doc | Dépôt `synapse-docs` : `astro.config.mjs` → `src/version.ts` | Dérivée de `APP_VERSION` au build |
 | CI | `.github/workflows/ci.yaml` | Build Docker, smoke-tests HTTP/Mercure, migrations + PHPUnit, `composer audit`, lint |
 | Image de production | `Dockerfile`, cible `frankenphp_prod` + `compose.prod.yaml` | Image slim `debian:13.7-slim`, utilisateur `www-data` |
@@ -124,7 +124,7 @@ exécutée par le job **Tests**.
 ```bash
 # Base de test isolée (suffixe _test, cf. config/packages/doctrine.yaml)
 make sf c="-e test doctrine:database:drop --force --if-exists"
-make sf c="-e test doctrine:database:create"
+make sf c="-e test doctrine:database:create --connection=migrations"  # propriétaire : le rôle applicatif ne crée pas de base
 make sf c="-e test doctrine:migrations:migrate --no-interaction --all-or-nothing"
 make sf c="-e test doctrine:schema:validate"
 ```

@@ -5,7 +5,7 @@ description: "The server-side import service of the study wizard: reading a wide
 
 > 🌐 [Version française](/backend/import/) · English version
 
-Developer reference of `App\Import` (no UI, no study data written: the application of an import is a separate step).
+Developer reference of `App\Import` (reading and validating write nothing in the study; applying a validated import is described at the end of the page).
 
 ---
 
@@ -49,7 +49,7 @@ A re-parse that changes the sheet, the separator or the header row while decisio
 - **`AutoMapper`**: accent / case / punctuation insensitive. Score 1.00 (name, label or SDTM variable), 0.95 (synonym), 0.60 to 0.90 (whole-word match of a term of 4 letters or more). From 0.85 the mapping is applied (`auto`), from 0.50 it is a suggestion `review` (state `pending`). One column per field, best score first.
 - **Visit suffixes** (`ColumnAnalyzer`): `_n` or `.n`. A column is a visit column only when its **base column exists** (`WEIGHT_1` needs `WEIGHT`); `1ere_cs`, `rcTNM_infiltrant1`, `contrôle_regional` are plain columns. Without any suffix pair the whole row is one (first) visit. The base column is
   visit 0; the suffix to visit map follows the protocol order by default (editable); without a schedule visits are created from their dates (`visitId` null).
-- **Identifying columns** (dictionary): last name, birth name, first name, birth date, NIR, address, phone, e-mail (French snake case included). Policies: `exclude` (default: columns dropped at parse time), `pseudonymise` (keyed HMAC-SHA256 per study, `Pseudonymiser::forStudy()`), `keep` (only when the caller allows it; values stay in memory in `PatientRecord::$identifying`).
+- **Identifying columns** (dictionary): last name, birth name, first name, birth date, NIR, address, phone, e-mail (French snake case included). Policies: `exclude` (default: columns dropped at parse time), `pseudonymise` (keyed HMAC-SHA256 per study, `Pseudonymiser::forStudy()`), `keep` (only when the study's regulatory basis allows it; values stay in memory in `PatientRecord::$identifying`).
 
 ## Units (`UnitConverter`)
 
@@ -93,7 +93,8 @@ An unmapped base column can become an eCRF field, then be mapped to it so that a
   A **list of values** takes the options of the column note (`code`, `label`), then adds, to be labelled, the values found in the data but missing from the note: a value is never dropped. A note that does not read as codes becomes the help text.
   Suffixed columns (`X_1`) feed the same field (`visitSuffixes`).
 - **Category**: an existing form of the study (draft or active) or a new one, and one section per header colour group ("Groupe 1", "Groupe 2"… in order of appearance, editable); columns without colour go to the "Champs importés" section. An existing section of the form can be chosen (`sectionId`).
-- **Creation** (`FieldCreator`, one transaction): a draft form just gets the fields; an **active** form is **amended**: `EcrfForm::amend()` raises `version` (records already entered keep theirs, existing fields do not change) and the activity log gets `ecrf.form.amended` (previous and new version, fields, mandatory reason). Draft: `ecrf.fields.created_from_import`; new form: `ecrf.form.created_from_import`.
+- **Creation** (`FieldCreator`, one transaction): a draft form just gets the fields; an **active** form is **amended**: `EcrfForm::amend()` raises `version` (records already entered keep theirs, existing fields do not change) and the activity log gets `ecrf.form.amended` (previous and new version, fields, mandatory reason). Draft: `ecrf.fields.created_from_import`;
+  new form: `ecrf.form.created_from_import`.
   A closed or archived form, a frozen study or a finished import is refused. The field carries the import rules: type, range, unit, options (the code the cells hold; the label of the note is kept in the field help) and a synonym of the header. Each column is then mapped to the new field (`ImportAnalyzer::mapColumn`).
 - **Isolation**: the form and the section are looked up among those of the import's study (never by id alone); the import is read with its workspace and study; the study admin right (`StudyVoter::ADMIN`) is required. Otherwise 404 / 403.
 
@@ -103,3 +104,35 @@ JSON endpoints (`ImportFieldDefinitionController`), for the import UI:
 |---|---|
 | `GET /studies/{studyId}/imports/{importId}/field-proposals` | proposals, default sections, existing forms, CSRF token. Reads the archived file again through `ImportFileProvider` (409 when missing). |
 | `POST /studies/{studyId}/imports/{importId}/fields` | creates the chosen fields (`formId` or `newFormTitle`, `reason`, `fields[]`); CSRF token in the `X-CSRF-Token` header. |
+
+## Import screen (four sub-steps)
+
+`StudyImportController` (`/studies/{studyId}/imports`) serves the wizard Import step and Patients › Import with the same Twig panels (`templates/import/`), swapped by `assets/js/import-flow.js` (JSON, CSRF token in `X-CSRF-Token`). The rules live in `App\Import\Flow\ImportSessionService`: the
+session is editable only as a draft and while the worker is not reading it, a sub-step is refused (409) while the report blocks it, validation = non-blocking report + certification + password + meaning (`ImportSignatureMeaning`), through `DataImport::certify()` and the `ready` status. The file is
+moved straight into `private_uploads/imp/` (`SecureFileUploadService::storeImport`), never copied elsewhere. In the wizard, `ImportStep::validate()` refuses Continue while an import is open (draft or being read). The data are applied by the worker, see below.
+
+## Applying a validated import (`App\Import\Apply`)
+
+A signed (`ready`) import is applied to the study by the Messenger worker (`ApplyImport`: ids only, no value in the queue). It starts at the signature when the study is already launched (Configuration or Active), and when the study is launched for the imports validated in the wizard (`StudyWizardLauncher`, after the launch transaction commits). A draft, completed,
+archived or frozen study refuses the application. `ImportApplyScheduler` queues the import; `ApplyImportHandler` reloads the import **in the workspace of the message** (never by id alone) and runs everything inside `RowLevelSecurity::inWorkspace()`.
+
+- **In batches, a batch = one transaction** (`ImportApplier`, `IMPORT_APPLY_BATCH` rows, 50 by default): the patients, visits, forms, values, audit entries and queries of the batch are saved together with the cursor (`apply_cursor`, last file row) and the counters of the import. A failure rolls the batch back: nothing is half applied; the resume (redelivery,
+  `messenger:failed:retry`, or "Resume the application" on screen) continues after the last committed batch. The application is **idempotent**: a patient is found by its id in the study (workspace-scoped), an identical value is skipped, a query already raised is not raised again.
+- **Patients**: created in the workspace of the import, **real** (`is_test = false`, never UAT data: the go-live purge does not touch them), subject id = patient id of the file (64 characters at most), site = the default site chosen at the confirmation (automatic when the study has a single open site, else `site_required` before the signature; the choice is covered by
+  the signature), or the row's own site when a column is mapped to the "Site" system target (code or name, case and accent insensitive; unknown value = replaceable `unrecognised_value` error). A site of another study or workspace is refused, inclusion date = first visit. The inclusion guard (`StudyInclusionGuard`,
+  `$validatedImport` option) admits the validated import in Configuration and Active without waiting for the site to open enrolment; a manual real inclusion stays refused in Configuration. **No identifying value is stored** under the default policy; only under "keep" (encrypted patient fields: last name, birth name, first name, birth date; `ImportIdentityWriter`), an option the
+  regulatory basis of the study must allow (see below).
+- **Keeping identifying data** (`ImportIdentityPolicy::decide()`): the decision comes from the regulatory record of the study (`StudyRegulatoryRecordService`) and the rules engine, with no per-country logic in the code. The packs carry the rule: an `info` requirement whose options are `{"rule": "keepIdentified", "requires": "code1,code2"}` (and `accept:<code>` to restrict the accepted values of a
+  requirement), applicable through its own condition. The study may keep when at least one rule applies and every applicable rule has its requirements at status "ok" (no open error). Seed data (draft packs, to be validated by regulatory affairs): retrospective, anonymisation level "Identified" and ethics basis + reference (`core.retro.keep-identified`), in France MR-004 or a CNIL
+  authorisation with a patient
+  information notice (`fr.retro.keep-identified`); prospective, RIPH 1 or 2 with the consent document (`fr.prospective.keep-identified`). RIPH 3 and countries without a rule are refused. The reason, in French, is shown on screen ("Base réglementaire manquante : …") with a link to the regulatory step of the wizard or the configuration checklist.
+  **Checked three times**: when the policy is chosen (a forged POST is refused, `keep_not_allowed`), at the signature (refused when the basis changed since) and at the application (refused before anything is written). A draft whose basis disappeared goes back to "Do not import". **Audit**: the `import.validated` entry and the signed summary carry the policy, the basis that allowed it (rules,
+  requirements, pack versions) and the categories kept (`identifyingKept`: stored in the encrypted fields, or only in the encrypted original); never a value.
+- **Visits**: the protocol visit of the suffix (planned, then set to "Done" with its date), else created from the date ("Visite du dd/mm/yyyy"); with neither, the values go to a free form record. **Forms**: one record per form and visit, with field snapshots as when entered by hand.
+- **Values**: never overwritten. Missing: written with a chained `EcrfValueAudit` entry (`source = import`, reason `import #id (ligne n)`, plus "cellule corrigée (avant : …)" or "converti depuis …"). Identical: skipped. Different: an `import_conflict` query on the value, counted in the summary. Every accepted warning gives an `import_warning` query.
+- **Archive** (`ImportArchiver`): the uploaded file (identifying columns included) is deleted and replaced by an **encrypted** copy (`FileEncryptionService`, libsodium secretstream, key `APP_FILE_ENCRYPTION_KEY`, `private_uploads/arc/…`, never served). By default it is the redacted copy (`RedactedCopyWriter`: no identifying or ignored column, no annotation row, same
+  row numbers); the SHA-256 of the original file is kept (`original_sha256`) with the copy's (`archive_sha256`, checked at every read). Under "keep" the original is encrypted as is. `ArchivedImportFileProvider` decrypts into a temporary file removed at the end of the request or message (`reset()`).
+- **Audit trail**: an `import.applied` activity log entry (counters, excluded rows, SHA-256, seal; never a value) and the signed summary of the import (`summary`, `summary_hash`): certification (signer, meaning, hash), SHA-256 of the original and of the archive, counters, excluded rows with their rule, corrections (before → after), accepted warnings.
+  `EcrfAuditWriter::verifyChain()` stays valid for every record, and so does `app:verify-audit-chain`.
+- **Status**: `applied`, or `partial` when columns are still pending (they will be imported later from the archive, overwriting nothing). An import being applied or applied can no longer be cancelled.
+- **Temporary files**: the upload stays in `private_uploads/imp/` (not encrypted, outside the webroot) until the application; the encrypted archive is then the only copy.

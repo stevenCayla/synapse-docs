@@ -28,7 +28,7 @@ Study and site roles are **not** plain constants: they are entities (`study_role
 
 | Role | Code | Symfony role | Description |
 |------|------|--------------|-------------|
-| **Owner** | `owner` | `ROLE_SUPER_ADMIN` | Full control, **billing included** — one per workspace |
+| **Owner** | `owner` | `ROLE_ADMIN` | Full control **of its workspace**, billing included — one per workspace |
 | **Admin** | `admin` | `ROLE_ADMIN` | Manages users, studies, integrations — **excluding billing** |
 | **Member** | `member` | `ROLE_USER` | Standard access — scoped to assigned studies |
 | **Guest** | `guest` | `ROLE_USER` | External collaborator — **expires after 90 days** by default |
@@ -86,7 +86,8 @@ Authorization is checked **server-side** on every access:
 | `StudyVoter` | Attributes `STUDY_VIEW` / `STUDY_MANAGE` / `STUDY_ADMIN` |
 | `StudyAccessService` | `canView()` / `canManage()` / `canAdmin()` — resolves the effective role |
 | `SiteAccessService` | Rights at the investigator-site level |
-| Symfony hierarchy | `ROLE_SUPER_ADMIN` (Owner) **bypasses** the Voters |
+| `WorkspaceAccess` | Tells the platform level (`ROLE_SUPER_ADMIN`, created by `app:admin:create`) from the workspace level (the non expired `WorkspaceUser` role on the workspace of the resource) |
+| Symfony hierarchy | `ROLE_SUPER_ADMIN` (platform super administrator) and the Owner **of the resource's workspace** bypass the Voters; the owner of a workspace never receives `ROLE_SUPER_ADMIN` nor any right on another workspace |
 
 ```php
 // Access check via the Voter

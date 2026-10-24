@@ -30,6 +30,7 @@ php bin/console <commande> [arguments] [--options]
 
 | Commande | Description | Exemple |
 |---|---|---|
+| [`app:admin:create`](#appadmincreate) | Crée un super-administrateur (prod-safe, sans donnée fictive) | `app:admin:create --email=prenom.nom@exemple.fr` |
 | [`app:seed`](#appseed) | Jeu de données fictif complet (pipeline orchestré) | `app:seed --reset --users=5 --studies=2` |
 | [`app:reset-database`](#appreset-database) | Vide toutes les tables applicatives | `app:reset-database --force` |
 
@@ -48,6 +49,12 @@ php bin/console <commande> [arguments] [--options]
 |---|---|---|
 | [`app:retention:check-studies`](#appretentioncheck-studies) | Vérifie la rétention HDS des études (15 ans) | `app:retention:check-studies --warning-days=180` |
 | [`app:retention:purge-security-logs`](#appretentionpurge-security-logs) | Purge les logs de sécurité périmés | `app:retention:purge-security-logs --older-than=P3M` |
+
+### Équipe & formation
+
+| Commande | Description | Exemple |
+|---|---|---|
+| [`app:gcp:send-expiry-reminders`](#appgcpsend-expiry-reminders) | Rappelle l'expiration prochaine des certificats GCP | `app:gcp:send-expiry-reminders --days=30` |
 
 ### Données de test (fixtures)
 
@@ -85,11 +92,33 @@ saisie n'est possible.
 
 ---
 
+## `app:admin:create`
+
+Crée un super-administrateur, **sans donnée fictive** : c'est la commande qui fonctionne en `prod`
+(où `app:seed` est refusé) pour créer le premier compte. Crée le premier workspace s'il n'en existe
+aucun, et journalise la création (journal d'audit de sécurité, `account.created`).
+
+```bash
+php bin/console app:admin:create --email=prenom.nom@exemple.fr [--username=…] [--first-name=…] [--last-name=…] [--workspace-name=…]
+```
+
+Le mot de passe n'est **jamais** une option : variable d'environnement `ADMIN_PASSWORD`, sinon saisie
+masquée avec confirmation (refus en mode non interactif sans `ADMIN_PASSWORD`). Il doit respecter la
+politique de mot de passe. L'e-mail ou le nom d'utilisateur déjà pris est refusé. Au premier login :
+changement du mot de passe puis activation de la 2FA. Procédure complète :
+[mise en production](/deployment/production/).
+
+---
+
 ## `app:seed`
 
 Commande d'orchestration principale. Génère un jeu de données fictif complet en une seule
 commande : workspace, admin, sites, utilisateurs, patients, études, eCRF. Idéale pour
 initialiser un environnement de développement ou de test.
+
+:::caution[Refusé en `prod`]
+La commande est refusée en environnement `prod`. Un serveur de développement ou de recette qui exécute l'image de production peut l'autoriser avec `APP_ALLOW_FAKE_DATA=1` dans son `.env.local` (jamais en production : `--reset` vide la base). Premier administrateur d'une production : `app:admin:create`.
+:::
 
 ```bash
 php bin/console app:seed [options]
@@ -309,6 +338,32 @@ php bin/console app:retention:check-studies --workspace=3
 
 :::tip[Cron recommandé]
 Mensuel. Surveiller le code de sortie en CI/CD.
+:::
+
+---
+
+## `app:gcp:send-expiry-reminders`
+
+Envoie un e-mail de rappel aux utilisateurs dont le certificat GCP (formation aux bonnes pratiques
+cliniques) expire dans la fenêtre donnée. Un rappel est envoyé une seule fois par certificat, et
+seulement si c'est le certificat qui expire le plus tard pour l'utilisateur (un renouvellement déjà
+déposé annule le rappel). Informatif : aucun accès n'est modifié ni bloqué.
+
+```bash
+php bin/console app:gcp:send-expiry-reminders [options]
+```
+
+### Flags
+
+| Option | Type | Défaut | Description |
+|---|---|---|---|
+| `--days` | int | `30` | Rappeler les certificats qui expirent dans ce nombre de jours |
+| `--dry-run` | flag | — | Liste les rappels sans les envoyer |
+
+Le code de sortie est `1` si au moins un envoi a échoué (il sera retenté au passage suivant).
+
+:::tip[Cron recommandé]
+Quotidien, par exemple `0 7 * * *`. Sans cette planification, aucun rappel n'est envoyé.
 :::
 
 ---

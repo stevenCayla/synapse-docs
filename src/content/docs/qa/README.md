@@ -167,6 +167,16 @@ FrankenPHP rechargerait les pages à chaque image écrite).
 Sur une Pull Request qui ne touche que `docs/**` ou des fichiers `*.md`, les jobs
 **Tests** et **E2E** sont sautés (job **Changes**) ; **Lint** tourne toujours.
 
+Pour limiter les minutes GitHub Actions consommées :
+
+- **Tests** et **E2E** sont sautés tant que la Pull Request est en **brouillon** ; ils démarrent quand elle est
+  marquée prête (`gh pr ready`) et restent exigés avant la fusion, qui est refusée pour un brouillon.
+- Un nouveau push annule l'exécution en cours de la même Pull Request.
+- **Lint** ne vérifie que les fichiers modifiés sur une Pull Request, et toute la base de code sur un push vers
+  `develop` ou `main`.
+- Le cache de build Docker est écrit par les pushs vers `develop` et `main` (qui n'exécutent pas **Quality**
+  sur `develop`) et seulement lu par les Pull Requests.
+
 :::note[Avant une release]
 La CI couvre les tests, l'analyse statique et quelques parcours navigateur, mais pas tous les parcours :
 dérouler aussi la checklist de recette manuelle ci-dessous.

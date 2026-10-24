@@ -8,7 +8,7 @@ sidebar:
 slug: en/3.0
 ---
 
-> 🌐 English version · [Version française](../)
+> 🌐 English version · [Version française](/3.0/)
 
 Clinical study management and electronic data capture (eCRF) platform.
 Stack: **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 18 · Mercure · AssetMapper/Stimulus**.
@@ -56,5 +56,5 @@ Start with the **[Quick Start — run Synapse Medical in 5 minutes](/en/3.0/gett
 Documentation is organized into two locales: **`fr/`** (default language) and
 **`en/`**. Pages missing in one language fall back to the other (Starlight
 fallback). Many operational and compliance documents are authored in French —
-see the [French documentation](../).
+see the [French documentation](/3.0/).
 :::
