@@ -2,6 +2,7 @@
 title: Requêtes et monitoring
 description: Poser une question sur une donnée, y répondre, et vérifier les données source.
 time: "7 min"
+sheet: true
 ---
 
 ## 1. Ouvrir une requête

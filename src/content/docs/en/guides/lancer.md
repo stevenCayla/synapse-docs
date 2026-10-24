@@ -3,6 +3,7 @@ title: Launch the study
 description: Review the summary, launch, then check what was created.
 time: "4 min"
 introduced: "3.2.0"
+sheet: true
 ---
 
 ## 12. Summary

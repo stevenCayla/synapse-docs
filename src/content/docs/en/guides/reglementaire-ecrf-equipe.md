@@ -3,6 +3,7 @@ title: Regulatory, eCRF, visit schedule and team
 description: Requirements by country, data entry forms, visits and the people involved.
 time: "10 min"
 introduced: "3.2.0"
+sheet: true
 ---
 
 ## 7. Regulatory

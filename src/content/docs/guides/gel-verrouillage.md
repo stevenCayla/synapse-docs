@@ -2,6 +2,7 @@
 title: Gel et verrouillage
 description: Figer les données d'un patient, puis verrouiller la base pour l'analyse.
 time: "5 min"
+sheet: true
 ---
 
 ## 1. Geler

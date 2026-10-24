@@ -2,6 +2,7 @@
 title: Randomize a patient
 description: Assign a treatment arm, manage blinding and emergency unblinding.
 time: "5 min"
+sheet: true
 ---
 
 :::caution[Studies concerned]

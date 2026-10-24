@@ -3,6 +3,7 @@ title: Lancer l'étude
 description: Relire le récapitulatif, lancer, puis vérifier ce qui a été créé.
 time: "4 min"
 introduced: "3.2.0"
+sheet: true
 ---
 
 ## 12. Récapitulatif

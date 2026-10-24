@@ -2,6 +2,7 @@
 title: Queries and monitoring
 description: Ask a question about a data point, answer it, and verify source data.
 time: "7 min"
+sheet: true
 ---
 
 ## 1. Open a query

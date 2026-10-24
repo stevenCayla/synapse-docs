@@ -2,6 +2,7 @@
 title: Randomiser un patient
 description: Attribuer un bras de traitement, gérer l'aveugle et la levée d'aveugle d'urgence.
 time: "5 min"
+sheet: true
 ---
 
 :::caution[Études concernées]

@@ -3,6 +3,7 @@ title: Create a study
 description: Type, information and regulatory framework, the first three steps of the wizard.
 time: "8 min"
 introduced: "3.2.0"
+sheet: true
 ---
 
 Open **Studies** → **New study**. This guide follows the **Advanced** mode; in Essential mode, the same fields are grouped into fewer steps.

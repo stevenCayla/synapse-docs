@@ -75,6 +75,29 @@ const ICONS = [
 </div>
 
 <script>
+  // Icon of each top-level entry (see src/styles/sidebar.css), chosen from its
+  // first link.
+  const ICON_OF: [RegExp, string][] = [
+    [/^(\/en)?\/$/, 'home'],
+    [/^(\/en)?\/guides\/premiers-pas\/$/, 'flag'],
+    [/^(\/en)?\/guides\//, 'pulse'],
+    [/^(\/en)?\/resources\//, 'book'],
+    [/^(\/en)?\/architecture\//, 'layers'],
+    [/^(\/en)?\/backend\//, 'server'],
+    [/^(\/en)?\/security\//, 'shield'],
+    [/^(\/en)?\/code-convention\//, 'code'],
+    [/^(\/en)?\/deployment\//, 'rocket'],
+    [/^(\/en)?\/recette\//, 'clip'],
+    [/^(\/en)?\/troubleshooting\//, 'tool'],
+    [/^(\/en)?\/qa\//, 'check'],
+  ];
+  document.querySelectorAll<HTMLElement>('.sidebar-content ul.top-level > li > details, .sidebar-content ul.top-level > li > a.large').forEach((el) => {
+    const link = el.tagName === 'A' ? (el as HTMLAnchorElement) : el.querySelector<HTMLAnchorElement>('a[href]');
+    const path = link ? new URL(link.href, location.href).pathname : '';
+    const icon = ICON_OF.find(([re]) => re.test(path))?.[1];
+    if (icon) el.dataset.gi = icon;
+  });
+
   // Filters the links of the visible section and opens the groups that match.
   document.querySelectorAll<HTMLInputElement>('input[data-side-filter]').forEach((input) => {
     const root = input.closest('.sidebar-content') ?? document;

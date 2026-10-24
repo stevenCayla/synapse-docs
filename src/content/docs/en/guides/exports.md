@@ -2,6 +2,7 @@
 title: Export data
 description: Extract the data for statistical analysis or regulatory submission.
 time: "4 min"
+sheet: true
 ---
 
 ## 1. Choose the format

@@ -2,6 +2,7 @@
 title: Freeze and lock
 description: Freeze a patient's data, then lock the database for analysis.
 time: "5 min"
+sheet: true
 ---
 
 ## 1. Freeze

@@ -2,6 +2,7 @@
 title: Getting started
 description: Your account, two-factor authentication and how Synapse saves your work.
 time: "5 min"
+sheet: true
 ---
 
 ## Your account

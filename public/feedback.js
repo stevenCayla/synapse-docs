@@ -69,7 +69,9 @@
   var yes = withIcon(el('button'), 'M7 10v10H4V10h3zm0 0 4-7c1.5 0 2.5 1 2.5 2.5V9H19a2 2 0 0 1 2 2.3l-1.2 6.5A2 2 0 0 1 17.8 20H7', T.yes);
   var no = withIcon(el('button'), 'M17 14V4h3v10h-3zm0 0-4 7c-1.5 0-2.5-1-2.5-2.5V15H5a2 2 0 0 1-2-2.3l1.2-6.5A2 2 0 0 1 6.2 4H17', T.no);
   [yes, no].forEach(function (b) { b.type = 'button'; });
-  row.append(label, yes, no);
+  var btns = el('div', 'sy-fb-btns');
+  btns.append(yes, no);
+  row.append(label, btns);
 
   var form = el('div', 'sy-fb-form');
   form.hidden = true;

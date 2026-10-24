@@ -2,6 +2,7 @@
 title: Exporter les données
 description: Extraire les données pour l'analyse statistique ou la soumission réglementaire.
 time: "4 min"
+sheet: true
 ---
 
 ## 1. Choisir le format

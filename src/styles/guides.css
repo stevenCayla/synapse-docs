@@ -183,7 +183,14 @@ abbr.gl {
 .sy-fb-q {
   margin-right: auto;
 }
-.sy-fb-row > * {
+/* The buttons stay on the right, also when the question wraps above them. */
+.sy-fb-btns {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 0 auto !important;
+}
+.sy-fb-row > .sy-fb-q,
+.sy-fb-btns > * {
   margin: 0 !important;
 }
 .sy-fb button,

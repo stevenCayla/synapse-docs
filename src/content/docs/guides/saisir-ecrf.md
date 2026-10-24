@@ -2,6 +2,7 @@
 title: Saisir des données
 description: Inclure un patient, ouvrir ses visites et remplir les formulaires eCRF.
 time: "8 min"
+sheet: true
 ---
 
 Ce guide s'adresse aux **investigateurs** et aux **attachés de recherche clinique** de site. Vous ne voyez que les patients de vos sites.

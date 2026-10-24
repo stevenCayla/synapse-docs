@@ -3,6 +3,7 @@ title: Design, population and sites
 description: Describe the trial, who can be enrolled, and at which institutions.
 time: "8 min"
 introduced: "3.2.0"
+sheet: true
 ---
 
 ## 4. Design

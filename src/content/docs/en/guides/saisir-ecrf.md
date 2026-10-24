@@ -2,6 +2,7 @@
 title: Enter data
 description: Enroll a patient, open their visits and fill in the eCRF forms.
 time: "8 min"
+sheet: true
 ---
 
 This guide is for site **investigators** and **clinical research coordinators**. You only see the patients of your sites.
