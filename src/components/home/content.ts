@@ -24,7 +24,6 @@ export interface HomeContent {
   };
   reference: { heading: string; items: { title: string; text: string; href: string }[] };
   contribute: { title: string; text: string; guide: string; discord: string };
-  hds: string;
 }
 
 const fr: HomeContent = {
@@ -121,7 +120,6 @@ const fr: HomeContent = {
     guide: 'Guide de contribution',
     discord: 'Discord',
   },
-  hds: 'Certification HDS · Données de santé hébergées en France',
 };
 
 const en: HomeContent = {
@@ -218,7 +216,6 @@ const en: HomeContent = {
     guide: 'Contribution guide',
     discord: 'Discord',
   },
-  hds: 'HDS certified · Health data hosted in France',
 };
 
 export const homeContent = { fr, en };
