@@ -51,7 +51,9 @@
   // scrolling containers never clip it.
   var tip = document.createElement('div');
   tip.className = 'gl-tip';
+  tip.id = 'gl-tip';
   tip.setAttribute('role', 'tooltip');
+  tip.hidden = true;
   document.body.appendChild(tip);
   var show = function (abbr) {
     tip.textContent = '';
@@ -59,7 +61,8 @@
     b.textContent = abbr.dataset.term;
     tip.appendChild(b);
     tip.appendChild(document.createTextNode(abbr.dataset.def));
-    tip.classList.add('on');
+    tip.hidden = false;
+    abbr.setAttribute('aria-describedby', 'gl-tip');
     var r = abbr.getBoundingClientRect();
     var w = tip.offsetWidth;
     tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
@@ -67,7 +70,7 @@
     tip.style.top = (above > 8 ? above : r.bottom + 8) + 'px';
   };
   var hide = function () {
-    tip.classList.remove('on');
+    tip.hidden = true;
   };
   document.addEventListener('mouseover', function (e) {
     var a = e.target.closest && e.target.closest('abbr.gl');

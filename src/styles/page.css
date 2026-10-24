@@ -1,0 +1,119 @@
+/* Page header (src/components/PageTitle.astro) and headings of the content. */
+.sy-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--sy-ink3);
+}
+.sy-crumbs a {
+  color: var(--sy-ink3);
+  text-decoration: none;
+}
+.sy-crumbs a:hover {
+  color: var(--sy-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sy-head h1,
+#_top {
+  font-family: var(--sy-font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 4.4vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+  color: var(--sy-ink);
+}
+.sy-sub {
+  max-width: 700px;
+  margin: 0 0 18px;
+  font-size: 17px;
+  color: var(--sy-ink2);
+}
+.sy-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  font-size: 13px;
+  color: var(--sy-ink3);
+}
+.sy-meta > span,
+.sy-meta > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sy-edit {
+  color: var(--sy-ink3);
+  text-decoration: none;
+}
+.sy-edit:hover {
+  color: var(--sy-accent);
+}
+.sy-rev {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: color-mix(in oklab, var(--sy-ok) 14%, var(--sy-bg));
+  color: var(--sy-ok);
+}
+.sy-rev.mid {
+  background: var(--sy-bg3);
+  color: var(--sy-ink2);
+}
+.sy-rev.stale {
+  background: color-mix(in oklab, #c2283b 14%, var(--sy-bg));
+  color: #c2283b;
+}
+:root[data-theme='dark'] .sy-rev.stale {
+  color: #ff7a8a;
+}
+.sy-gprog {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+}
+.sy-vbanner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d98a00;
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: color-mix(in oklab, #d98a00 12%, var(--sy-bg));
+  color: var(--sy-ink2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sy-vbanner b {
+  color: var(--sy-ink);
+}
+
+/* Headings of the content. */
+.sl-markdown-content h2 {
+  font-family: var(--sy-font-display);
+  font-weight: 500;
+  font-size: clamp(24px, 3vw, 30px);
+  letter-spacing: -0.015em;
+  color: var(--sy-ink);
+}
+.sl-markdown-content h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sy-ink);
+}
+
+/* The date and edit link are in the page header; keep only the pagination. */
+footer.sl-flex > .meta {
+  display: none;
+}

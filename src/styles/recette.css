@@ -17,6 +17,9 @@
   background: var(--sy-bg3);
   color: var(--sy-ink3);
 }
+:root[data-theme='dark'] .kit td.flag {
+  color: #ff7a8a;
+}
 :root[data-theme='dark'] .crit.h {
   color: #ff7a8a;
 }

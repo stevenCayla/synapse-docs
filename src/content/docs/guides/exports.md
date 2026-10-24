@@ -25,6 +25,3 @@ L'export est préparé en arrière-plan ; une notification signale qu'il est pr�
 Après verrouillage, les exports portent sur l'instantané figé : deux exports successifs sont identiques.
 :::
 
----
-
-Précédent : [Gel et verrouillage](../gel-verrouillage/)

@@ -9,15 +9,19 @@ const contributeHref = isEn ? '/en/contribute/' : '/contribute/';
 const discordHref =
   'https://discord.com/channels/1521440528388984934/1521440528829382718';
 const githubHref = 'https://github.com/stevenCayla/synapse-docs';
+const changelogHref = isEn ? '/en/changelog/' : '/changelog/';
+const year = new Date().getFullYear();
 
 const t = isEn
-  ? { contribute: 'Contribute', community: 'Community', github: 'View on GitHub' }
-  : { contribute: 'Contribuer', community: 'Communauté', github: 'Voir sur GitHub' };
+  ? { contribute: 'Contribute', community: 'Community', changelog: 'Changelog', github: 'View on GitHub' }
+  : { contribute: 'Contribuer', community: 'Communauté', changelog: 'Journal des modifications', github: 'Voir sur GitHub' };
 ---
 
 <Default><slot /></Default>
 
 <section class="sm-community sl-flex" data-pagefind-ignore>
+  <span class="sm-copy">© {year} Synapse Medical · Documentation</span>
+
   <a href={contributeHref} class="sl-flex">
     <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.2em;"><path fill-rule="evenodd" d="M1.44 8.855v-.001l3.527-3.516c.34-.344.802-.541 1.285-.548h6.649l.947-.947c3.07-3.07 6.207-3.072 7.62-2.868a1.821 1.821 0 0 1 1.557 1.557c.204 1.413.203 4.55-2.868 7.62l-.946.946v6.649a1.845 1.845 0 0 1-.549 1.286l-3.516 3.528a1.844 1.844 0 0 1-3.11-.944l-.858-4.275-4.52-4.52-2.31-.463-1.964-.394A1.847 1.847 0 0 1 .98 10.693a1.843 1.843 0 0 1 .46-1.838Zm5.379 2.017-3.873-.776L6.32 6.733h4.638l-4.14 4.14Zm8.403-5.655c2.459-2.46 4.856-2.463 5.89-2.33.134 1.035.13 3.432-2.329 5.891l-6.71 6.71-3.561-3.56 6.71-6.711Zm-1.318 15.837-.776-3.873 4.14-4.14v4.639l-3.364 3.374Z" clip-rule="evenodd"></path><path d="M9.318 18.345a.972.972 0 0 0-1.86-.561c-.482 1.435-1.687 2.204-2.934 2.619a8.22 8.22 0 0 1-1.23.302c.062-.365.157-.79.303-1.229.415-1.247 1.184-2.452 2.62-2.935a.971.971 0 1 0-.62-1.842c-.12.04-.236.084-.35.13-2.02.828-3.012 2.588-3.493 4.033a10.383 10.383 0 0 0-.51 2.845l-.001.016v.063c0 .536.434.972.97.972H2.24a7.21 7.21 0 0 0 .878-.065c.527-.063 1.248-.19 2.02-.447 1.445-.48 3.205-1.472 4.033-3.494a5.828 5.828 0 0 0 .147-.407Z"></path></svg>
     {t.contribute}
@@ -28,6 +32,11 @@ const t = isEn
       <path d="M12.3 12.22A4.92 4.92 0 0 0 14 8.5a5 5 0 0 0-10 0a4.92 4.92 0 0 0 1.7 3.72A8 8 0 0 0 1 19.5a1 1 0 0 0 2 0a6 6 0 0 1 12 0a1 1 0 0 0 2 0a8 8 0 0 0-4.7-7.28M9 11.5a3 3 0 1 1 3-3a3 3 0 0 1-3 3m9.74.32A5 5 0 0 0 15 3.5a1 1 0 0 0 0 2a3 3 0 0 1 3 3a3 3 0 0 1-1.5 2.59a1 1 0 0 0-.5.84a1 1 0 0 0 .45.86l.39.26l.13.07a7 7 0 0 1 4 6.38a1 1 0 0 0 2 0a9 9 0 0 0-4.23-7.68"></path>
     </svg>
     {t.community}
+  </a>
+
+  <a href={changelogHref} class="sl-flex">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.2em;height:1.2em;"><path d="M14 3H6v18h12V7l-4-4z"></path><path d="M14 3v4h4M9 13h6M9 17h6"></path></svg>
+    {t.changelog}
   </a>
 
   <a href={githubHref} class="sl-flex" target="_blank" rel="noopener noreferrer">
@@ -44,6 +53,10 @@ const t = isEn
     padding-top: 1rem;
     border-top: 1px solid var(--sl-color-gray-5);
     font-size: var(--sl-text-sm);
+  }
+  .sm-copy {
+    margin-right: auto;
+    color: var(--sl-color-gray-3);
   }
   .sm-community a {
     align-items: center;

@@ -29,6 +29,8 @@ export default defineConfig({
   site: 'https://docs.synapse-medical.fr',
   // Injects the version (constant replaced by Vite at build time).
   vite: {
+    // No data: URIs for the fonts: the CSP only allows font-src 'self'.
+    build: { assetsInlineLimit: 0 },
     define: {
       __DOCS_VERSION__: JSON.stringify(APP_VERSION),
     },
@@ -60,17 +62,22 @@ export default defineConfig({
         alt: 'Synapse Medical',
       },
       favicon: '/favicon.svg',
+      // Date shown in the page header, from the git history.
+      lastUpdated: true,
       // glossary.js: tooltips on the glossary terms of the guides.
       // recette.js: test file copy and test book tracking (recette pages).
       // progress.js: reading progress of the guides. contextual.js: ?step= and
-      // ?from=app links opened from the application.
+      // ?from=app links opened from the application. feedback.js: "was this page
+      // helpful?" widget (opens a pre-filled GitHub issue, sends nothing itself).
       head: [
         { tag: 'script', attrs: { src: '/glossary.js', defer: true } },
         { tag: 'script', attrs: { src: '/recette.js', defer: true } },
         { tag: 'script', attrs: { src: '/progress.js', defer: true } },
         { tag: 'script', attrs: { src: '/contextual.js', defer: true } },
+        { tag: 'script', attrs: { src: '/feedback.js', defer: true } },
+        { tag: 'script', attrs: { src: '/a11y.js', defer: true } },
       ],
-      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css'],
+      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css', './src/styles/page.css'],
       defaultLocale: 'root',
       locales: {
         root: { label: 'Français', lang: 'fr' },
@@ -146,8 +153,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Tutoriels',
-          translations: { en: 'Tutorials' },
+          label: 'Prise en main',
+          translations: { en: 'Getting started' },
           items: [
             {
               label: 'Guide de démarrage',

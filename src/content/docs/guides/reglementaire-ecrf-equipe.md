@@ -58,6 +58,3 @@ Les responsables, la stratégie de monitoring et les membres.
 Les e-mails d'invitation ne partent qu'au lancement de l'étude, jamais avant.
 :::
 
----
-
-Précédent : [Design, population et sites](../design-population-sites/) · Suivant : [Importer des données](../importer/)

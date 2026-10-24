@@ -54,6 +54,3 @@ Quatre questions suffisent : Synapse en déduit la catégorie réglementaire par
 Les pays sont choisis à l'étape Sites. Tant qu'aucun pays n'est choisi, la catégorie s'affiche « Non concerné ».
 :::
 
----
-
-Précédent : [Premiers pas](../premiers-pas/) · Suivant : [Design, population et sites](../design-population-sites/)

@@ -68,6 +68,3 @@ Relisez le résumé, puis signez l'import.
 La session d'import signée est enregistrée maintenant ; les patients sont créés au lancement de l'étude.
 :::
 
----
-
-Précédent : [Réglementaire, eCRF, calendrier et équipe](../reglementaire-ecrf-equipe/) · Suivant : [Lancer l'étude](../lancer/)

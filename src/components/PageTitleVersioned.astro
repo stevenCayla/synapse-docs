@@ -2,11 +2,9 @@
 // Same as PageTitle.astro, plus the notice of starlight-versions on archived
 // pages. Only used once a version is archived (see astro.config.mjs): the
 // plugin's component needs the plugin to be enabled.
-import Default from '@astrojs/starlight/components/PageTitle.astro';
 import VersionNotice from 'starlight-versions/components/VersionNotice.astro';
-import PageMeta from './PageMeta.astro';
+import PageTitle from './PageTitle.astro';
 ---
 
-<Default><slot /></Default>
+<PageTitle />
 <VersionNotice />
-<PageMeta />

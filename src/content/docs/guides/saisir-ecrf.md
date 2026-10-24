@@ -58,6 +58,3 @@ L'investigateur principal signe les formulaires complets, par visite ou par pati
 
 **Ce que vous devez voir** : les formulaires signés affichent le nom du signataire et l'horodatage.
 
----
-
-Précédent : [Lancer l'étude](../lancer/) · Suivant : [Requêtes et monitoring](../requetes-monitoring/)

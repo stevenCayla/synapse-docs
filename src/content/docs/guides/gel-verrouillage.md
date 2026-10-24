@@ -37,6 +37,3 @@ Double signature : data manager puis promoteur.
 Possible par un administrateur avec motif et double signature ; tracé dans l'audit trail.
 :::
 
----
-
-Précédent : [Randomiser un patient](../randomisation/) · Suivant : [Exporter les données](../exports/)

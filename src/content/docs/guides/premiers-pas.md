@@ -41,6 +41,3 @@ En bas de la colonne de gauche, trois compteurs résument ce qu'il reste à fair
 Chaque point de la complétude vous emmène directement au champ concerné.
 :::
 
----
-
-Suivant : [Créer une étude](../creer-etude/)

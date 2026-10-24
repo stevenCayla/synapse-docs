@@ -42,6 +42,3 @@ Fiche patient → **Levée d'aveugle**. Réservé à l'investigateur principal.
 Le bras est révélé uniquement à l'utilisateur qui lève l'aveugle, pour ce patient.
 :::
 
----
-
-Précédent : [Requêtes et monitoring](../requetes-monitoring/) · Suivant : [Gel et verrouillage](../gel-verrouillage/)

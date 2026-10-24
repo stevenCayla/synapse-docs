@@ -43,6 +43,3 @@ Selon la stratégie de monitoring de l'étude : 100 %, ciblée selon le risque (
 | **Champs à vérifier** | — | En RBQM, seuls les champs critiques et les sites à risque sont proposés. |
 | **Marquer comme vérifié** | case SDV | Par champ ou par formulaire. Une modification ultérieure annule la vérification. |
 
----
-
-Précédent : [Saisir des données](../saisir-ecrf/) · Suivant : [Randomiser un patient](../randomisation/)

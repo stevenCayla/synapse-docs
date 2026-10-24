@@ -29,6 +29,3 @@ L'étude démarre au statut **Configuration**. Vérifiez :
 La checklist Configuration guide les dernières étapes : exigences par pays, recette (UAT), puis double signature du Data Manager et du promoteur.
 :::
 
----
-
-Précédent : [Importer des données](../importer/) · Suivant : [Saisir des données](../saisir-ecrf/)

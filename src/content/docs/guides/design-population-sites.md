@@ -53,6 +53,3 @@ Les pays de l'étude, puis les établissements participants.
 Les sites sont optionnels : vous pourrez en ajouter depuis la page Configuration de l'étude.
 :::
 
----
-
-Précédent : [Créer une étude](../creer-etude/) · Suivant : [Réglementaire, eCRF, calendrier et équipe](../reglementaire-ecrf-equipe/)
