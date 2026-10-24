@@ -17,7 +17,7 @@ const { sidebar } = Astro.locals.starlightRoute;
 const sections = getSections(sidebar);
 const activeIndex = activeSectionIndex(sections);
 const wip = await wipHrefs();
-const badgeLabel = Astro.url.pathname.startsWith('/en/') ? 'In progress' : 'En rédaction';
+const badgeLabel = 'WIP';
 // Pages being written get a badge in the sidebar.
 const mark = (entries: any[]): any[] =>
   entries.map((e) =>

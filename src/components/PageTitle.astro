@@ -84,7 +84,7 @@ const archivedVersion = versions.find(
 const reviewedFor = data.reviewed ?? archivedVersion?.slug ?? APP_VERSION;
 const known = [...versions.map((v: { slug: string }) => v.slug), APP_VERSION];
 const gap = known.filter((v) => compareVersions(v, reviewedFor) > 0).length;
-const wip = !splash && isWip(entry) && !hasOwnNotice(entry.body);
+const wip = !splash && isWip(entry) && !hasOwnNotice(data, entry.body);
 const upcoming = !!data.introduced && compareVersions(data.introduced, APP_VERSION) > 0;
 
 // Edit link: the pages kept in this repository, or the docs/ folder of the application.

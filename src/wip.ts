@@ -16,7 +16,8 @@ export const isWip = (entry: CollectionEntry<'docs'>) =>
   entry.data.wip === true || (!EXEMPT.test(entry.id) && words(entry.body ?? '') < MIN_WORDS);
 
 /** The page already says it is being written (an aside of its own). */
-export const hasOwnNotice = (body = '') => /en cours de rédaction|work in progress|under construction/i.test(body);
+export const hasOwnNotice = (data: { wip?: boolean }, body = '') =>
+  data.wip !== true && /en cours de rédaction|work in progress|under construction/i.test(body);
 
 export const entryHref = (id: string) => `/${id.replace(/\/?index$/, '')}/`.replace(/\/+/g, '/');
 

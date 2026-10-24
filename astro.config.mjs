@@ -250,13 +250,25 @@ export default defineConfig({
             {
               label: 'Ressources',
               translations: { en: 'Resources' },
-              items: ['resources/glossary', 'resources/compliance-faq', 'resources/contextual-help'],
+              items: [
+                'resources/glossary',
+                'resources/compliance-faq',
+                'resources/contextual-help',
+                { label: 'Journal des modifications', translations: { en: 'Changelog' }, link: '/changelog/' },
+              ],
             },
             {
               label: 'Recette',
               translations: { en: 'Acceptance tests' },
               collapsed: true,
-              items: ['recette/kit', 'recette/creation-etude'],
+              items: [
+                'recette/strategie',
+                'recette/kit',
+                'recette/creation-etude',
+                'recette/saisie-ecrf',
+                'recette/import-donnees',
+                'recette/audit-trail-esignature',
+              ],
             },
             {
               label: 'QA',

@@ -116,3 +116,4 @@
   background: var(--sy-warn-soft);
   color: var(--sy-warn);
 }
+.sidebar-content .sl-badge { white-space: nowrap; }
