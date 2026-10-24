@@ -1,23 +1,23 @@
 /* Home page (src/components/home/Home.astro). */
 
 /* The home is full-bleed: drop the Starlight content panel and page title. */
-:root:has(.sy-home) {
+:root:has(.sy-full) {
   --sl-content-width: 100%;
 }
-:root:has(.sy-home) #_top {
+:root:has(.sy-full) #_top {
   display: none;
 }
-:root:has(.sy-home) .main-frame {
+:root:has(.sy-full) .main-frame {
   padding-top: var(--sl-nav-height);
 }
-:root:has(.sy-home) .content-panel {
+:root:has(.sy-full) .content-panel {
   padding: 0;
   border: 0;
 }
-:root:has(.sy-home) .sl-container {
+:root:has(.sy-full) .sl-container {
   max-width: none;
 }
-:root:has(.sy-home) .sl-markdown-content {
+:root:has(.sy-full) .sl-markdown-content {
   margin-top: 0;
 }
 
@@ -552,10 +552,10 @@
   }
 }
 
-:root:has(.sy-home) .pagination-links {
+:root:has(.sy-full) .pagination-links {
   display: none;
 }
-:root:has(.sy-home) body {
+:root:has(.sy-full) body {
   overflow-x: clip;
 }
 @media (max-width: 1200px) {

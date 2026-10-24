@@ -1,0 +1,10 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import Changelog from '../../components/changelog/Changelog.astro';
+---
+
+<StarlightPage
+  frontmatter={{ title: 'Changelog', description: 'What is new in each Synapse version.', template: 'splash', pagefind: false }}
+>
+  <Changelog lang="en" />
+</StarlightPage>

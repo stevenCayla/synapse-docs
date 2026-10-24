@@ -60,9 +60,13 @@ export default defineConfig({
         alt: 'Synapse Medical',
       },
       favicon: '/favicon.svg',
-      // Underlines the glossary terms of the guides with a tooltip.
-      head: [{ tag: 'script', attrs: { src: '/glossary.js', defer: true } }],
-      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css'],
+      // glossary.js: tooltips on the glossary terms of the guides.
+      // recette.js: test file copy and test book tracking (recette pages).
+      head: [
+        { tag: 'script', attrs: { src: '/glossary.js', defer: true } },
+        { tag: 'script', attrs: { src: '/recette.js', defer: true } },
+      ],
+      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css'],
       defaultLocale: 'root',
       locales: {
         root: { label: 'Français', lang: 'fr' },
@@ -163,6 +167,12 @@ export default defineConfig({
               ],
             },
             {
+              label: 'Recette',
+              translations: { en: 'Acceptance tests' },
+              collapsed: true,
+              items: ['recette/kit', 'recette/creation-etude'],
+            },
+            {
               label: 'QA',
               collapsed: true,
               items: [{ autogenerate: { directory: 'qa', collapsed: true } }],
@@ -220,7 +230,10 @@ export default defineConfig({
             {
               label: 'Changelog',
               collapsed: true,
-              items: [{ autogenerate: { directory: 'changelog', collapsed: true } }],
+              items: [
+                { label: 'Timeline', translations: { fr: 'Chronologie', en: 'Timeline' }, link: '/changelog/' },
+                { autogenerate: { directory: 'changelog', collapsed: true } },
+              ],
             },
           ],
         },

@@ -1,0 +1,205 @@
+/* Changelog timeline (src/components/changelog/Changelog.astro). */
+.sy-chg {
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+}
+.sy-chg a {
+  text-decoration: none;
+}
+.sy-chg-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--sy-line);
+  background:
+    radial-gradient(50% 80% at 50% 0%, color-mix(in oklab, var(--sy-accent) 14%, transparent), transparent 70%),
+    var(--sy-tint);
+}
+.sy-chg-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--sy-accent) 11%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--sy-accent) 11%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+  mask-image: radial-gradient(ellipse 70% 100% at 50% 0%, #000 30%, transparent 80%);
+}
+.sy-chg-in {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 88px 32px 72px;
+  text-align: center;
+}
+.sy-chg-kicker {
+  font: 600 12px var(--sy-font-mono);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--sy-ink2);
+}
+.sy-chg-in h1 {
+  font-family: var(--sy-font-display);
+  font-weight: 400;
+  font-size: clamp(44px, 6vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  margin: 18px 0 16px;
+  color: var(--sy-ink);
+}
+.sy-chg-in h1 em {
+  font-style: normal;
+  color: var(--sy-accent);
+}
+.sy-chg-in p {
+  font-size: 18px;
+  color: var(--sy-ink2);
+  margin: 0 auto 26px;
+  max-width: 520px;
+}
+.sy-chg .sy-actions {
+  justify-content: center;
+}
+
+.sy-chg-tl {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 64px 32px 40px;
+}
+.sy-rel {
+  display: grid;
+  grid-template-columns: 200px 24px minmax(0, 1fr);
+  gap: 0 28px;
+  position: relative;
+  padding-bottom: 56px;
+}
+.sy-rel::before {
+  content: '';
+  position: absolute;
+  left: calc(200px + 28px + 11px);
+  top: 8px;
+  bottom: 0;
+  width: 1px;
+  background: var(--sy-line);
+}
+.sy-rel:last-child::before {
+  bottom: auto;
+  height: 40px;
+}
+.sy-rel-sticky {
+  position: sticky;
+  top: calc(var(--sl-nav-height) + 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  text-align: right;
+}
+.sy-rel-v {
+  font: 600 13px var(--sy-font-mono);
+  border: 1px solid var(--sy-line2);
+  border-radius: 999px;
+  padding: 3px 12px;
+  color: var(--sy-ink);
+  background: var(--sy-bg);
+}
+.sy-rel-v.latest {
+  background: var(--sy-accent);
+  border-color: var(--sy-accent);
+  color: var(--sy-bg);
+}
+.sy-rel-cur {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sy-ok);
+}
+.sy-rel-dot {
+  position: relative;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  margin: 9px auto 0;
+  border-radius: 50%;
+  background: var(--sy-bg);
+  border: 2px solid var(--sy-accent);
+  box-shadow: 0 0 0 5px var(--sy-bg);
+}
+.sy-rel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--sy-line);
+}
+.sy-rel-list li {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sy-line);
+  font-size: 15px;
+  color: var(--sy-ink2);
+}
+.sy-rel-list a {
+  color: var(--sy-accent-ink);
+}
+.sy-rel-list code {
+  background: var(--sy-bg3);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.88em;
+}
+.sy-ctag {
+  font: 600 11px var(--sy-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 5px;
+  padding: 3px 7px;
+  text-align: center;
+}
+.sy-ctag.new {
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+}
+.sy-ctag.imp {
+  background: color-mix(in oklab, var(--sy-ok) 14%, var(--sy-bg));
+  color: var(--sy-ok);
+}
+.sy-ctag.fix {
+  background: color-mix(in oklab, #d98a00 16%, var(--sy-bg));
+  color: #a15c00;
+}
+:root[data-theme='dark'] .sy-ctag.fix {
+  color: #f5b454;
+}
+
+@media (max-width: 820px) {
+  .sy-chg-in {
+    padding: 56px 20px 48px;
+  }
+  .sy-chg-tl {
+    padding: 40px 20px;
+  }
+  .sy-rel {
+    grid-template-columns: 1fr;
+  }
+  .sy-rel::before,
+  .sy-rel-dot {
+    display: none;
+  }
+  .sy-rel-sticky {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .sy-rel-list li {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .sy-ctag {
+    justify-self: start;
+  }
+}

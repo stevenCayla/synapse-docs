@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import recap from '../../assets/home/12-recap.webp';
 import Icon from './Icon.astro';
 import { homeContent } from './content';
+import { APP_VERSION } from '../../version';
 
 const { lang } = Astro.props as { lang: 'fr' | 'en' };
 const c = homeContent[lang];
@@ -13,12 +14,12 @@ const href = (path: string) => (path.startsWith('/') ? base + path : path);
 const discord = 'https://discord.com/channels/1521440528388984934/1521440528829382718';
 ---
 
-<div class="sy-home not-content">
+<div class="sy-home sy-full not-content">
   <div class="sy-hero-wrap">
     <section class="sy-hero">
       <div>
         <a class="sy-eyebrow" href={href(c.eyebrow.href)}>
-          <b>{c.eyebrow.version}</b><span>{c.eyebrow.text}</span>
+          <b>v{APP_VERSION}</b><span>{c.eyebrow.text}</span>
         </a>
         <h1>{c.title[0]}<em>{c.title[1]}</em>{c.title[2]}</h1>
         <p class="sy-lede"><strong>{c.lede[0]}</strong>{c.lede[1]}</p>

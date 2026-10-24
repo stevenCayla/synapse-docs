@@ -28,11 +28,7 @@ export interface HomeContent {
 }
 
 const fr: HomeContent = {
-  eyebrow: {
-    version: 'v3.1.0',
-    text: 'Export CDISC ODM · e-signature eIDAS →',
-    href: '/changelog/releases/',
-  },
+  eyebrow: { version: '', text: 'Journal des modifications →', href: '/changelog/' },
   title: ['La documentation de ', 'Synapse', ', la solution EDC de bout en bout.'],
   lede: [
     'Données cliniques. Précision scientifique.',
@@ -116,7 +112,7 @@ const fr: HomeContent = {
       { title: 'API', text: 'Endpoints, Swagger, conventions OpenAPI', href: '/api/readme/' },
       { title: 'Glossaire', text: 'RIPH, SDV, RBQM, CPP… définis', href: '/resources/glossary/' },
       { title: 'FAQ conformité', text: '21 CFR Part 11, HDS, RGPD, validation', href: '/resources/compliance-faq/' },
-      { title: 'Journal des modifications', text: 'Nouveautés de la v3.1.0', href: '/changelog/releases/' },
+      { title: 'Journal des modifications', text: 'Toutes les versions de Synapse', href: '/changelog/' },
     ],
   },
   contribute: {
@@ -129,7 +125,7 @@ const fr: HomeContent = {
 };
 
 const en: HomeContent = {
-  eyebrow: { version: 'v3.1.0', text: 'CDISC ODM export · eIDAS e-signature →', href: '/changelog/releases/' },
+  eyebrow: { version: '', text: 'Changelog →', href: '/changelog/' },
   title: ['The documentation of ', 'Synapse', ', the end-to-end EDC solution.'],
   lede: [
     'Clinical data. Scientific precision.',
@@ -213,7 +209,7 @@ const en: HomeContent = {
       { title: 'API', text: 'Endpoints, Swagger, OpenAPI conventions', href: '/api/readme/' },
       { title: 'Glossary', text: 'RIPH, SDV, RBQM, CPP… defined', href: '/resources/glossary/' },
       { title: 'Compliance FAQ', text: '21 CFR Part 11, HDS, GDPR, validation', href: '/resources/compliance-faq/' },
-      { title: 'Changelog', text: "What's new in v3.1.0", href: '/changelog/releases/' },
+      { title: 'Changelog', text: 'Every Synapse version', href: '/changelog/' },
     ],
   },
   contribute: {
