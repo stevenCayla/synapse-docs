@@ -1,13 +1,28 @@
 ---
 // Starlight Search override: a command palette (Ctrl/Cmd+K) on top of the
 // Pagefind index built by Starlight. Results are grouped by type of content.
+import versions from '../../versions.json';
+
 const isEn = Astro.url.pathname.startsWith('/en/');
+
+// Versioned documentation (starlight-versions): the search is limited to the
+// version of the current page. Pages are tagged with a Pagefind filter
+// "version:<id>", like the plugin's own search component does.
+const parts = Astro.locals.starlightRoute.entry.id.split('/');
+const first = parts[0] === 'en' ? parts[1] : parts[0];
+const archived = versions.find((v: { slug: string }) => v.slug === first);
+// Pages excluded from versioning (audit/**) exist in every version.
+const everywhere = /^(en\/)?audit\//.test(Astro.locals.starlightRoute.entry.id);
+const [versionId, ...otherVersionIds] = archived
+  ? [archived.slug]
+  : ['current', ...(everywhere ? versions.map((v: { slug: string }) => v.slug) : [])];
 const t = isEn
   ? {
       label: 'Search',
       placeholder: 'Search the documentation',
       empty: 'No result for',
       hint: 'Type to search, or start with one of these pages.',
+      scope: (label: string) => `Search limited to ${label}.`,
       dev: 'Search is only available in the built site (npm run build && npm run preview).',
       cancel: 'Cancel',
       groups: {
@@ -32,6 +47,7 @@ const t = isEn
       placeholder: 'Rechercher dans la documentation',
       empty: 'Aucun résultat pour',
       hint: 'Tapez pour rechercher, ou commencez par l’une de ces pages.',
+      scope: (label: string) => `Recherche limitée à la ${label}.`,
       dev: 'La recherche n’est disponible que sur le site construit (npm run build && npm run preview).',
       cancel: 'Annuler',
       groups: {
@@ -51,10 +67,18 @@ const t = isEn
         ['Journal des modifications', '/changelog/'],
       ],
     };
-const config = JSON.stringify({ groups: t.groups, empty: t.empty, quick: t.quick, hint: t.hint });
+const config = JSON.stringify({
+  groups: t.groups,
+  empty: t.empty,
+  quick: t.quick,
+  hint: t.hint,
+  version: versionId,
+  scope: archived ? t.scope(archived.label) : '',
+});
 ---
 
-<site-palette data-config={config}>
+<site-palette data-config={config} data-pagefind-filter={`version:${versionId}`}>
+  {otherVersionIds.map((id) => <span hidden data-pagefind-filter={`version:${id}`} />)}
   <button type="button" class="open" data-open aria-label={t.label} aria-keyshortcuts="Control+K" disabled>
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
     <span class="label">{t.label}</span>
@@ -76,12 +100,19 @@ const config = JSON.stringify({ groups: t.groups, empty: t.empty, quick: t.quick
 </site-palette>
 
 <script>
-  type Config = { groups: Record<string, string>; empty: string; quick: string[][]; hint: string };
+  type Config = {
+    groups: Record<string, string>;
+    empty: string;
+    quick: string[][];
+    hint: string;
+    version: string;
+    scope: string;
+  };
   type Hit = { url: string; title: string; excerpt: string; group: string };
 
   // Maps a URL (without the locale prefix) to a group of results.
   const groupOf = (url: string) => {
-    const path = url.replace(/^\/en\//, '/');
+    const path = url.replace(/^\/(en\/)?(\d+\.\d+\/)?/, '/');
     if (path.startsWith('/guides/')) return 'guides';
     if (path.startsWith('/resources/')) return 'resources';
     if (path.startsWith('/recette/')) return 'recette';
@@ -112,7 +143,7 @@ const config = JSON.stringify({ groups: t.groups, empty: t.empty, quick: t.quick
         res.replaceChildren();
         const p = document.createElement('p');
         p.className = 'msg';
-        p.textContent = cfg.hint;
+        p.textContent = cfg.scope ? `${cfg.scope} ${cfg.hint}` : cfg.hint;
         res.append(p, ...cfg.quick.map(([title, url]) => this.item({ url, title, excerpt: '', group: 'other' }, false)));
         this.hits = [];
         this.sel = 0;
@@ -131,7 +162,7 @@ const config = JSON.stringify({ groups: t.groups, empty: t.empty, quick: t.quick
         } catch {
           return;
         }
-        const search = await this.pagefind.search(q);
+        const search = await this.pagefind.search(q, { filters: { version: cfg.version } });
         if (input.value.trim() !== q) return;
         const data = await Promise.all(search.results.slice(0, 20).map((r: any) => r.data()));
         this.hits = data

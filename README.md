@@ -17,15 +17,31 @@ See [Branches & releases](#branches--releases).
 | Pages | Edit them in |
 |-------|--------------|
 | `src/content/docs/audit/` (Audit & compliance) | this repository |
+| `src/content/docs/guides/`, `resources/`, `recette/` (user guides, glossary, compliance FAQ, acceptance tests) | this repository **for now**: they describe the application and belong in the `docs/` folder of SYNAPSE-MEDICAL, where they should move (then drop them from the exclusions of `scripts/sync-content.sh`) |
+| `src/data/CHANGELOG.md`, `APP_VERSION` | nowhere: copied from `CHANGELOG.md` and `.env` of the application by the sync, never edited by hand |
 | everything else in `src/content/docs/` | the `docs/` folder of [SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL), so the documentation evolves with the code |
 
-`src/content/docs/` (except `audit/`) is a snapshot of the application's
+The home pages (`src/pages/index.astro`, `src/components/home/`) and the
+changelog timeline (`src/components/changelog/`, built from
+`src/data/CHANGELOG.md`) are part of the site itself and live here.
+
+`src/content/docs/` (except `audit/`, `guides/`, `resources/` and `recette/`) is a snapshot of the application's
 `docs/` folder, refreshed by `scripts/sync-content.sh`: the CI runs it
 automatically when `docs/` changes on `develop` in SYNAPSE-MEDICAL (the sync
 only runs on `develop`),
 checks that the site still builds and commits the new snapshot. Changes made
 directly to the synced pages here are overwritten by the next sync. The
 `APP_VERSION` file (shown in the version selector) is synced the same way.
+
+## Page front matter
+
+Besides the usual Starlight fields, the pages can set (all optional):
+
+| Field | Effect |
+|-------|--------|
+| `time` | reading time shown in the page header (otherwise estimated from the length) |
+| `introduced` | version of the application that brings the feature; an "upcoming feature" notice is shown while the current version is older |
+| `reviewed` | last version of the application the page was reviewed for (the current version when missing); "not reviewed for N versions" beyond one |
 
 ## Local development
 

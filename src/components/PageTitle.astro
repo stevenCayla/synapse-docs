@@ -69,8 +69,13 @@ const position = found && inner ? found.siblings.findIndex((s) => s.isCurrent) +
 const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
 const time = data.time ?? `${Math.max(1, Math.ceil(words / 200))} min`;
 
-// Review: the current version unless the page says otherwise.
-const reviewedFor = data.reviewed ?? APP_VERSION;
+// Review: the current version unless the page says otherwise (an archived
+// page was written for its own version).
+const parts = entry.id.split('/');
+const archivedVersion = versions.find(
+  (v: { slug: string }) => v.slug === (parts[0] === 'en' ? parts[1] : parts[0]),
+);
+const reviewedFor = data.reviewed ?? archivedVersion?.slug ?? APP_VERSION;
 const known = [...versions.map((v: { slug: string }) => v.slug), APP_VERSION];
 const gap = known.filter((v) => compareVersions(v, reviewedFor) > 0).length;
 const upcoming = !!data.introduced && compareVersions(data.introduced, APP_VERSION) > 0;
