@@ -1,9 +1,8 @@
 ---
 title: Exporter les données
 description: Extraire les données pour l'analyse statistique ou la soumission réglementaire.
+time: "4 min"
 ---
-
-*Durée : 4 min · Conduire l'étude*
 
 ## 1. Choisir le format
 

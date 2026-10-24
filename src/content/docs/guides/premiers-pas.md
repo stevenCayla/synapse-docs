@@ -1,9 +1,8 @@
 ---
 title: Premiers pas
 description: Votre compte, la double authentification et la façon dont Synapse enregistre votre travail.
+time: "5 min"
 ---
-
-*Durée : 5 min · Prise en main*
 
 ## Votre compte
 

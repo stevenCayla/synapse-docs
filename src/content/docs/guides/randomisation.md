@@ -1,9 +1,8 @@
 ---
 title: Randomiser un patient
 description: Attribuer un bras de traitement, gérer l'aveugle et la levée d'aveugle d'urgence.
+time: "5 min"
 ---
-
-*Durée : 5 min · Conduire l'étude*
 
 :::caution[Études concernées]
 Uniquement les études à design randomisé. La randomisation n'est pas disponible pour une RIPH 3.

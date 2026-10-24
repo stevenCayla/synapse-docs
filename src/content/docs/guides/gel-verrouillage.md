@@ -1,9 +1,8 @@
 ---
 title: Gel et verrouillage
 description: Figer les données d'un patient, puis verrouiller la base pour l'analyse.
+time: "5 min"
 ---
-
-*Durée : 5 min · Conduire l'étude*
 
 ## 1. Geler
 

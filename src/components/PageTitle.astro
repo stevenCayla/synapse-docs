@@ -1,0 +1,8 @@
+---
+// Starlight PageTitle override: the default title plus the page meta line.
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import PageMeta from './PageMeta.astro';
+---
+
+<Default><slot /></Default>
+<PageMeta />

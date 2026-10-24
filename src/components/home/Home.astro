@@ -70,7 +70,14 @@ const discord = 'https://discord.com/channels/1521440528388984934/15214405288293
   </section>
 
   <section class="sy-sec sy-dots">
-    <div class="sy-sec-h"><h2>{c.path.heading}</h2></div>
+    <div class="sy-sec-h">
+      <h2>{c.path.heading}</h2>
+      <div class="sy-hprog">
+        <span>{c.path.progress.start}</span><span class="sy-hbar"><i data-gbar="start"></i></span><b data-gcount="start"></b>
+        <span>{c.path.progress.run}</span><span class="sy-hbar"><i data-gbar="run"></i></span><b data-gcount="run"></b>
+        <button type="button" class="sy-reset" data-reset-progress>{lang === 'en' ? 'Reset' : 'Réinitialiser'}</button>
+      </div>
+    </div>
     <div class="sy-stages">
       {c.path.stages.map((s) => (
         <div class="sy-stage">

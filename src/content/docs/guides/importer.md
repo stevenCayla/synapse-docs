@@ -1,9 +1,9 @@
 ---
 title: Importer des données
 description: Reprendre un fichier Excel ou CSV, avec rapprochement des colonnes, contrôles puis validation signée.
+time: "12 min"
+introduced: "3.1.0"
 ---
-
-*Durée : 12 min · Prise en main · Disponible depuis la v3.1.0*
 
 L'étape Import est **facultative** : vous pouvez aussi importer plus tard depuis **Patients › Importer**. Elle se déroule en quatre temps.
 

@@ -1,9 +1,9 @@
 ---
 title: Créer une étude
 description: Type, informations et cadre réglementaire, les trois premières étapes de l'assistant.
+time: "8 min"
+introduced: "3.1.0"
 ---
-
-*Durée : 8 min · Prise en main · Disponible depuis la v3.1.0*
 
 Ouvrez **Études** → **Nouvelle étude**. Ce guide suit le mode **Avancé** ; en mode Essentiel, les mêmes champs sont regroupés en moins d'étapes.
 

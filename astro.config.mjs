@@ -62,9 +62,13 @@ export default defineConfig({
       favicon: '/favicon.svg',
       // glossary.js: tooltips on the glossary terms of the guides.
       // recette.js: test file copy and test book tracking (recette pages).
+      // progress.js: reading progress of the guides. contextual.js: ?step= and
+      // ?from=app links opened from the application.
       head: [
         { tag: 'script', attrs: { src: '/glossary.js', defer: true } },
         { tag: 'script', attrs: { src: '/recette.js', defer: true } },
+        { tag: 'script', attrs: { src: '/progress.js', defer: true } },
+        { tag: 'script', attrs: { src: '/contextual.js', defer: true } },
       ],
       customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css'],
       defaultLocale: 'root',
@@ -86,6 +90,10 @@ export default defineConfig({
       // - Footer:  Astro-style community section.
       components: {
         Header: './src/components/Header.astro',
+        // The plugin's notice must be rendered once a version is archived.
+        PageTitle: ARCHIVED_VERSIONS.length
+          ? './src/components/PageTitleVersioned.astro'
+          : './src/components/PageTitle.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         Search: './src/components/Search.astro',
         Sidebar: './src/components/Sidebar.astro',
@@ -190,7 +198,7 @@ export default defineConfig({
             {
               label: 'Ressources',
               translations: { en: 'Resources' },
-              items: ['resources/glossary', 'resources/compliance-faq'],
+              items: ['resources/glossary', 'resources/compliance-faq', 'resources/contextual-help'],
             },
             {
               label: 'API',

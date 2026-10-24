@@ -68,3 +68,90 @@ abbr.gl {
   border: 1px solid var(--sy-line);
   border-radius: 12px;
 }
+
+/* Reading progress. */
+.sy-gend {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--sy-line);
+}
+.sy-gend button {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sy-gend button:hover {
+  border-color: var(--sy-ink3);
+}
+.sy-gend button.on {
+  background: var(--sy-accent);
+  border-color: var(--sy-accent);
+  color: var(--sy-bg);
+}
+.sy-gend button.on::before {
+  content: '✓ ';
+}
+.sidebar-content .gcount {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font: 600 11px var(--sy-font-mono);
+  color: var(--sy-ink3);
+}
+.sidebar-content .gcount.full {
+  color: var(--sy-ok);
+}
+.sidebar-content a.done span::after {
+  content: ' ✓';
+  color: var(--sy-ok);
+  font-weight: 700;
+}
+.sidebar-content a[aria-current='page'].done span::after {
+  color: inherit;
+}
+
+/* Contextual help (opened from the application). */
+.sy-ctx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 1.25rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--sy-accent);
+  border-radius: 10px;
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+  font-size: 14px;
+}
+.sy-ctx a {
+  margin-left: auto;
+  font-weight: 700;
+}
+@keyframes sy-flash {
+  0%,
+  60% {
+    background: var(--sy-accent-soft);
+    box-shadow: 0 0 0 8px var(--sy-accent-soft);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+.sl-markdown-content .sy-flash {
+  border-radius: 6px;
+  animation: sy-flash 2.4s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sl-markdown-content .sy-flash {
+    animation: none;
+    background: var(--sy-accent-soft);
+  }
+}

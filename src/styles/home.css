@@ -564,3 +564,46 @@
     display: none;
   }
 }
+
+.sy-hprog {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: var(--sy-ink3);
+}
+.sy-hprog b {
+  font: 600 12px var(--sy-font-mono);
+  color: var(--sy-ink2);
+  margin-right: 10px;
+}
+.sy-hbar {
+  width: 70px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sy-bg3);
+  overflow: hidden;
+}
+.sy-hbar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--sy-ok);
+  transition: width 0.3s;
+}
+.sy-home a.done::after {
+  content: ' ✓';
+  color: var(--sy-ok);
+  font-weight: 700;
+}
+.sy-reset {
+  border: 0;
+  background: none;
+  color: var(--sy-ink3);
+  font: inherit;
+  font-size: 12.5px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

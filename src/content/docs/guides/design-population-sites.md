@@ -1,9 +1,9 @@
 ---
 title: Design, population et sites
 description: Décrire l'essai, qui peut être inclus, et dans quels établissements.
+time: "8 min"
+introduced: "3.1.0"
 ---
-
-*Durée : 8 min · Prise en main · Disponible depuis la v3.1.0*
 
 ## 4. Design
 

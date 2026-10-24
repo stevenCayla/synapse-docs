@@ -1,6 +1,8 @@
 ---
 title: "REC-01 · Création d'étude"
 description: "Scénarios de recette de l'assistant « Nouvelle étude » : parcours prospectif, rétrospectif, déduction du cadre réglementaire et passage en production."
+time: "45 min"
+introduced: "3.1.0"
 ---
 
 <p class="rec-meta"><span class="rstat ok">Approuvé</span> Cahier v1.3 · Rédigé par S. Cayla · Revu par QA</p>

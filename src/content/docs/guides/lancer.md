@@ -1,9 +1,9 @@
 ---
 title: Lancer l'étude
 description: Relire le récapitulatif, lancer, puis vérifier ce qui a été créé.
+time: "4 min"
+introduced: "3.1.0"
 ---
-
-*Durée : 4 min · Prise en main · Disponible depuis la v3.1.0*
 
 ## 12. Récapitulatif
 
