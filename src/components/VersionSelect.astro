@@ -4,6 +4,7 @@
 // (compatible with a strict "script-src 'self'" CSP — no inline handler).
 import { DOCS_VERSION, RELEASES_URL } from '../version';
 
+const { pill = false } = Astro.props;
 const isEn = Astro.url.pathname.startsWith('/en/');
 const changelogHref = isEn ? '/en/changelog/readme/' : '/changelog/readme/';
 
@@ -12,8 +13,8 @@ const t = isEn
   : { label: 'Documentation', changelog: 'Journal des modifications', releases: 'Toutes les versions (GitHub) ↗' };
 ---
 
-<div class="version-select">
-  <span class="vs-label">{t.label}</span>
+<div class:list={['version-select', { pill }]}>
+  {!pill && <span class="vs-label">{t.label}</span>}
   <select class="vs-select" aria-label={`${t.label} v${DOCS_VERSION}`}>
     <option value="" selected>v{DOCS_VERSION}</option>
     <option value={changelogHref}>{t.changelog}</option>
@@ -65,5 +66,34 @@ const t = isEn
   }
   .vs-select:hover {
     border-color: var(--sl-color-text-accent);
+  }
+</style>
+
+<style>
+  /* Compact pill variant, used in the header. */
+  .version-select.pill {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .pill .vs-select {
+    flex: none;
+    width: 6.25rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font: 600 12px var(--sy-font-mono);
+    background: var(--sy-bg2);
+    color: var(--sy-ink2);
+  }
+  @media (max-width: 63.99rem) {
+    .version-select.pill {
+      display: none;
+    }
+  }
+  /* The full selector stays in the sidebar for narrow screens only. */
+  @media (min-width: 64rem) {
+    .version-select:not(.pill) {
+      display: none;
+    }
   }
 </style>

@@ -85,6 +85,9 @@ export default defineConfig({
       // - Sidebar: adds a version selector at the top of the sidebar.
       // - Footer:  Astro-style community section.
       components: {
+        Header: './src/components/Header.astro',
+        SiteTitle: './src/components/SiteTitle.astro',
+        Search: './src/components/Search.astro',
         Sidebar: './src/components/Sidebar.astro',
         Footer: './src/components/Footer.astro',
       },
@@ -135,7 +138,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Tutorials',
+          label: 'Tutoriels',
+          translations: { en: 'Tutorials' },
           items: [
             {
               label: 'Guide de démarrage',
@@ -180,7 +184,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Reference',
+          label: 'Référence',
+          translations: { en: 'Reference' },
           items: [
             {
               label: 'Ressources',
@@ -219,7 +224,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Ecosystem',
+          label: 'Écosystème',
+          translations: { en: 'Ecosystem' },
           items: [
             {
               label: 'Contribuer',

@@ -1,0 +1,71 @@
+---
+// Wordmark of the header: Synapse hexagon, "SYNAPSE MEDICAL" and a "Docs" tag.
+const isEn = Astro.url.pathname.startsWith('/en/');
+const home = isEn ? '/en/' : '/';
+---
+
+<a href={home} class="site-title" aria-label="Synapse Medical Docs">
+  <svg viewBox="0 0 38 38" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">
+    <g stroke-width="1.5">
+      <path d="M19 4.3 31.1 11.3"></path><path d="M32.3 13.5V24.5"></path><path d="M31.1 26.7 19 33.7"></path>
+      <path d="M19 33.7 6.9 26.7"></path><path d="M5.6 24.5V13.5"></path><path d="M6.9 11.3 19 4.3"></path>
+    </g>
+    <circle cx="19" cy="19" r="2.5" fill="currentColor" stroke="none"></circle>
+    <g stroke-width=".6" opacity=".55">
+      <path d="M19 15.3V10.5"></path><path d="M22.2 17.1 26.3 14.8"></path><path d="M22.2 20.9 26.3 23.2"></path>
+      <path d="M19 22.7V27.5"></path><path d="M15.8 20.9 11.7 23.2"></path><path d="M15.8 17.1 11.7 14.8"></path>
+    </g>
+    <g fill="currentColor" stroke="none">
+      <path d="M19 7.7 21.1 9.8 19 11.9 16.9 9.8Z"></path><path d="M27.3 12.5 29.4 14.6 27.3 16.7 25.2 14.6Z"></path>
+      <path d="M27.3 21.3 29.4 23.4 27.3 25.4 25.2 23.4Z"></path><path d="M19 26.1 21.1 28.2 19 30.3 16.9 28.2Z"></path>
+      <path d="M10.7 21.3 12.8 23.4 10.7 25.4 8.6 23.4Z"></path><path d="M10.7 12.5 12.8 14.6 10.7 16.7 8.6 14.6Z"></path>
+    </g>
+  </svg>
+  <span class="wm"><b>SYNAPSE</b><i>MEDICAL</i></span>
+  <span class="docs">Docs</span>
+</a>
+
+<style>
+  .site-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--sy-accent);
+    text-decoration: none;
+  }
+  svg {
+    width: 34px;
+    height: 34px;
+    flex: none;
+  }
+  .wm {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .wm b {
+    font-weight: 300;
+    font-size: 17px;
+    letter-spacing: 0.32em;
+  }
+  .wm i {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    margin-top: 4px;
+    color: var(--sy-ink3);
+  }
+  .docs {
+    font: 600 11px var(--sy-font-mono);
+    color: var(--sy-ink2);
+    background: var(--sy-bg3);
+    border-radius: 5px;
+    padding: 2px 7px;
+  }
+  @media (max-width: 420px) {
+    .docs {
+      display: none;
+    }
+  }
+</style>

@@ -9,29 +9,15 @@ import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.ast
 import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import VersionSelect from './VersionSelect.astro';
+import { activeSectionIndex, firstLink, getSections } from './nav';
 
 const { sidebar } = Astro.locals.starlightRoute;
 
-// Only top-level groups are sections.
-const sections = sidebar.filter((entry) => entry.type === 'group');
-
-// A section is active if one of its links is the current page.
-const containsCurrent = (entry) =>
-  entry.type === 'link' ? entry.isCurrent : entry.entries.some(containsCurrent);
-
-// First reachable URL of a section (target of the tab).
-const firstLink = (entry) => {
-  if (entry.type === 'link') return entry.href;
-  for (const child of entry.entries) {
-    const href = firstLink(child);
-    if (href) return href;
-  }
-  return undefined;
-};
-
-let activeIndex = sections.findIndex((section) => section.entries.some(containsCurrent));
-if (activeIndex === -1) activeIndex = 0; // default: Guide
+const sections = getSections(sidebar);
+const activeIndex = activeSectionIndex(sections);
 const active = sections[activeIndex];
+const isEn = Astro.url.pathname.startsWith('/en/');
+const filterLabel = isEn ? 'Filter navigation' : 'Filtrer la navigation';
 
 // Icons (line icons) — only sections have one. Indexed like `sections`.
 const ICONS = [
@@ -63,6 +49,11 @@ const ICONS = [
   }
 </nav>
 
+<label class="side-filter">
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+  <input type="search" placeholder={filterLabel} aria-label={filterLabel} data-side-filter />
+</label>
+
 <SidebarPersister>
   <SidebarSublist sublist={active.entries} />
 </SidebarPersister>
@@ -71,7 +62,51 @@ const ICONS = [
   <MobileMenuFooter />
 </div>
 
+<script>
+  // Filters the links of the visible section and opens the groups that match.
+  document.querySelectorAll<HTMLInputElement>('input[data-side-filter]').forEach((input) => {
+    const root = input.closest('.sidebar-content') ?? document;
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      root.querySelectorAll<HTMLElement>('ul.top-level li').forEach((li) => {
+        const isGroup = !!li.querySelector(':scope > details');
+        if (isGroup) return;
+        li.hidden = !!q && !(li.textContent ?? '').toLowerCase().includes(q);
+      });
+      root.querySelectorAll<HTMLDetailsElement>('details').forEach((d) => {
+        const any = !q || !!d.querySelector('li:not([hidden]):not(:has(details))');
+        (d.closest('li') as HTMLElement | null)?.toggleAttribute('hidden', !any);
+        if (q && any) d.open = true;
+      });
+    });
+  });
+</script>
+
 <style>
+  .side-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--sy-line);
+    border-radius: 8px;
+    background: var(--sy-bg);
+    color: var(--sy-ink3);
+  }
+  .side-filter:focus-within {
+    border-color: var(--sy-accent);
+  }
+  .side-filter input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--sy-ink);
+    font: inherit;
+    font-size: var(--sl-text-sm);
+  }
   .section-tabs {
     display: grid;
     grid-template-columns: 1fr;
@@ -115,5 +150,11 @@ const ICONS = [
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  /* The section tabs live in the header on wide screens. */
+  @media (min-width: 64rem) {
+    .section-tabs {
+      display: none;
+    }
   }
 </style>
