@@ -1,0 +1,70 @@
+/* Guides, glossary and compliance FAQ (src/content/docs/guides, resources). */
+
+/* Glossary terms: dotted underline + tooltip (hover and keyboard focus). */
+abbr.gl {
+  text-decoration: underline dotted var(--sy-ink3);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+.gl-tip {
+  position: fixed;
+  z-index: 100;
+  max-width: min(320px, 80vw);
+  padding: 8px 12px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink2);
+  box-shadow: 0 10px 30px -10px rgba(30, 27, 58, 0.35);
+  font-size: 13px;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+.gl-tip.on {
+  opacity: 1;
+}
+.gl-tip b {
+  display: block;
+  color: var(--sy-ink);
+}
+
+/* Field tables: tighter cells, example values as small chips. */
+.sl-markdown-content table td code {
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 0.85em;
+}
+
+/* Compliance FAQ and other <details> blocks. */
+.sl-markdown-content details {
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  background: var(--sy-bg);
+  margin-block: 0.75rem;
+}
+.sl-markdown-content details > summary {
+  cursor: pointer;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  color: var(--sy-ink);
+}
+.sl-markdown-content details[open] > summary {
+  border-bottom: 1px solid var(--sy-line);
+}
+.sl-markdown-content details > :not(summary) {
+  margin-inline: 1rem;
+}
+.sl-markdown-content details > p:last-child,
+.sl-markdown-content details > :last-child {
+  margin-bottom: 1rem;
+}
+
+/* Screenshots: framed. */
+.sl-markdown-content img {
+  border: 1px solid var(--sy-line);
+  border-radius: 12px;
+}

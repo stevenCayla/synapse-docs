@@ -9,7 +9,8 @@
 #      e.g. SYNAPSE_DIR=../symfony-docker make sync
 #   2. otherwise, partial clone (docs/ + root files) of SYNAPSE_REF into .synapse/
 #
-# src/content/docs/audit/ and the home pages (src/pages/index.astro, built from
+# src/content/docs/audit/, guides/ and resources/ (guides, glossary, compliance
+# FAQ) and the home pages (src/pages/index.astro, built from
 # src/components/home/) are maintained in this repository; the index.md of the
 # application is not synced. The archived versions
 # listed in versions.json (src/content/docs/<x.y>/, en/<x.y>/) are
@@ -33,7 +34,7 @@ fi
 
 test -d "$dir/docs" || { echo "$dir does not contain a docs/ folder." >&2; exit 1; }
 
-set -- --exclude '/audit/' --exclude '/index.md' --exclude '/en/index.md'
+set -- --exclude '/audit/' --exclude '/guides/' --exclude '/resources/' --exclude '/index.md' --exclude '/en/index.md'
 for slug in $(node -p 'require("./versions.json").map((v) => v.slug).join(" ")'); do
   set -- "$@" --exclude "/$slug/" --exclude "/en/$slug/"
 done

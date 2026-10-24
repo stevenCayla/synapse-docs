@@ -60,7 +60,9 @@ export default defineConfig({
         alt: 'Synapse Medical',
       },
       favicon: '/favicon.svg',
-      customCss: ['./src/styles/synapse.css', './src/styles/home.css'],
+      // Underlines the glossary terms of the guides with a tooltip.
+      head: [{ tag: 'script', attrs: { src: '/glossary.js', defer: true } }],
+      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css'],
       defaultLocale: 'root',
       locales: {
         root: { label: 'Français', lang: 'fr' },
@@ -138,6 +140,29 @@ export default defineConfig({
               badge: { text: 'Nouveau', variant: 'tip' },
             },
             {
+              label: 'Prise en main',
+              translations: { en: 'Getting started guides' },
+              items: [
+                'guides/premiers-pas',
+                'guides/creer-etude',
+                'guides/design-population-sites',
+                'guides/reglementaire-ecrf-equipe',
+                'guides/importer',
+                'guides/lancer',
+              ],
+            },
+            {
+              label: "Conduire l'étude",
+              translations: { en: 'Running the study' },
+              items: [
+                'guides/saisir-ecrf',
+                'guides/requetes-monitoring',
+                'guides/randomisation',
+                'guides/gel-verrouillage',
+                'guides/exports',
+              ],
+            },
+            {
               label: 'QA',
               collapsed: true,
               items: [{ autogenerate: { directory: 'qa', collapsed: true } }],
@@ -147,6 +172,11 @@ export default defineConfig({
         {
           label: 'Reference',
           items: [
+            {
+              label: 'Ressources',
+              translations: { en: 'Resources' },
+              items: ['resources/glossary', 'resources/compliance-faq'],
+            },
             {
               label: 'API',
               collapsed: true,
