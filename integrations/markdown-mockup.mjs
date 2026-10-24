@@ -2,6 +2,7 @@
 // the Synapse Docs design without touching their Markdown, which belongs to the
 // application repository:
 //  - a "prerequisites" table (Tool | Version | Role) becomes a grid of cards;
+//  - a ```mermaid block becomes <pre class="mermaid"> (drawn by MermaidViewer.astro);
 //  - a blockquote becomes an aside (note; a leading warning sign makes it a
 //    caution, a leading light bulb a tip), except in the audit pages.
 import { defineMdastPlugin } from 'satteri';
@@ -22,6 +23,11 @@ export default function mockupPlugin(ctx) {
   const inAudit = /\/content\/docs\/(en\/)?audit\//.test(path);
   return defineMdastPlugin({
     name: 'synapse-mockup',
+    code(node, c) {
+      if (node.lang !== 'mermaid') return;
+      const escaped = node.value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      c.replaceNode(node, { type: 'html', value: `<pre class="mermaid">${escaped}</pre>` });
+    },
     table(node, c) {
       const [head, ...rows] = node.children;
       const names = head.children.map((cell) => plain(cell).trim());

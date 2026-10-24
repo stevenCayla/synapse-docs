@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import mermaid from 'astro-mermaid';
 import starlightVersions from 'starlight-versions';
 import { satteri } from '@astrojs/markdown-satteri';
 import mockupPlugin from './integrations/markdown-mockup.mjs';
@@ -62,13 +61,6 @@ export default defineConfig({
     },
   },
   integrations: [
-    // Renders ```mermaid blocks → SVG (client side, no Chromium).
-    // Must come before starlight() to catch the blocks before syntax
-    // highlighting. The theme follows the site's light/dark mode.
-    mermaid({
-      theme: 'neutral',
-      autoTheme: true,
-    }),
     starlight({
       // The 404 page is src/pages/404.astro (design of the mockup).
       disable404Route: true,

@@ -3,6 +3,7 @@
 // updated", edit link) and adds an Astro-style community section
 // (Contribute · Community · GitHub).
 import Default from '@astrojs/starlight/components/Footer.astro';
+import MermaidViewer from './MermaidViewer.astro';
 
 const isEn = Astro.url.pathname.startsWith('/en/');
 const contributeHref = isEn ? '/en/contribute/' : '/contribute/';
@@ -18,6 +19,7 @@ const t = isEn
 ---
 
 <Default><slot /></Default>
+<MermaidViewer />
 
 <section class="sm-community sl-flex" data-pagefind-ignore>
   <span class="sm-copy">© {year} Synapse Medical · Documentation</span>

@@ -126,11 +126,9 @@
   border: 0;
 }
 
-/* Icons of the groups (mockup ".gi"): set by Sidebar.astro through data-gi. The
-   room is always reserved on the top-level entries, so nothing moves when the
-   icon appears. */
-.sidebar-content ul.top-level > li > details > summary .group-label::before,
-.sidebar-content ul.top-level > li > a.large::before {
+/* Icons of the groups (mockup ".gi"): set by Sidebar.astro through data-gi. */
+.sidebar-content ul.top-level > li > details[data-gi] > summary .group-label::before,
+.sidebar-content ul.top-level > li > a.large[data-gi]::before {
   content: '';
   flex: none;
   width: 15px;
@@ -140,15 +138,15 @@
   -webkit-mask: var(--gi) center / contain no-repeat;
   mask: var(--gi) center / contain no-repeat;
 }
-.sidebar-content ul.top-level > li > a.large {
+.sidebar-content ul.top-level > li > a.large[data-gi] {
   display: flex;
   align-items: center;
 }
-.sidebar-content ul.top-level > li > details > summary:hover .group-label::before,
-.sidebar-content ul.top-level > li > a.large:hover::before {
+.sidebar-content ul.top-level > li > details[data-gi] > summary:hover .group-label::before,
+.sidebar-content ul.top-level > li > a.large[data-gi]:hover::before {
   background: var(--sy-accent-ink);
 }
-.sidebar-content ul.top-level > li > a.large[aria-current='page']::before {
+.sidebar-content ul.top-level > li > a.large[data-gi][aria-current='page']::before {
   background: var(--sy-accent-ink);
 }
 
