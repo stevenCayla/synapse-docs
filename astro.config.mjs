@@ -70,6 +70,8 @@ export default defineConfig({
       autoTheme: true,
     }),
     starlight({
+      // The 404 page is src/pages/404.astro (design of the mockup).
+      disable404Route: true,
       // Code blocks: the Synapse Docs palette (see src/styles/page.css for the frame).
       expressiveCode: {
         themes: [syntaxTheme('dark'), syntaxTheme('light')],
@@ -137,6 +139,7 @@ export default defineConfig({
         { tag: 'script', attrs: { src: '/contextual.js', defer: true } },
         { tag: 'script', attrs: { src: '/feedback.js', defer: true } },
         { tag: 'script', attrs: { src: '/lightbox.js', defer: true } },
+        { tag: 'script', attrs: { src: '/notfound.js', defer: true } },
         { tag: 'script', attrs: { src: '/a11y.js', defer: true } },
       ],
       customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css', './src/styles/page.css', './src/styles/sidebar.css'],

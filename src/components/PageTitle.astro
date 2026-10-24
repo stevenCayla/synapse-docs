@@ -23,6 +23,7 @@ const data = entry.data as {
   introduced?: string;
   reviewed?: string;
   wip?: boolean;
+  sheet?: boolean;
 };
 const isEn = Astro.url.pathname.startsWith('/en/');
 const splash = data.template === 'splash';
@@ -36,6 +37,7 @@ const t = isEn
       since: 'Since',
       updated: 'Updated on',
       edit: 'Edit on GitHub',
+      sheet: 'Printable sheet',
       locale: 'en-GB',
       upcomingTitle: 'Upcoming feature',
       upcoming: (v: string, cur: string) =>
@@ -54,6 +56,7 @@ const t = isEn
       since: 'Depuis',
       updated: 'Mis à jour le',
       edit: 'Modifier sur GitHub',
+      sheet: 'Fiche imprimable',
       locale: 'fr-FR',
       upcomingTitle: 'Fonctionnalité à venir',
       upcoming: (v: string, cur: string) =>
@@ -93,6 +96,7 @@ const own = /^(en\/)?(guides|resources|recette|audit)\//.test(rel);
 const editUrl = own
   ? `https://github.com/stevenCayla/synapse-docs/edit/develop/src/content/docs/${rel}`
   : `https://github.com/stevenCayla/SYNAPSE-MEDICAL/edit/develop/docs/${rel}`;
+const sheetHref = data.sheet ? `${isEn ? '/en/sheets/' : '/fiches/'}${entry.id.split('/').pop()}/` : undefined;
 const updated = lastUpdated?.toLocaleDateString(t.locale, { day: 'numeric', month: 'short', year: 'numeric' });
 ---
 
@@ -133,6 +137,12 @@ const updated = lastUpdated?.toLocaleDateString(t.locale, { day: 'numeric', mont
           </span>
         )}
         {updated && <span>{t.updated} {updated}</span>}
+        {sheetHref && (
+          <a href={sheetHref} class="sy-edit">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"></path></svg>
+            {t.sheet}
+          </a>
+        )}
         <a href={editUrl} class="sy-edit" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg>
           {t.edit}

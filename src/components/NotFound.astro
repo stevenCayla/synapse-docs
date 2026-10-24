@@ -1,0 +1,187 @@
+---
+// 404 page of the design: big code, message, the requested path, two actions
+// and a few popular pages. One static file serves both languages: the English
+// block is shown when the requested path starts with /en/ (public/notfound.js).
+import { getCollection } from 'astro:content';
+
+const docs = await getCollection('docs');
+const popular = ['premiers-pas', 'creer-etude', 'saisir-ecrf', 'importer'];
+const pages = (en: boolean) =>
+  popular.flatMap((slug) => {
+    const entry = docs.find((e) => e.id === `${en ? 'en/' : ''}guides/${slug}`);
+    return entry
+      ? [{ href: `/${en ? 'en/' : ''}guides/${slug}/`, title: entry.data.title, note: entry.data.time ?? '' }]
+      : [];
+  });
+
+const text = {
+  fr: {
+    title: "Cette page s'est égarée en cours d'étude",
+    text: "Elle a peut-être été déplacée, renommée ou n'a jamais existé. Revenez à l'accueil ou lancez une recherche.",
+    home: "Retour à l'accueil",
+    homeHref: '/',
+    search: 'Rechercher dans la doc',
+    popular: 'Pages populaires',
+    changelog: ['Journal des modifications', 'Nouveautés', '/changelog/'],
+  },
+  en: {
+    title: 'This page got lost during the study',
+    text: 'It may have been moved, renamed or never existed. Go back to the home page or run a search.',
+    home: 'Back to the home page',
+    homeHref: '/en/',
+    search: 'Search the docs',
+    popular: 'Popular pages',
+    changelog: ['Changelog', "What's new", '/en/changelog/'],
+  },
+};
+---
+
+<div class="nf" data-pagefind-ignore>
+  {
+    (['fr', 'en'] as const).map((lang) => (
+      <div class="nf-in" lang={lang} hidden={lang === 'en'} data-lang={lang}>
+        <p class="nf-code" aria-hidden="true">404</p>
+        <h1>{text[lang].title}</h1>
+        <code class="nf-path" data-path />
+        <p class="nf-text">{text[lang].text}</p>
+        <div class="nf-act">
+          <a class="sy-btn sy-btn-pri" href={text[lang].homeHref}>{text[lang].home}</a>
+          <button type="button" class="sy-btn" data-nf-search>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <span>{text[lang].search}</span>
+          </button>
+        </div>
+        <nav class="nf-links" aria-label={text[lang].popular}>
+          <h2>{text[lang].popular}</h2>
+          {pages(lang === 'en').map((p) => (
+            <a href={p.href}>{p.title}<span>{p.note}</span></a>
+          ))}
+          <a href={text[lang].changelog[2]}>{text[lang].changelog[0]}<span>{text[lang].changelog[1]}</span></a>
+        </nav>
+      </div>
+    ))
+  }
+</div>
+
+<style is:global>
+  /* The page title of the splash template is replaced by the design below. */
+  body:has(.nf) .content-panel:has(#_top) {
+    display: none;
+  }
+  body:has(.nf) .content-panel + .content-panel {
+    padding: 0;
+    border: 0;
+  }
+</style>
+
+<style>
+  .nf {
+    position: relative;
+    overflow: hidden;
+    min-height: calc(100vh - 64px);
+    background: radial-gradient(45% 55% at 50% 38%, color-mix(in oklab, var(--sy-accent) 14%, transparent), transparent 70%);
+  }
+  .nf::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--sy-accent) 11%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--sy-accent) 11%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask: radial-gradient(60% 60% at 50% 40%, #000, transparent);
+    mask: radial-gradient(60% 60% at 50% 40%, #000, transparent);
+    pointer-events: none;
+  }
+  .nf-in {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 96px 32px 88px;
+    text-align: center;
+  }
+  .nf-in[hidden] {
+    display: none;
+  }
+  .nf-code {
+    margin: 0;
+    color: var(--sy-accent);
+    font: 400 clamp(120px, 22vw, 220px) / 0.9 var(--sy-font-display);
+    letter-spacing: -0.05em;
+  }
+  .nf-in h1 {
+    margin: 18px 0 14px;
+    font: 400 clamp(32px, 4.4vw, 48px) / 1.08 var(--sy-font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .nf-path {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 22px;
+    padding: 2px 8px;
+    overflow: hidden;
+    border: 1px solid var(--sy-line);
+    border-radius: 6px;
+    background: var(--sy-bg2);
+    color: var(--sy-ink3);
+    font: 500 12.5px var(--sy-font-mono);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nf-path:empty {
+    display: none;
+  }
+  .nf-text {
+    max-width: 480px;
+    margin: 0 auto 28px;
+    color: var(--sy-ink2);
+    font-size: 17.5px;
+    text-wrap: pretty;
+  }
+  .nf-act {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .nf-act .sy-btn {
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .nf-links {
+    max-width: 560px;
+    margin: 56px auto 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--sy-line);
+    text-align: left;
+  }
+  .nf .nf-links h2 {
+    margin: 0 0 10px;
+    border: 0;
+    color: var(--sy-ink3);
+    font: 600 12px var(--sy-font-mono) !important;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .nf-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 2px;
+    border-bottom: 1px solid var(--sy-line);
+    color: var(--sy-ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .nf-links a span {
+    color: var(--sy-ink3);
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+  .nf-links a:hover {
+    color: var(--sy-accent-ink);
+  }
+</style>

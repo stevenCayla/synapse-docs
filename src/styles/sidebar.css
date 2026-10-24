@@ -117,3 +117,11 @@
   color: var(--sy-warn);
 }
 .sidebar-content .sl-badge { white-space: nowrap; }
+
+/* Starlight indents and draws a rail on the items of a sub-list as well: only
+   the list itself keeps them (no double indent). */
+.sidebar-content details > ul > li {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}

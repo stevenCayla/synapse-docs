@@ -20,6 +20,7 @@ export const collections = {
         introduced: z.string().optional(),
         reviewed: z.string().optional(),
         wip: z.boolean().optional(),
+        sheet: z.boolean().optional(),
       }),
     }),
   }),

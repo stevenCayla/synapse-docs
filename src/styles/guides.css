@@ -172,6 +172,9 @@ abbr.gl {
 .sy-fb-q {
   margin-right: auto;
 }
+.sy-fb-row > * {
+  margin: 0 !important;
+}
 .sy-fb button,
 .sy-fb-send {
   display: inline-flex;

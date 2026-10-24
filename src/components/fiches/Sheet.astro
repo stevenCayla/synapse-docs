@@ -1,0 +1,267 @@
+---
+// A4 sheet of a guide (screen preview + print). Standalone page: no site
+// chrome, always on a light paper, printed by the browser ("Save as PDF").
+import '../../styles/synapse.css';
+import { APP_VERSION } from '../../version';
+import { sheets, ui } from './content';
+
+const { slug, lang } = Astro.props as { slug: string; lang: 'fr' | 'en' };
+const sheet = sheets[slug][lang];
+const t = ui[lang];
+const origin = 'docs.synapse-medical.fr';
+---
+
+<!doctype html>
+<html lang={lang} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.kicker} · {sheet.title} | Synapse Medical</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" />
+    <script src="/print.js" defer></script>
+  </head>
+  <body data-pagefind-ignore>
+    <div class="bar">
+      <a href={sheet.guide}>{t.back}</a>
+      <button type="button" data-print>{t.print}</button>
+    </div>
+    <main class="sheet">
+      <header>
+        <div class="brand"><b>SYNAPSE</b><i>MEDICAL</i></div>
+        <span class="kicker">{t.kicker}</span>
+      </header>
+      <h1>{sheet.title}</h1>
+      <p class="sub">{sheet.sub}</p>
+      <p class="meta">{t.reviewed} v{APP_VERSION} · {sheet.time}</p>
+
+      <aside class="before">
+        <b>{sheet.before.title}</b>
+        <p>{sheet.before.text}</p>
+      </aside>
+
+      <ol class="steps">
+        {
+          sheet.steps.map((step, i) => (
+            <li>
+              <h2>
+                <span class="n">{i + 1}</span>
+                {step.title}
+              </h2>
+              <ul>{step.items.map((item) => <li>{item}</li>)}</ul>
+            </li>
+          ))
+        }
+      </ol>
+
+      <aside class="keep">
+        <b>{sheet.keep.title}</b>
+        <ul>{sheet.keep.items.map((item) => <li>{item}</li>)}</ul>
+      </aside>
+
+      <footer>
+        <span>{t.fullGuide} : {origin}{sheet.guide}</span>
+        <span>© {new Date().getFullYear()} Synapse Medical · Documentation</span>
+      </footer>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body {
+    margin: 0;
+    background: #e9e9f2;
+    color: var(--sy-ink);
+    font: 400 14px/1.5 var(--sl-font);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 14px 4px;
+  }
+  .bar a {
+    color: var(--sy-accent-ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .bar button {
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--sy-accent);
+    color: #fff;
+    font: 700 14px var(--sl-font);
+    cursor: pointer;
+  }
+  .sheet {
+    box-sizing: border-box;
+    width: 210mm;
+    max-width: 100%;
+    min-height: 297mm;
+    margin: 0 auto 24px;
+    padding: 14mm 14mm 12mm;
+    background: #fff;
+    box-shadow: 0 6px 30px -10px rgb(30 27 58 / 0.35);
+  }
+  .sheet header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--sy-accent);
+    color: var(--sy-accent);
+  }
+  .brand {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .brand b {
+    font-size: 17px;
+    font-weight: 300;
+    letter-spacing: 0.32em;
+  }
+  .brand i {
+    margin-top: 4px;
+    color: var(--sy-ink3);
+    font-size: 9px;
+    font-style: normal;
+    letter-spacing: 0.42em;
+  }
+  .kicker {
+    padding: 3px 9px;
+    border-radius: 5px;
+    background: var(--sy-accent-soft);
+    color: var(--sy-accent-ink);
+    font: 600 11px var(--sy-font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .sheet h1 {
+    margin: 16px 0 4px;
+    font: 500 30px/1.15 var(--sy-font-display);
+    letter-spacing: -0.01em;
+  }
+  .sheet .sub {
+    margin: 0;
+    color: var(--sy-ink2);
+    font-size: 14.5px;
+  }
+  .sheet .meta {
+    margin: 6px 0 14px;
+    color: var(--sy-ink3);
+    font: 500 12px var(--sy-font-mono);
+  }
+  .before,
+  .keep {
+    padding: 10px 14px;
+    border: 1px solid color-mix(in oklab, var(--sy-accent) 30%, transparent);
+    border-radius: 10px;
+    background: var(--sy-accent-soft);
+    font-size: 13px;
+  }
+  .before p {
+    margin: 2px 0 0;
+    color: var(--sy-ink2);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .steps > li {
+    break-inside: avoid;
+    padding: 12px 14px;
+    border: 1px solid var(--sy-line);
+    border-radius: 10px;
+  }
+  .steps h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+    font: 700 15px var(--sl-font);
+  }
+  .steps .n {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--sy-accent);
+    color: #fff;
+    font: 600 12px var(--sy-font-mono);
+  }
+  .sheet ul {
+    margin: 0;
+    padding-left: 16px;
+  }
+  .steps li li,
+  .keep li {
+    margin: 3px 0;
+    color: var(--sy-ink2);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+  .keep {
+    background: var(--sy-ok-soft);
+    border-color: color-mix(in oklab, var(--sy-ok) 30%, transparent);
+  }
+  .keep b,
+  .before b {
+    color: var(--sy-ink);
+  }
+  .sheet footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 8px;
+    border-top: 1px solid var(--sy-line);
+    color: var(--sy-ink3);
+    font: 500 11px var(--sy-font-mono);
+  }
+  @media (max-width: 640px) {
+    .steps {
+      grid-template-columns: 1fr;
+    }
+    .sheet {
+      padding: 20px 16px;
+    }
+    .sheet footer {
+      flex-direction: column;
+    }
+  }
+  @media print {
+    body {
+      background: #fff;
+    }
+    .bar {
+      display: none;
+    }
+    .sheet {
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      padding: 14mm;
+      box-shadow: none;
+    }
+    .steps {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

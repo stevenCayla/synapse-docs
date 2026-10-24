@@ -3,6 +3,7 @@ title: Import data
 description: Bring in an Excel or CSV file, with column mapping, checks, then signed confirmation.
 time: "12 min"
 introduced: "3.2.0"
+sheet: true
 ---
 
 The Import step is **optional**: you can also import later from **Patients › Import**. It runs in four stages.
