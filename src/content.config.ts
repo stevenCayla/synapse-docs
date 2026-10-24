@@ -11,7 +11,7 @@ const hasArchivedVersions = JSON.parse(fs.readFileSync('versions.json', 'utf8'))
 export const collections = {
   // Extra front matter: time (reading time), introduced (version of the
   // application that brings the feature), reviewed (last version the page was
-  // reviewed for). See src/components/PageMeta.astro.
+  // reviewed for), wip (content being written). See src/components/PageMeta.astro.
   docs: defineCollection({
     loader: docsLoader(),
     schema: docsSchema({
@@ -19,6 +19,7 @@ export const collections = {
         time: z.string().optional(),
         introduced: z.string().optional(),
         reviewed: z.string().optional(),
+        wip: z.boolean().optional(),
       }),
     }),
   }),

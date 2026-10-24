@@ -1,0 +1,118 @@
+/* Left column: width, spacing and type sizes of the mockup (".side"). */
+:root {
+  --sl-sidebar-width: 272px;
+  --sl-sidebar-pad-x: 14px;
+}
+@media (min-width: 50rem) {
+  :root {
+    --sl-sidebar-pad-y: 20px;
+  }
+}
+@media (max-width: 1180px) and (min-width: 50rem) {
+  :root {
+    --sl-sidebar-width: 248px;
+  }
+}
+.sidebar-content {
+  gap: 0;
+}
+.sidebar-content ul.top-level {
+  gap: 4px;
+}
+.sidebar-content ul {
+  font-size: 13.5px;
+}
+
+/* Group headers. */
+.sidebar-content summary {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.sidebar-content summary:hover {
+  background: var(--sy-bg3);
+}
+.sidebar-content summary .large,
+.sidebar-content summary > div > .large {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--sy-ink);
+}
+.sidebar-content summary svg {
+  color: var(--sy-ink3);
+}
+
+/* Single top-level links (e.g. "Accueil"). */
+.sidebar-content ul.top-level > li > a {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--sy-ink2);
+}
+.sidebar-content ul.top-level > li > a:hover {
+  background: var(--sy-bg3);
+  color: var(--sy-ink);
+}
+
+/* Links of a group: a thin rail with an accent mark on the current page. */
+.sidebar-content details > ul {
+  margin: 2px 0 8px 10px;
+  padding: 0 0 0 10px;
+  border-inline-start: 1px solid var(--sy-line);
+}
+.sidebar-content details > ul a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-inline-start: -11px;
+  padding: 5px 10px;
+  border-inline-start: 1px solid transparent;
+  border-radius: 0;
+  background: none;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--sy-ink2);
+}
+.sidebar-content details > ul a:hover {
+  border-color: var(--sy-ink3);
+  background: none;
+  color: var(--sy-ink);
+}
+.sidebar-content details > ul a[aria-current='page'],
+.sidebar-content details > ul a[aria-current='page']:hover {
+  border-color: var(--sy-accent);
+  background: linear-gradient(90deg, var(--sy-accent-soft), transparent);
+  color: var(--sy-accent-ink);
+  font-weight: 600;
+}
+
+/* Current page when it is a single top-level link. */
+.sidebar-content ul.top-level > li > a[aria-current='page'],
+.sidebar-content ul.top-level > li > a[aria-current='page']:hover {
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+  font-weight: 600;
+}
+
+/* Badges ("Nouveau", "En rédaction"): mockup ".tag". */
+.sidebar-content .sl-badge {
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 4px;
+  font: 600 10px/1 var(--sy-font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.sidebar-content .sl-badge.tip,
+.sidebar-content .sl-badge.success {
+  background: var(--sy-ok-soft);
+  color: var(--sy-ok);
+}
+.sidebar-content .sl-badge.caution,
+.sidebar-content .sl-badge.warning {
+  background: var(--sy-warn-soft);
+  color: var(--sy-warn);
+}

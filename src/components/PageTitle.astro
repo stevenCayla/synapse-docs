@@ -11,6 +11,7 @@ import versions from '../../versions.json';
 import { APP_VERSION } from '../version';
 import { compareVersions } from './semver';
 import { findTrail, firstLink } from './nav';
+import { hasOwnNotice, isWip } from '../wip';
 
 const route = Astro.locals.starlightRoute;
 const { entry, lastUpdated, sidebar } = route;
@@ -21,6 +22,7 @@ const data = entry.data as {
   time?: string;
   introduced?: string;
   reviewed?: string;
+  wip?: boolean;
 };
 const isEn = Astro.url.pathname.startsWith('/en/');
 const splash = data.template === 'splash';
@@ -38,6 +40,8 @@ const t = isEn
       upcomingTitle: 'Upcoming feature',
       upcoming: (v: string, cur: string) =>
         `This page describes a feature planned for v${v}. The current version of Synapse is v${cur}.`,
+      wipTitle: 'Content being written',
+      wip: 'This page is still being written: it may be incomplete and will change.',
       changelog: 'See the changelog',
       changelogHref: '/en/changelog/',
       homeHref: '/en/',
@@ -54,6 +58,8 @@ const t = isEn
       upcomingTitle: 'Fonctionnalité à venir',
       upcoming: (v: string, cur: string) =>
         `Cette page décrit une fonctionnalité prévue pour la v${v}. La version actuelle de Synapse est la v${cur}.`,
+      wipTitle: 'Contenu en cours de rédaction',
+      wip: 'Cette page est en cours de rédaction : elle peut être incomplète et va évoluer.',
       changelog: 'Voir le journal des modifications',
       changelogHref: '/changelog/',
       homeHref: '/',
@@ -78,6 +84,7 @@ const archivedVersion = versions.find(
 const reviewedFor = data.reviewed ?? archivedVersion?.slug ?? APP_VERSION;
 const known = [...versions.map((v: { slug: string }) => v.slug), APP_VERSION];
 const gap = known.filter((v) => compareVersions(v, reviewedFor) > 0).length;
+const wip = !splash && isWip(entry) && !hasOwnNotice(entry.body);
 const upcoming = !!data.introduced && compareVersions(data.introduced, APP_VERSION) > 0;
 
 // Edit link: the pages kept in this repository, or the docs/ folder of the application.
@@ -131,6 +138,12 @@ const updated = lastUpdated?.toLocaleDateString(t.locale, { day: 'numeric', mont
           {t.edit}
         </a>
       </div>
+      {wip && (
+        <aside class="sy-vbanner" role="note">
+          <b>{t.wipTitle}</b>
+          <span>{t.wip}</span>
+        </aside>
+      )}
       {upcoming && (
         <aside class="sy-vbanner">
           <b>{t.upcomingTitle}</b>

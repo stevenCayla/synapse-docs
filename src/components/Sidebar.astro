@@ -9,13 +9,25 @@ import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.ast
 import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import VersionSelect from './VersionSelect.astro';
-import { activeSectionIndex, firstLink, getSections } from './nav';
+import { activeSectionIndex, firstLink, getSections, sidebarEntries } from './nav';
+import { wipHrefs } from '../wip';
 
 const { sidebar } = Astro.locals.starlightRoute;
 
 const sections = getSections(sidebar);
 const activeIndex = activeSectionIndex(sections);
-const active = sections[activeIndex];
+const wip = await wipHrefs();
+const badgeLabel = Astro.url.pathname.startsWith('/en/') ? 'In progress' : 'En rédaction';
+// Pages being written get a badge in the sidebar.
+const mark = (entries: any[]): any[] =>
+  entries.map((e) =>
+    e.type === 'group'
+      ? { ...e, entries: mark(e.entries) }
+      : wip.has(e.href) && !e.badge
+        ? { ...e, badge: { text: badgeLabel, variant: 'caution' } }
+        : e,
+  );
+const entries = mark(sidebarEntries(sections, activeIndex));
 const isEn = Astro.url.pathname.startsWith('/en/');
 const filterLabel = isEn ? 'Filter navigation' : 'Filtrer la navigation';
 
@@ -55,7 +67,7 @@ const ICONS = [
 </label>
 
 <SidebarPersister>
-  <SidebarSublist sublist={active.entries} />
+  <SidebarSublist sublist={entries} />
 </SidebarPersister>
 
 <div class="md:sl-hidden">

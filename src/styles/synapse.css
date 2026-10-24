@@ -17,6 +17,12 @@
   --sy-ink2: #45436a;
   --sy-ink3: #6a6890;
   --sy-ok: #0a6b49;
+  --sy-ok-soft: #e7f6ef;
+  --sy-code: #f7f7fc;
+  --sy-danger: #c2283b;
+  --sy-danger-soft: #fdecee;
+  --sy-warn: #8a4f00;
+  --sy-warn-soft: #fff4e0;
   --sy-font-display: 'Newsreader Variable', Georgia, serif;
   --sy-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 
@@ -51,6 +57,12 @@
   --sy-ink2: #b3b6d6;
   --sy-ink3: #868ab0;
   --sy-ok: #4fd1a0;
+  --sy-ok-soft: #10261f;
+  --sy-code: #0f1326;
+  --sy-danger: #ff7a8a;
+  --sy-danger-soft: #2c1418;
+  --sy-warn: #f5b454;
+  --sy-warn-soft: #2a2010;
 
   --sl-color-gray-4: #5a5f88;
 }

@@ -2,8 +2,11 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
 import starlightVersions from 'starlight-versions';
+import { satteri } from '@astrojs/markdown-satteri';
+import mockupPlugin from './integrations/markdown-mockup.mjs';
 import externalizeInlineScripts from './integrations/externalize-inline-scripts.mjs';
 import fs from 'node:fs';
+import { ExpressiveCodeTheme } from 'astro-expressive-code';
 
 // Application version, synced from APP_VERSION in the application's .env by
 // scripts/sync-content.sh, so the version selector stays in sync without a
@@ -25,8 +28,31 @@ const ARCHIVED_VERSIONS = JSON.parse(fs.readFileSync('versions.json', 'utf8'));
 
 // Synapse Medical documentation — Starlight site.
 // Root locale = French (served at /), English under /en/.
+// Syntax colors of the code blocks (keys and keywords, strings, comments).
+function syntaxTheme(type) {
+  const dark = type === 'dark';
+  const c = dark
+    ? { fg: '#ecedfa', bg: '#0f1326', comment: '#868ab0', key: '#a5b4fc', str: '#4fd1a0' }
+    : { fg: '#1e1b3a', bg: '#f7f7fc', comment: '#6a6890', key: '#4338ca', str: '#0a6b49' };
+  return new ExpressiveCodeTheme({
+    name: `synapse-${type}`,
+    type,
+    colors: { 'editor.background': c.bg, 'editor.foreground': c.fg },
+    settings: [
+      { settings: { foreground: c.fg } },
+      { scope: ['comment', 'punctuation.definition.comment'], settings: { foreground: c.comment } },
+      { scope: ['string', 'string.quoted', 'constant.numeric'], settings: { foreground: c.str } },
+      {
+        scope: ['keyword', 'storage', 'variable.other.readwrite', 'variable.other.constant', 'entity.name.function', 'support.function', 'entity.name.tag', 'support.type.property-name'],
+        settings: { foreground: c.key },
+      },
+    ],
+  });
+}
+
 export default defineConfig({
   site: 'https://docs.synapse-medical.fr',
+  markdown: { processor: satteri({ mdastPlugins: [mockupPlugin] }) },
   // Injects the version (constant replaced by Vite at build time).
   vite: {
     // No data: URIs for the fonts: the CSP only allows font-src 'self'.
@@ -44,6 +70,41 @@ export default defineConfig({
       autoTheme: true,
     }),
     starlight({
+      // Code blocks: the Synapse Docs palette (see src/styles/page.css for the frame).
+      expressiveCode: {
+        themes: [syntaxTheme('dark'), syntaxTheme('light')],
+        useStarlightDarkModeSwitch: true,
+        useStarlightUiThemeColors: false,
+        styleOverrides: {
+          borderRadius: '10px',
+          borderColor: 'var(--sy-line)',
+          codeFontSize: '13px',
+          codeLineHeight: '1.75',
+          codePaddingInline: '16px',
+          codeFontFamily: 'var(--sy-font-mono)',
+          uiFontFamily: 'var(--sy-font-mono)',
+          uiFontSize: '12px',
+          frames: {
+            frameBoxShadowCssValue: 'none',
+            terminalTitlebarDotsOpacity: '0',
+            terminalTitlebarBackground: 'var(--sy-code)',
+            terminalTitlebarForeground: 'var(--sy-ink3)',
+            terminalTitlebarBorderBottomColor: 'var(--sy-line)',
+            terminalBackground: 'var(--sy-code)',
+            editorTabBarBackground: 'var(--sy-code)',
+            editorActiveTabBackground: 'var(--sy-code)',
+            editorActiveTabForeground: 'var(--sy-ink)',
+            editorActiveTabBorderColor: 'transparent',
+            editorActiveTabIndicatorTopColor: 'transparent',
+            editorActiveTabIndicatorBottomColor: 'var(--sy-accent)',
+            editorTabBarBorderBottomColor: 'var(--sy-line)',
+            inlineButtonForeground: 'var(--sy-ink3)',
+            inlineButtonBackground: 'transparent',
+            inlineButtonBackgroundHoverOrFocusOpacity: '0.12',
+            inlineButtonBorder: 'transparent',
+          },
+        },
+      },
       title: 'Synapse Medical',
       plugins: ARCHIVED_VERSIONS.length
         ? [
@@ -67,7 +128,7 @@ export default defineConfig({
       // glossary.js: tooltips on the glossary terms of the guides.
       // recette.js: test file copy and test book tracking (recette pages).
       // progress.js: reading progress of the guides. contextual.js: ?step= and
-      // ?from=app links opened from the application. feedback.js: "was this page
+      // ?from=app links opened from the application. lightbox.js: screenshot viewer. feedback.js: "was this page
       // helpful?" widget (opens a pre-filled GitHub issue, sends nothing itself).
       head: [
         { tag: 'script', attrs: { src: '/glossary.js', defer: true } },
@@ -75,9 +136,10 @@ export default defineConfig({
         { tag: 'script', attrs: { src: '/progress.js', defer: true } },
         { tag: 'script', attrs: { src: '/contextual.js', defer: true } },
         { tag: 'script', attrs: { src: '/feedback.js', defer: true } },
+        { tag: 'script', attrs: { src: '/lightbox.js', defer: true } },
         { tag: 'script', attrs: { src: '/a11y.js', defer: true } },
       ],
-      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css', './src/styles/page.css'],
+      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css', './src/styles/page.css', './src/styles/sidebar.css'],
       defaultLocale: 'root',
       locales: {
         root: { label: 'Français', lang: 'fr' },
@@ -186,6 +248,11 @@ export default defineConfig({
               ],
             },
             {
+              label: 'Ressources',
+              translations: { en: 'Resources' },
+              items: ['resources/glossary', 'resources/compliance-faq', 'resources/contextual-help'],
+            },
+            {
               label: 'Recette',
               translations: { en: 'Acceptance tests' },
               collapsed: true,
@@ -202,11 +269,6 @@ export default defineConfig({
           label: 'Référence',
           translations: { en: 'Reference' },
           items: [
-            {
-              label: 'Ressources',
-              translations: { en: 'Resources' },
-              items: ['resources/glossary', 'resources/compliance-faq', 'resources/contextual-help'],
-            },
             {
               label: 'API',
               collapsed: true,

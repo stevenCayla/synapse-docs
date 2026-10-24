@@ -1,12 +1,12 @@
 ---
-// Starlight Header override: wordmark, version pill, section tabs, search,
+// Starlight Header override: wordmark, version menu, section tabs, search,
 // social links, theme and language selectors.
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import Search from 'virtual:starlight/components/Search';
 import SiteTitle from 'virtual:starlight/components/SiteTitle';
 import SocialIcons from 'virtual:starlight/components/SocialIcons';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
-import VersionSelect from './VersionSelect.astro';
+import VersionMenu from './VersionMenu.astro';
 import { activeSectionIndex, firstLink, getSections } from './nav';
 
 const sections = getSections(Astro.locals.starlightRoute.sidebar);
@@ -16,7 +16,7 @@ const active = activeSectionIndex(sections);
 <div class="header">
   <div class="brand sl-flex">
     <SiteTitle />
-    <VersionSelect pill />
+    <VersionMenu />
   </div>
   <nav class="tabs" aria-label="Sections">
     {
@@ -41,6 +41,10 @@ const active = activeSectionIndex(sections);
 </div>
 
 <style>
+  /* The picker of starlight-versions is replaced by VersionMenu. */
+  :global(starlight-version-select) {
+    display: none;
+  }
   .header {
     display: flex;
     align-items: center;

@@ -117,3 +117,271 @@
 footer.sl-flex > .meta {
   display: none;
 }
+
+/* Numbered lists: numbered steps joined by a line (mockup ".steps"). */
+.sl-markdown-content ol:not([class]) {
+  list-style: none;
+  counter-reset: sy-s;
+  padding: 0;
+  margin: 20px 0;
+}
+.sl-markdown-content ol:not([class]) > li {
+  counter-increment: sy-s;
+  position: relative;
+  margin: 0;
+  padding: 3px 0 8px 44px;
+  min-height: 36px;
+  color: var(--sy-ink2);
+}
+.sl-markdown-content ol:not([class]) > li::before {
+  content: counter(sy-s);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 50%;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: 600 13px var(--sy-mono, 'JetBrains Mono', ui-monospace, monospace);
+}
+.sl-markdown-content ol:not([class]) > li::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 32px;
+  bottom: 0;
+  width: 1px;
+  background: var(--sy-line);
+}
+.sl-markdown-content ol:not([class]) > li:last-child::after {
+  display: none;
+}
+.sl-markdown-content ol:not([class]) > li > p:first-child {
+  margin: 2px 0 6px;
+  color: var(--sy-ink);
+  font-weight: 600;
+}
+
+/* Tables (mockup "table.t"). Class-less tables only: the test book and the
+   test file keep their own styles. */
+.sl-markdown-content table:not([class]) {
+  display: table;
+  width: 100%;
+  margin: 14px 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 14px;
+}
+.sl-markdown-content table:not([class]) th {
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--sy-line);
+  background: var(--sy-bg2);
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+}
+.sl-markdown-content table:not([class]) td {
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--sy-line);
+  color: var(--sy-ink2);
+  vertical-align: top;
+}
+.sl-markdown-content table:not([class]) tr:last-child td {
+  border-bottom: 0;
+}
+@media (max-width: 640px) {
+  .sl-markdown-content table:not([class]) {
+    display: block;
+    overflow-x: auto;
+  }
+}
+.sl-markdown-content table:not([class]) th code {
+  background: transparent;
+  border-color: transparent;
+  color: var(--sy-ink2);
+}
+
+/* Asides (mockup ".aside"): Starlight asides and the asides made from the
+   blockquotes of the application pages (integrations/rehype-mockup.mjs). */
+.sl-markdown-content .aside,
+.sl-markdown-content .starlight-aside {
+  --aside-c: var(--sy-accent);
+  --aside-ink: var(--sy-accent-ink);
+  --aside-bg: var(--sy-accent-soft);
+  display: block;
+  margin: 20px 0;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in oklab, var(--aside-c) 30%, transparent);
+  border-radius: 10px;
+  background: var(--aside-bg);
+  font-size: 14px;
+}
+.sl-markdown-content .aside.tip,
+.sl-markdown-content .starlight-aside--tip {
+  --aside-c: var(--sy-ok);
+  --aside-ink: var(--sy-ok);
+  --aside-bg: var(--sy-ok-soft);
+}
+.sl-markdown-content .aside.caution,
+.sl-markdown-content .starlight-aside--caution {
+  --aside-c: var(--sy-warn);
+  --aside-ink: var(--sy-warn);
+  --aside-bg: var(--sy-warn-soft);
+}
+.sl-markdown-content .starlight-aside--danger {
+  --aside-c: var(--sy-danger);
+  --aside-ink: var(--sy-danger);
+  --aside-bg: var(--sy-danger-soft);
+}
+.sl-markdown-content .aside {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  column-gap: 12px;
+}
+.sl-markdown-content .aside > :not(svg) {
+  grid-column: 2;
+}
+.sl-markdown-content .aside > svg {
+  grid-column: 1;
+  grid-row: 1;
+}
+.sl-markdown-content .aside .sy-aside-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  fill: none;
+  stroke: var(--aside-ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sl-markdown-content .aside > :last-child,
+.sl-markdown-content .starlight-aside__content > :last-child {
+  margin-bottom: 0;
+}
+.sl-markdown-content .aside p,
+.sl-markdown-content .starlight-aside p {
+  margin: 0 0 8px;
+  color: var(--sy-ink2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.sl-markdown-content .starlight-aside__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 2px !important;
+  color: var(--sy-ink) !important;
+  font-size: 14px !important;
+  font-weight: 600;
+}
+.sl-markdown-content .starlight-aside__title svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--aside-ink);
+}
+.sl-markdown-content .starlight-aside__content {
+  padding-inline-start: 28px;
+}
+
+/* Prerequisite cards (mockup ".reqs"). */
+.sl-markdown-content .reqs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.sl-markdown-content .req {
+  padding: 12px 14px;
+  border: 1px solid var(--sy-line);
+  border-radius: 9px;
+}
+.sl-markdown-content .req b {
+  display: block;
+  color: var(--sy-ink);
+  font-size: 14px;
+}
+.sl-markdown-content .req span {
+  color: var(--sy-ink3);
+  font: 500 12.5px var(--sy-font-mono);
+}
+.sl-markdown-content .req small {
+  display: block;
+  margin-top: 4px;
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+/* Code blocks: header with the language label and a visible "Copy" button. */
+.expressive-code .frame.is-terminal .header,
+.expressive-code .frame.has-title .header {
+  justify-content: flex-start;
+  height: 38px;
+  padding-inline: 14px;
+}
+.expressive-code .frame.is-terminal .header .title::before {
+  content: 'terminal';
+  font: 500 12px var(--sy-font-mono);
+  color: var(--sy-ink3);
+}
+.expressive-code .frame.is-terminal .header::before {
+  display: none;
+}
+.expressive-code .frame.is-terminal .copy,
+.expressive-code .frame.has-title .copy {
+  inset-block-start: 5px;
+  inset-inline-end: 6px;
+}
+.expressive-code .frame.is-terminal .copy button,
+.expressive-code .frame.has-title .copy button {
+  opacity: 1;
+  width: auto;
+  height: 28px;
+  padding: 0 8px;
+  gap: 6px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  color: var(--sy-ink3);
+  font: 500 12px var(--sy-font-mono);
+}
+.expressive-code .frame.is-terminal .copy button::after,
+.expressive-code .frame.has-title .copy button::after {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  mask: none;
+  background: none;
+  opacity: 1;
+  content: 'Copier';
+}
+:lang(en) .expressive-code .frame.is-terminal .copy button::after,
+:lang(en) .expressive-code .frame.has-title .copy button::after {
+  content: 'Copy';
+}
+.expressive-code .frame .copy button:hover {
+  background: var(--sy-bg3);
+  color: var(--sy-ink);
+}
+
+.sl-markdown-content .reqs > .req,
+.sl-markdown-content .req > * {
+  margin: 0;
+}
+.sl-markdown-content .req > small {
+  margin-top: 4px;
+}

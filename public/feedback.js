@@ -52,8 +52,22 @@
   var row = el('div', 'sy-fb-row');
   var label = el('span', 'sy-fb-q', T.q);
   label.setAttribute('role', 'status');
-  var yes = el('button', null, T.yes);
-  var no = el('button', null, T.no);
+  var icon = function (d) {
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    var path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', d);
+    svg.appendChild(path);
+    return svg;
+  };
+  var withIcon = function (b, d, text) {
+    b.append(icon(d), text);
+    return b;
+  };
+  var yes = withIcon(el('button'), 'M7 10v10H4V10h3zm0 0 4-7c1.5 0 2.5 1 2.5 2.5V9H19a2 2 0 0 1 2 2.3l-1.2 6.5A2 2 0 0 1 17.8 20H7', T.yes);
+  var no = withIcon(el('button'), 'M17 14V4h3v10h-3zm0 0-4 7c-1.5 0-2.5-1-2.5-2.5V15H5a2 2 0 0 1-2-2.3l1.2-6.5A2 2 0 0 1 6.2 4H17', T.no);
   [yes, no].forEach(function (b) { b.type = 'button'; });
   row.append(label, yes, no);
 
