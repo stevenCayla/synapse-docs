@@ -1,13 +1,30 @@
 ---
 // Changelog as a timeline, built from the synced changelog page so there is
 // a single source of truth (changelog/README.md of the application docs).
-import { APP_VERSION, RELEASES_URL } from '../../version';
-import { parseChangelog } from './parse';
+import { APP_VERSION, NEXT_VERSION, RELEASES_URL } from '../../version';
+import { compareVersions } from '../semver';
+import { inline, parseChangelog, parseRootChangelog } from './parse';
 
 const { lang } = Astro.props as { lang: 'fr' | 'en' };
-const releases = parseChangelog(
-  lang === 'en' ? 'src/content/docs/en/changelog/README.md' : 'src/content/docs/changelog/README.md',
-);
+// Source: the changelog of the application (dates, introductions, deployment
+// warnings). The English page prefers the translated summary of each release
+// (docs/en/changelog) when it has one.
+const root = parseRootChangelog('src/data/CHANGELOG.md');
+const translated =
+  lang === 'en' ? parseChangelog('src/content/docs/en/changelog/README.md') : [];
+const releases = root.map((r) => {
+  const en = translated.find((x) => x.version === r.version);
+  return en ? { ...r, entries: en.entries } : r;
+});
+const upcoming = (v: string) => v === 'Unreleased' && compareVersions(NEXT_VERSION, APP_VERSION) > 0;
+const fmt = (iso?: string) =>
+  iso
+    ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(lang === 'en' ? 'en-GB' : 'fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : '';
 const t =
   lang === 'en'
     ? {
@@ -18,8 +35,10 @@ const t =
         policyHref: '/en/changelog/readme/',
         releases: 'GitHub releases',
         unreleased: 'In progress',
+        soon: 'Upcoming',
+        warn: 'Check before deploying',
         current: 'Current version',
-        tags: { new: 'New', imp: 'Improved', fix: 'Fixed' },
+        tags: { new: 'New', imp: 'Improved', fix: 'Fixed', sec: 'Security' },
       }
     : {
         kicker: 'Journal des modifications',
@@ -29,8 +48,10 @@ const t =
         policyHref: '/changelog/readme/',
         releases: 'Releases GitHub',
         unreleased: 'En cours',
+        soon: 'À venir',
+        warn: 'À vérifier avant déploiement',
         current: 'Version actuelle',
-        tags: { new: 'Nouveau', imp: 'Amélioré', fix: 'Corrigé' },
+        tags: { new: 'Nouveau', imp: 'Amélioré', fix: 'Corrigé', sec: 'Sécurité' },
       };
 ---
 
@@ -53,13 +74,26 @@ const t =
         <div class="sy-rel-l">
           <div class="sy-rel-sticky">
             <span class={`sy-rel-v${r.version === APP_VERSION ? ' latest' : ''}`}>
-              {r.unreleased ? t.unreleased : `v${r.version}`}
+              {r.unreleased ? (upcoming(r.version) ? `v${NEXT_VERSION}` : t.unreleased) : `v${r.version}`}
             </span>
+            {r.date && <time datetime={r.date}>{fmt(r.date)}</time>}
+            {r.unreleased && upcoming(r.version) && <span class="sy-rel-soon">{t.soon}</span>}
             {r.version === APP_VERSION && <span class="sy-rel-cur">{t.current}</span>}
           </div>
         </div>
         <div class="sy-rel-dot"></div>
         <div class="sy-rel-b">
+          {r.lede && <p class="sy-rel-lede" set:html={inline(r.lede)} />}
+          {r.warnings.length > 0 && (
+            <details class="sy-rel-warn">
+              <summary>{t.warn} ({r.warnings.length})</summary>
+              <ul>
+                {r.warnings.map((w) => (
+                  <li set:html={w} />
+                ))}
+              </ul>
+            </details>
+          )}
           <ul class="sy-rel-list">
             {r.entries.map((e) => (
               <li>

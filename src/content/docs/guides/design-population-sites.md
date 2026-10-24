@@ -2,7 +2,7 @@
 title: Design, population et sites
 description: Décrire l'essai, qui peut être inclus, et dans quels établissements.
 time: "8 min"
-introduced: "3.1.0"
+introduced: "3.2.0"
 ---
 
 ## 4. Design

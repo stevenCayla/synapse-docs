@@ -10,7 +10,7 @@ Les questions que posent les promoteurs, les DPO et les auditeurs, avec les docu
 <details>
 <summary>Les signatures électroniques sont-elles conformes au 21 CFR Part 11 ?</summary>
 
-Chaque signature exige une ré-authentification, enregistre la signification choisie, le nom du signataire et l'horodatage, et reste liée de façon indissociable à l'enregistrement signé. La signature qualifiée eIDAS est disponible depuis la v3.1.0.
+Chaque signature exige une ré-authentification, enregistre la signification choisie, le nom du signataire et l'horodatage, et reste liée de façon indissociable à l'enregistrement signé.
 
 </details>
 

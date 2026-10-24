@@ -108,6 +108,49 @@
   border-color: var(--sy-accent);
   color: var(--sy-bg);
 }
+.sy-rel time {
+  font-size: 14px;
+  color: var(--sy-ink3);
+}
+.sy-rel-soon {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sy-ink2);
+}
+.sy-rel-lede {
+  font-size: 16.5px;
+  color: var(--sy-ink2);
+  margin: 0 0 18px;
+  max-width: 620px;
+}
+.sy-rel-warn {
+  margin: 0 0 18px;
+  border: 1px solid #d98a00;
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: color-mix(in oklab, #d98a00 10%, var(--sy-bg));
+  font-size: 14.5px;
+}
+.sy-rel-warn summary {
+  cursor: pointer;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  color: var(--sy-ink);
+}
+.sy-rel-warn ul {
+  margin: 0;
+  padding: 0 1rem 0.9rem 2rem;
+  color: var(--sy-ink2);
+}
+.sy-rel-warn li {
+  margin-top: 0.5rem;
+}
+.sy-rel-warn code {
+  background: var(--sy-bg3);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.88em;
+}
 .sy-rel-cur {
   font-size: 12px;
   font-weight: 700;
@@ -171,6 +214,13 @@
   background: color-mix(in oklab, #d98a00 16%, var(--sy-bg));
   color: #a15c00;
 }
+.sy-ctag.sec {
+  background: color-mix(in oklab, #c2283b 14%, var(--sy-bg));
+  color: #c2283b;
+}
+:root[data-theme='dark'] .sy-ctag.sec {
+  color: #ff7a8a;
+}
 :root[data-theme='dark'] .sy-ctag.fix {
   color: #f5b454;
 }
@@ -202,4 +252,12 @@
   .sy-ctag {
     justify-self: start;
   }
+}
+
+/* Links inside the text of a release must not rely on color alone. */
+.sy-chg .sy-rel-list a,
+.sy-chg .sy-rel-warn a,
+.sy-chg .sy-rel-lede a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

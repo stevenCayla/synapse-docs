@@ -2,7 +2,7 @@
 title: Réglementaire, eCRF, calendrier et équipe
 description: Les exigences par pays, les formulaires de saisie, les visites et les personnes impliquées.
 time: "10 min"
-introduced: "3.1.0"
+introduced: "3.2.0"
 ---
 
 ## 7. Réglementaire

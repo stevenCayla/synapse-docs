@@ -42,9 +42,15 @@ done
 mkdir -p src/content/docs
 rsync -a --delete "$@" "$dir/docs/" src/content/docs/
 
+# The changelog of the application (source of the changelog timeline).
+if [ -f "$dir/CHANGELOG.md" ]; then
+  mkdir -p src/data
+  cp "$dir/CHANGELOG.md" src/data/CHANGELOG.md
+fi
+
 version="$(sed -n 's/^[[:space:]]*APP_VERSION[[:space:]]*=[[:space:]]*//p' "$dir/.env" 2>/dev/null | tail -1 | tr -d "\"'")"
 if [ -n "$version" ]; then
   echo "$version" > APP_VERSION
 fi
 
-echo "src/content/docs synced from $dir (APP_VERSION $(cat APP_VERSION 2>/dev/null || echo unknown))"
+echo "src/content/docs and src/data/CHANGELOG.md synced from $dir (APP_VERSION $(cat APP_VERSION 2>/dev/null || echo unknown))"

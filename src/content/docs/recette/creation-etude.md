@@ -2,7 +2,7 @@
 title: "REC-01 · Création d'étude"
 description: "Scénarios de recette de l'assistant « Nouvelle étude » : parcours prospectif, rétrospectif, déduction du cadre réglementaire et passage en production."
 time: "45 min"
-introduced: "3.1.0"
+introduced: "3.2.0"
 ---
 
 <p class="rec-meta"><span class="rstat ok">Approuvé</span> Cahier v1.3 · Rédigé par S. Cayla · Revu par QA</p>
@@ -26,7 +26,7 @@ Cette page décrit les tests et leurs résultats attendus. Les résultats signé
 
 ## Prérequis
 
-- Environnement de recette `uat.synapse-medical.fr`, release `v3.1.0` déployée.
+- Environnement de recette `uat.synapse-medical.fr`, release `v3.2.0` déployée.
 - Comptes `dm@synapse.local` (Data Manager) et `sponsor@synapse.local` (Promoteur), formation BPC à jour.
 - Pack réglementaire `FR-2026.2` publié.
 
