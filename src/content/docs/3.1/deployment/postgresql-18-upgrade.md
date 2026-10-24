@@ -9,7 +9,7 @@ sidebar:
 slug: 3.1/deployment/postgresql-18-upgrade
 ---
 
-> 🌐 Version française · [English version](/3.1/en/deployment/postgresql-18-upgrade/)
+> 🌐 Version française · [English version](/en/3.1/deployment/postgresql-18-upgrade/)
 
 Le changement de version majeure de PostgreSQL (16 vers 18) ne permet **pas** de réutiliser le volume de données existant : le format de stockage change. La procédure ci-dessous passe par un dump / restore vers un **nouveau volume**. L'ancien volume n'est jamais modifié : il sert de sauvegarde de rollback.
 

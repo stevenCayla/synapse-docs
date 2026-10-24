@@ -5,7 +5,7 @@ description: Stratégie de test de Synapse Medical — tests PHPUnit, exécution
 slug: 3.1/qa/readme
 ---
 
-> 🌐 Version française · [English version](/3.1/en/qa/readme/)
+> 🌐 Version française · [English version](/en/3.1/qa/readme/)
 
 La qualité de Synapse Medical repose sur deux piliers : une **suite de tests
 unitaires PHPUnit** qui verrouille les règles critiques (contrôle d'accès,

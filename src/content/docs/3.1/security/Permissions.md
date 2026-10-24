@@ -8,7 +8,7 @@ sidebar:
 slug: 3.1/security/permissions
 ---
 
-> 🌐 Version française · [English version](/3.1/en/security/permissions/)
+> 🌐 Version française · [English version](/en/3.1/security/permissions/)
 
 L'autorisation repose sur **trois niveaux** indépendants, tous bornés par l'[isolation par
 workspace](/3.1/security/best-practices/#-isolation-par-workspace) :

@@ -8,7 +8,7 @@ sidebar:
 slug: "3.1"
 ---
 
-> 🌐 Version française · [English version](en/)
+> 🌐 Version française · [English version](/en/3.1/)
 
 Plateforme de gestion d'études cliniques et de recueil de données électroniques (eCRF).
 Stack : **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 18 · Mercure · AssetMapper/Stimulus**.
@@ -40,7 +40,7 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/3.1/get
 | Document | Contenu |
 |----------|---------|
 | [Vue d'ensemble](/3.1/architecture/overview/) | Architecture technique globale |
-| [Décisions d'architecture (ADR)](/3.1/en/architecture/adr/readme/) | Journal des choix structurants *(EN)* |
+| [Décisions d'architecture (ADR)](/en/3.1/architecture/adr/readme/) | Journal des choix structurants *(EN)* |
 | Architecture, sécurité & TMA | Document de référence complet |
 
 ## 🔒 Sécurité & conformité
@@ -49,7 +49,7 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/3.1/get
 |----------|---------|
 | [Bonnes pratiques de sécurité](/3.1/security/best-practices/) 📌 | Règles de codage sécurisé non négociables |
 | [Permissions](/3.1/security/permissions/) | Modèle d'autorisation |
-| [Sécurité — vue d'ensemble](/3.1/en/security/readme/) | Mécanismes de sécurité *(EN)* |
+| [Sécurité — vue d'ensemble](/en/3.1/security/readme/) | Mécanismes de sécurité *(EN)* |
 | [Conformité & audits](/audit/checklist/) · [RGPD](/3.1/rgpd/registre-traitements/) | HDS / CNIL / ANSSI / 21 CFR Part 11 |
 | [Checklist QA sécurité](/3.1/qa/security-checklist/) | Contrôles de revue |
 
@@ -78,5 +78,5 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/3.1/get
 :::note[Documentation bilingue]
 La documentation est organisée en deux locales : **`fr/`** (langue par défaut) et
 **`en/`**. Les pages absentes dans une langue sont servies dans l'autre via le
-*fallback* Starlight. Voir aussi la [documentation anglaise](en/).
+*fallback* Starlight. Voir aussi la [documentation anglaise](/en/3.1/).
 :::

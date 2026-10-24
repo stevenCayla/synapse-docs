@@ -8,7 +8,7 @@ sidebar:
 slug: "3.0"
 ---
 
-> 🌐 Version française · [English version](en/)
+> 🌐 Version française · [English version](/en/3.0/)
 
 Plateforme de gestion d'études cliniques et de recueil de données électroniques (eCRF).
 Stack : **Symfony 8 · PHP 8.5 · FrankenPHP · PostgreSQL 18 · Mercure · AssetMapper/Stimulus**.
@@ -77,5 +77,5 @@ Commence par le **[Quick Start — lancer Synapse Medical en 5 minutes](/3.0/get
 :::note[Documentation bilingue]
 La documentation est organisée en deux locales : **`fr/`** (langue par défaut) et
 **`en/`**. Les pages absentes dans une langue sont servies dans l'autre via le
-*fallback* Starlight. Voir aussi la [documentation anglaise](en/).
+*fallback* Starlight. Voir aussi la [documentation anglaise](/en/3.0/).
 :::

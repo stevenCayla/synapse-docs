@@ -6,11 +6,11 @@ description: "Architecture technique de la plateforme : stack, couches
 slug: 3.1/architecture/overview
 ---
 
-> 🌐 Version française · [English version](/3.1/en/architecture/overview/)
+> 🌐 Version française · [English version](/en/3.1/architecture/overview/)
 
 Document de référence sur l'architecture de la plateforme. Pour le détail du code, voir
 [Structure du code backend](/3.1/backend/symfony-structure/) ; pour les données, le
-[Modèle de données](/3.1/database/data-model/) ; pour la sécurité, la [section dédiée](/3.1/en/security/readme/).
+[Modèle de données](/3.1/database/data-model/) ; pour la sécurité, la [section dédiée](/en/3.1/security/readme/).
 
 ***
 
@@ -141,7 +141,7 @@ $study = $repo->findOneBy(['id' => $id, 'workspace' => $activeWorkspace]);
 // ou via un Voter qui vérifie study.workspace === activeWorkspace
 ```
 
-Détails : [modèle de données](/3.1/database/data-model/) · [sécurité](/3.1/en/security/readme/).
+Détails : [modèle de données](/3.1/database/data-model/) · [sécurité](/en/3.1/security/readme/).
 
 ***
 
@@ -260,8 +260,8 @@ Détails : [deployment/](/3.1/deployment/readme/) · [production](/3.1/deploymen
 
 Les décisions structurantes sont tracées dans des **Architecture Decision Records** :
 
-* [ADR 0001 — Security foundations](/3.1/en/architecture/adr/0003-security-foundations/)
-* [ADR 0001 — Use Symfony Security](/3.1/en/architecture/adr/0001-use-symfony-security/)
-* [ADR 0002 — Session timeout server-side](/3.1/en/architecture/adr/0002-session-timeout-server-side/)
+* [ADR 0001 — Security foundations](/en/3.1/architecture/adr/0003-security-foundations/)
+* [ADR 0001 — Use Symfony Security](/en/3.1/architecture/adr/0001-use-symfony-security/)
+* [ADR 0002 — Session timeout server-side](/en/3.1/architecture/adr/0002-session-timeout-server-side/)
 
-> Tout nouveau choix structurant (techno, pattern transverse, compromis de sécurité) doit faire l'objet d'un nouvel ADR — voir [adr/README.md](/3.1/en/architecture/adr/readme/).
+> Tout nouveau choix structurant (techno, pattern transverse, compromis de sécurité) doit faire l'objet d'un nouvel ADR — voir [adr/README.md](/en/3.1/architecture/adr/readme/).
