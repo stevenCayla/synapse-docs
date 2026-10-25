@@ -33,6 +33,9 @@
   "overrides": {
     "astro-mermaid": {
       "mermaid": "$mermaid"
+    },
+    "miniflare": {
+      "undici": "^7.30.1"
     }
   }
 }
