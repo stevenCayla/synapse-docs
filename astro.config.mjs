@@ -120,13 +120,15 @@ export default defineConfig({
       // Date shown in the page header, from the git history.
       lastUpdated: true,
       // glossary.js: tooltips on the glossary terms of the guides.
-      // recette.js: test file copy and test book tracking (recette pages).
+      // recette.js: test file copy and test book tracking (recette pages);
+      // recette-import.js: REC-01b (read / run modes, report, PV, test file).
       // progress.js: reading progress of the guides. contextual.js: ?step= and
       // ?from=app links opened from the application. lightbox.js: screenshot viewer. feedback.js: "was this page
       // helpful?" widget (opens a pre-filled GitHub issue, sends nothing itself).
       head: [
         { tag: 'script', attrs: { src: '/glossary.js', defer: true } },
         { tag: 'script', attrs: { src: '/recette.js', defer: true } },
+        { tag: 'script', attrs: { src: '/recette-import.js', defer: true } },
         { tag: 'script', attrs: { src: '/progress.js', defer: true } },
         { tag: 'script', attrs: { src: '/contextual.js', defer: true } },
         { tag: 'script', attrs: { src: '/feedback.js', defer: true } },
@@ -134,7 +136,7 @@ export default defineConfig({
         { tag: 'script', attrs: { src: '/notfound.js', defer: true } },
         { tag: 'script', attrs: { src: '/a11y.js', defer: true } },
       ],
-      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css', './src/styles/page.css', './src/styles/sidebar.css'],
+      customCss: ['./src/styles/synapse.css', './src/styles/home.css', './src/styles/guides.css', './src/styles/changelog.css', './src/styles/recette.css', './src/styles/recette-import.css', './src/styles/page.css', './src/styles/sidebar.css'],
       defaultLocale: 'root',
       locales: {
         root: { label: 'Français', lang: 'fr' },
@@ -254,6 +256,11 @@ export default defineConfig({
                 'recette/strategie',
                 'recette/kit',
                 'recette/creation-etude',
+                {
+                  label: 'REC-01b · Étude prospective avec import',
+                  translations: { en: 'REC-01b · Prospective study with import' },
+                  link: '/recette/prospective-import/',
+                },
                 'recette/saisie-ecrf',
                 'recette/import-donnees',
                 'recette/audit-trail-esignature',

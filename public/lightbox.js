@@ -2,7 +2,7 @@
 // dialog (Escape or a click outside closes it; arrows browse the page's shots).
 (function () {
   var root = document.querySelector('.sl-markdown-content');
-  if (!root || !/\/guides\//.test(location.pathname)) return;
+  if (!root || !/\/(guides|recette\/prospective-import)\//.test(location.pathname)) return;
   var en = /^\/en\//.test(location.pathname);
   var T = en
     ? { close: 'Close', prev: 'Previous screenshot', next: 'Next screenshot', open: 'Enlarge the screenshot', of: ' of ' }

@@ -4,7 +4,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 const MIN_WORDS = 60;
 // Pages that are listings or generated, never flagged by their size.
-const EXEMPT = /^(en\/)?(\d+\.\d+\/|changelog\/|audit\/)/;
+const EXEMPT = /^(en\/)?(\d+\.\d+\/|changelog\/|audit\/|recette\/prospective-import)/;
 
 const words = (body: string) =>
   body

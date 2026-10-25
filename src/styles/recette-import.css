@@ -1,0 +1,630 @@
+/* REC-01b · Prospective study with import (src/components/recette-import/). */
+.rec-imp .pmode {
+  display: inline-flex;
+  margin: 4px 0 6px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--sy-bg3);
+}
+.rec-imp .pmode button {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--sy-ink3);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rec-imp .pmode button.on {
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+.rec-imp .pmode > * {
+  margin: 0 !important;
+}
+.rec-imp.pread .x-only,
+.rec-imp.pexec .r-only {
+  display: none !important;
+}
+
+/* Session fields. */
+.rec-imp .psess {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px solid var(--sy-line);
+  border-radius: 12px;
+  background: var(--sy-bg2);
+}
+.rec-imp .psess label {
+  display: grid;
+  gap: 4px;
+  color: var(--sy-ink3);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.rec-imp .psess input {
+  padding: 7px 10px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.rec-imp .psess input:focus {
+  outline: 2px solid var(--sy-accent);
+  outline-offset: -1px;
+}
+
+/* Run bar and rail. */
+.rec-imp .runbar.prb {
+  display: grid;
+  gap: 8px;
+}
+.rec-imp .prb-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.rec-imp .prb-top > * {
+  margin: 0 !important;
+}
+.rec-imp .prb-st {
+  color: var(--sy-ink2);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.rec-imp .prb-st b {
+  color: var(--sy-ink);
+}
+.rec-imp .prb-st .ko {
+  color: var(--sy-danger);
+}
+.rec-imp .prb-st .na {
+  color: var(--sy-warn);
+}
+.rec-imp .prail {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 4px;
+}
+.rec-imp .prail button {
+  display: grid;
+  place-items: center;
+  height: 26px;
+  margin: 0 !important;
+  border: 1px solid var(--sy-line);
+  border-radius: 6px;
+  background: var(--sy-bg2);
+  color: var(--sy-ink3);
+  font: 600 11.5px var(--sy-font-mono);
+  cursor: pointer;
+  transition: 0.15s;
+}
+.rec-imp .prail button:hover {
+  border-color: var(--sy-ink3);
+  color: var(--sy-ink);
+}
+.rec-imp .prail button.cur {
+  outline: 2px solid var(--sy-accent);
+  outline-offset: 1px;
+  color: var(--sy-ink);
+}
+.rec-imp .prail .part {
+  border-color: transparent;
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+}
+.rec-imp .prail .ok,
+.rec-imp .prail .ko,
+.rec-imp .prail .na {
+  border-color: transparent;
+  color: #fff;
+}
+.rec-imp .prail .ok {
+  background: var(--sy-ok);
+}
+.rec-imp .prail .ko {
+  background: var(--sy-danger);
+}
+.rec-imp .prail .na {
+  background: var(--sy-warn);
+}
+:root[data-theme='dark'] .rec-imp .prail .ok,
+:root[data-theme='dark'] .rec-imp .prail .ko,
+:root[data-theme='dark'] .rec-imp .prail .na {
+  color: #0b0f1a;
+}
+
+/* Step cards. */
+.rec-imp .pc {
+  margin: 14px 0;
+  border: 1px solid var(--sy-line);
+  border-radius: 12px;
+  overflow: hidden;
+  container-type: inline-size;
+  scroll-margin-top: 210px;
+}
+.rec-imp .pc.ok {
+  border-color: color-mix(in oklab, var(--sy-ok) 45%, transparent);
+}
+.rec-imp .pc.ko {
+  border-color: color-mix(in oklab, var(--sy-danger) 50%, transparent);
+}
+.rec-imp .pc.na {
+  border-color: color-mix(in oklab, var(--sy-warn) 50%, transparent);
+}
+.rec-imp .pc-h {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0 !important;
+  padding: 12px 16px;
+  border: 0;
+  background: var(--sy-bg2);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+.rec-imp.pexec .pc-h {
+  cursor: pointer;
+}
+.rec-imp .pc-h > * {
+  margin: 0 !important;
+}
+.rec-imp .pc-n {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 50%;
+  background: var(--sy-bg);
+  color: var(--sy-ink2);
+  font: 600 12.5px var(--sy-font-mono);
+}
+.rec-imp .pc.part .pc-n {
+  border-color: transparent;
+  background: var(--sy-accent);
+  color: #fff;
+}
+.rec-imp .pc.ok .pc-n,
+.rec-imp .pc.ko .pc-n,
+.rec-imp .pc.na .pc-n {
+  border-color: transparent;
+  color: #fff;
+}
+.rec-imp .pc.ok .pc-n {
+  background: var(--sy-ok);
+}
+.rec-imp .pc.ko .pc-n {
+  background: var(--sy-danger);
+}
+.rec-imp .pc.na .pc-n {
+  background: var(--sy-warn);
+}
+:root[data-theme='dark'] .rec-imp .pc.ok .pc-n,
+:root[data-theme='dark'] .rec-imp .pc.ko .pc-n,
+:root[data-theme='dark'] .rec-imp .pc.na .pc-n {
+  color: #0b0f1a;
+}
+.rec-imp .pc-h b {
+  flex: 1;
+  color: var(--sy-ink);
+  font-size: 16px;
+}
+.rec-imp .pc-p {
+  color: var(--sy-ink3);
+  font: 600 12px var(--sy-font-mono);
+}
+.rec-imp .pc-h .chev {
+  flex: none;
+  color: var(--sy-ink3);
+  transition: transform 0.2s;
+}
+.rec-imp .pc.col .pc-h .chev {
+  transform: rotate(-90deg);
+}
+.rec-imp.pread .pc-h .chev {
+  display: none;
+}
+.rec-imp .pc.col .pc-b {
+  display: none;
+}
+.rec-imp .pc-b {
+  padding: 6px 16px 16px;
+  border-top: 1px solid var(--sy-line);
+}
+.rec-imp .pc-b p.where {
+  margin: 8px 0;
+  color: var(--sy-ink2);
+  font-size: 14.5px;
+}
+.rec-imp .pc-g {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: 18px;
+  align-items: start;
+}
+.rec-imp .pc-g.noside {
+  grid-template-columns: 1fr;
+}
+.rec-imp .pc-g table {
+  margin: 8px 0;
+}
+.rec-imp .pc-side {
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+}
+.rec-imp .pc-side .shot {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.rec-imp .pc-side figcaption {
+  margin: 0;
+  color: var(--sy-ink3);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.rec-imp .shot-b {
+  position: relative;
+}
+.rec-imp .shot-b img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  border-radius: 8px;
+}
+.rec-imp .shot-v {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--sy-warn-soft);
+  color: var(--sy-warn);
+  font-size: 9.5px;
+  font-weight: 700;
+}
+@container (max-width: 520px) {
+  .rec-imp .pc-g {
+    grid-template-columns: 1fr;
+  }
+  .rec-imp .pc-side {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+.rec-imp .opt {
+  display: block;
+  color: var(--sy-ink3);
+  font-size: 12px;
+  font-weight: 400;
+}
+.rec-imp .pc .val {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--sy-code);
+  font: 12.5px var(--sy-font-mono);
+  cursor: copy;
+  transition: box-shadow 0.15s;
+}
+.rec-imp .pc .val:hover {
+  box-shadow: 0 0 0 1.5px var(--sy-accent);
+}
+.rec-imp .pc .val:active {
+  background: var(--sy-accent);
+  color: #fff;
+}
+.rec-imp .pknown {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px dashed color-mix(in oklab, var(--sy-warn) 50%, transparent);
+  border-radius: 10px;
+  color: var(--sy-ink2);
+  font-size: 13.5px;
+}
+.rec-imp .pknown-h {
+  color: var(--sy-warn);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.rec-imp .pknown code {
+  margin-right: 6px;
+  color: var(--sy-warn);
+  font-weight: 700;
+}
+
+/* Checks. */
+.rec-imp .pchks {
+  display: grid;
+  margin-top: 12px;
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.rec-imp .pchks-h {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--sy-line);
+  background: var(--sy-bg2);
+  color: var(--sy-ink3);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.rec-imp .pchk {
+  padding: 8px 12px;
+  border-top: 1px solid var(--sy-line);
+}
+.rec-imp .pchks-h + .pchk {
+  border-top: 0;
+}
+.rec-imp .pchk-r {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rec-imp .pchk-t {
+  flex: 1;
+  color: var(--sy-ink);
+  font-size: 14.5px;
+}
+.rec-imp.pread .pchk-t {
+  position: relative;
+  padding-left: 22px;
+}
+.rec-imp.pread .pchk-t::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 2px;
+  width: 11px;
+  height: 6px;
+  border-bottom: 2px solid var(--sy-ok);
+  border-left: 2px solid var(--sy-ok);
+  transform: rotate(-45deg);
+}
+.rec-imp .pseg {
+  display: flex;
+  flex: none;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.rec-imp .pseg button {
+  margin: 0 !important;
+  padding: 5px 10px;
+  border: 0;
+  border-left: 1px solid var(--sy-line2);
+  background: none;
+  color: var(--sy-ink3);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rec-imp .pseg button:first-child {
+  border-left: 0;
+}
+.rec-imp .pseg button:hover {
+  background: var(--sy-bg3);
+  color: var(--sy-ink);
+}
+.rec-imp .pchk.s-ok .pseg [data-s='ok'],
+.rec-imp .pchk.s-ko .pseg [data-s='ko'],
+.rec-imp .pchk.s-na .pseg [data-s='na'] {
+  color: #fff;
+}
+:root[data-theme='dark'] .rec-imp .pchk.s-ok .pseg [data-s='ok'],
+:root[data-theme='dark'] .rec-imp .pchk.s-ko .pseg [data-s='ko'],
+:root[data-theme='dark'] .rec-imp .pchk.s-na .pseg [data-s='na'] {
+  color: #0b0f1a;
+}
+.rec-imp .pchk.s-ok .pseg [data-s='ok'] {
+  background: var(--sy-ok);
+}
+.rec-imp .pchk.s-ko .pseg [data-s='ko'] {
+  background: var(--sy-danger);
+}
+.rec-imp .pchk.s-na .pseg [data-s='na'] {
+  background: var(--sy-warn);
+}
+.rec-imp .pchk.s-ok .pchk-t {
+  color: var(--sy-ink3);
+}
+.rec-imp .pchk.s-ko {
+  background: var(--sy-danger-soft);
+}
+.rec-imp .pchk.s-na {
+  background: var(--sy-warn-soft);
+}
+.rec-imp .pnote {
+  display: none;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: 13px/1.5 var(--sy-font-mono);
+  resize: vertical;
+}
+.rec-imp .pchk.s-ko .pnote,
+.rec-imp .pchk.s-na .pnote {
+  display: block;
+}
+@media (max-width: 640px) {
+  .rec-imp .pchk-r {
+    flex-wrap: wrap;
+  }
+  .rec-imp .prail {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+/* Test file. */
+.rec-imp .tdata-w {
+  margin: 12px 0;
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+.rec-imp .tdata {
+  margin: 0;
+  border-collapse: collapse;
+  font: 500 12px var(--sy-font-mono);
+  white-space: nowrap;
+}
+.rec-imp .tdata th,
+.rec-imp .tdata td {
+  padding: 6px 9px;
+  border: 0;
+  border-bottom: 1px solid var(--sy-line);
+  text-align: left;
+}
+.rec-imp .tdata th {
+  background: none;
+  color: var(--sy-ink);
+  font-weight: 600;
+}
+.rec-imp .tdata td {
+  color: var(--sy-ink2);
+}
+.rec-imp .tdata .g1,
+.rec-imp .gkey .g1 {
+  background: color-mix(in oklab, #3b82f6 18%, var(--sy-bg)) !important;
+}
+.rec-imp .tdata .g2,
+.rec-imp .gkey .g2 {
+  background: color-mix(in oklab, #22c55e 18%, var(--sy-bg)) !important;
+}
+.rec-imp .tdata .g3,
+.rec-imp .gkey .g3 {
+  background: color-mix(in oklab, #f59e0b 22%, var(--sy-bg)) !important;
+}
+.rec-imp .tdata tr.leg td {
+  min-width: 90px;
+  color: var(--sy-ink3);
+  font-family: inherit;
+  font-style: italic;
+  white-space: normal;
+}
+.rec-imp .tdata td.flag {
+  color: var(--sy-danger);
+  font-weight: 700;
+}
+.rec-imp .gkey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  color: var(--sy-ink3);
+  font-size: 13px;
+}
+.rec-imp .gkey i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+.rec-imp .pfile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.rec-imp .pfile > * {
+  margin: 0 !important;
+}
+.rec-imp .kpis + .aside {
+  margin-top: 0;
+}
+
+/* Tables of the steps: same look as the steps of the other test books. */
+.rec-imp .ftbl {
+  display: table;
+  width: 100%;
+  font-size: 14px;
+}
+.rec-imp .ftbl th {
+  padding: 9px 14px 9px 0;
+  border: 0;
+  border-bottom: 1px solid var(--sy-line);
+  background: none;
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+}
+.rec-imp .ftbl td {
+  padding: 10px 14px 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--sy-line);
+  color: var(--sy-ink2);
+  line-height: 1.6;
+  vertical-align: top;
+}
+.rec-imp .ftbl tr:last-child td {
+  border-bottom: 0;
+}
+.rec-imp .pknown > * {
+  margin: 0 !important;
+}
+
+/* Report template. */
+.rec-imp pre {
+  max-width: 100%;
+  margin: 12px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  background: var(--sy-code);
+  overflow-x: auto;
+}
+.rec-imp pre code {
+  background: none;
+  font: 13px/1.75 var(--sy-font-mono);
+  white-space: pre;
+}
+
+.rec-imp .pchk,
+.rec-imp .pchks > *,
+.rec-imp .pchk-r > * {
+  margin-block: 0 !important;
+}
+.rec-imp .pchk .pnote {
+  margin-top: 8px !important;
+}
+.rec-imp .pc-b > .pchks {
+  margin-top: 12px !important;
+}
+
+.rec-imp .rec-meta code {
+  background: var(--sy-bg3);
+  color: var(--sy-ink2);
+}

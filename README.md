@@ -23,6 +23,8 @@ See [Branches & releases](#branches--releases).
 
 The application's pages get the design of the mockup without any change to their Markdown: `integrations/markdown-mockup.mjs` turns the quotes into asides and the prerequisites table into cards, and the code blocks, lists and tables are styled in `src/styles/page.css`.
 
+The REC-01b test book (`src/pages/recette/prospective-import.astro` and its `en/` counterpart) is built from `src/components/recette-import/data.ts` (French and English content), `public/recette-import.js` (read / run modes, report, printable report, test file as a real `.xlsx`) and `src/styles/recette-import.css`. Its screenshots are in `public/recette-shots/`; a step whose screenshot is missing from that folder is rendered without it.
+
 The home pages (`src/pages/index.astro`, `src/components/home/`) and the
 changelog timeline (`src/components/changelog/`, built from
 `src/data/CHANGELOG.md`) are part of the site itself and live here.
