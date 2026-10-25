@@ -126,7 +126,7 @@ $DC up -d database
 # 3. Créer le rôle (idempotent : peut être relancé, met aussi à jour le mot de passe)
 $DC exec -T database sh /docker-entrypoint-initdb.d/10-create-app-role.sh
 
-# 4. Reconstruire et démarrer : la migration Version20261022100000 donne les droits DML au rôle
+# 4. Reconstruire et démarrer (APP_VERSION exporté comme en § 2) : la migration Version20261022100000 donne les droits DML au rôle
 $DC build --pull --no-cache
 $DC up -d
 
@@ -143,6 +143,10 @@ dans `compose.prod.yaml`, relancer `up -d` ; le rôle peut rester.
 ## 2. Build & démarrage
 
 ```bash
+# Version issue du tag git (bin/app-version), figée dans l'image : à exporter avant chaque build
+# (ne pas la définir dans .env.local)
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
+
 # Construire l'image de production (sans cache pour éviter les couches périmées)
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 
@@ -242,7 +246,8 @@ jour (pull, rebuild, migration, smoke-test) et la stratégie de rollback. En
 résumé :
 
 ```bash
-git pull
+git pull --tags
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 docker compose -f compose.yaml -f compose.prod.yaml up -d   # migrations au boot, worker recréé
 ```

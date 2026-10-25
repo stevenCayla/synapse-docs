@@ -125,7 +125,7 @@ $DC up -d database
 # 3. Create the role (idempotent: can be run again, it also updates the password)
 $DC exec -T database sh /docker-entrypoint-initdb.d/10-create-app-role.sh
 
-# 4. Rebuild and start: migration Version20261022100000 grants the DML rights to the role
+# 4. Rebuild and start (APP_VERSION exported as in § 2): migration Version20261022100000 grants the DML rights to the role
 $DC build --pull --no-cache
 $DC up -d
 
@@ -142,6 +142,10 @@ does not exist when the migration runs, it grants nothing and prints a warning: 
 ## 2. Build & start
 
 ```bash
+# Version derived from the git tag (bin/app-version), baked into the image: export it before every build
+# (do not define it in .env.local)
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
+
 # Build the production image (no cache to avoid stale layers)
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 
@@ -237,7 +241,8 @@ Follow the **[Release process](/deployment/release-process/)** (French) for the 
 flow (pull, rebuild, migrate, smoke-test) and rollback strategy. In short:
 
 ```bash
-git pull
+git pull --tags
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 docker compose -f compose.yaml -f compose.prod.yaml up -d   # migrations run on boot, worker recreated
 ```

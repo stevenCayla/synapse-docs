@@ -228,7 +228,7 @@ la [checklist de recette Security](/qa/security-checklist/).
 
 ### Après déploiement
 
-- [ ] La version affichée (page de connexion, pied de page) correspond à `APP_VERSION`.
+- [ ] La version affichée (page de connexion, pied de page) correspond au tag git du build (`vX.Y.Z`, ou `vX.Y.Z-N-gsha` entre deux tags).
 - [ ] Smoke-test de production décrit dans le [Processus de release](/deployment/release-process/#7-déployer-sur-le-serveur).
 
 ## Voir aussi

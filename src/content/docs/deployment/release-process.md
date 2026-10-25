@@ -1,6 +1,6 @@
 ---
 title: "Release process"
-description: "Préparer, valider, taguer et déployer une nouvelle version de Synapse Medical — branches, changelog, APP_VERSION, CI, build de production et rollback."
+description: "Préparer, valider, taguer et déployer une nouvelle version de Synapse Medical — branches, changelog, version, CI, build de production et rollback."
 sidebar:
   label: "Processus de release"
   order: 2
@@ -35,8 +35,8 @@ flowchart LR
 | Élément | Emplacement | Rôle |
 |---------|-------------|------|
 | Journal des modifications | `CHANGELOG.md` (racine) | Format [Keep a Changelog 1.1.0](https://keepachangelog.com/fr/1.1.0/), section `[Unreleased]` |
-| Version applicative | `APP_VERSION` dans `.env` (actuellement `3.2.0`) | Exposée à Twig (`app_version`) et au site de documentation |
-| Version de la doc | Dépôt `synapse-docs` : `astro.config.mjs` → `src/version.ts` | Dérivée de `APP_VERSION` au build |
+| Version applicative | Le tag git `vX.Y.Z` (aucun fichier ne la copie) ; `bin/app-version` la calcule au build | Passée en `APP_VERSION` à l'image (`Dockerfile`, `compose.prod.yaml`), affichée par `app_version` (pied de page, page de connexion) |
+| Version de la doc | Dépôt `synapse-docs` : `astro.config.mjs` → `src/version.ts` | Dérivée du dernier tag `v*` (voir le dépôt `synapse-docs`) |
 | CI | `.github/workflows/ci.yaml` | Build Docker, smoke-tests HTTP/Mercure, migrations + PHPUnit, `composer audit`, lint |
 | Image de production | `Dockerfile`, cible `frankenphp_prod` + `compose.prod.yaml` | Image slim `debian:13.7-slim`, utilisateur `www-data` |
 | Migrations | `frankenphp/docker-entrypoint.sh` | `doctrine:migrations:migrate --all-or-nothing` au démarrage du conteneur |
@@ -118,7 +118,7 @@ exécutée par le job **Tests**.
       (voir [§ 6](#6-build-de-production)).
 - [ ] **Changelog** : section `[Unreleased]` renommée en `[X.Y.Z] - AAAA-MM-JJ`,
       nouvelle section `[Unreleased]` vide ajoutée, liens de comparaison en bas de fichier mis à jour.
-- [ ] **Version** : `APP_VERSION=X.Y.Z` dans `.env` (et `.env.local.example`).
+- [ ] **Version** : rien à modifier (ni `.env`, ni `.env.local.example`) : elle vient du tag posé à l'étape 3.
 - [ ] **Changements incompatibles** documentés si la version est MAJOR.
 
 ### Vérifier les migrations sur une base vierge
@@ -152,7 +152,7 @@ pour les commandes de backfill associées.
    make archive VERSION=2.0   # garde la doc 2.0 en ligne sous /2.0/
    ```
    Commiter le résultat sur `develop` (voir le README de `synapse-docs`).
-1. **Commit de release** sur `develop` : changelog daté + `APP_VERSION` mis à jour, par exemple
+1. **Commit de release** sur `develop` : changelog daté (aucune version à modifier dans le dépôt), par exemple
    `chore(release): 2.1.0`.
 2. **Branche et PR de release**, uniquement sur demande explicite : créer
    `release/AAAA-MM-JJ` depuis `origin/develop`, la pousser, puis ouvrir la PR
@@ -175,15 +175,19 @@ pour les commandes de backfill associées.
    production (docs.synapse-medical.fr) n'est déployée **qu'à la main** (lancement du
    workflow sur `main` dans `synapse-docs`).
 
-:::tip[Mettre à jour APP_VERSION avant le build]
-`APP_VERSION` est lue dans `.env` et **figée dans l'image** au build
-(`composer dump-env prod` dans la cible `frankenphp_prod_builder`). Le site de
-documentation la reçoit par la synchronisation du contenu (fichier `APP_VERSION` du dépôt
-`synapse-docs`, lu au build par `astro.config.mjs` et injecté via `vite.define` en
-`__DOCS_VERSION__`).
-Elle doit donc être modifiée **dans le commit de release**, avant de taguer et de
-construire, sans quoi l'application et le sélecteur de version de la doc
-afficheront l'ancienne version.
+:::tip[La version vient du tag, au build]
+Le tag `vX.Y.Z` est la **seule source** de la version. `bin/app-version` la calcule au build
+(`3.2.0` sur le tag, `3.2.0-3-gdd49366` trois commits plus loin) ; elle est passée en argument de build
+(`APP_VERSION`, `APP_REVISION`), figée dans l'image (`ENV APP_VERSION` et labels OCI
+`org.opencontainers.image.version` / `revision`) et l'emporte sur la valeur `dev` compilée dans
+`.env.local.php`. Il faut donc **exporter `APP_VERSION` avant chaque `build`** (`make build` le fait ;
+voir [§ 6](#6-build-de-production)), et ne pas la définir dans `.env.local`. L'application ne lit jamais git à l'exécution.
+
+Les tags sont posés sur le commit de merge de `main`, que `develop` ne contient pas tant que `main` n'y est
+pas refusionnée après le tag : cette fusion de `main` dans `develop` (#251) est nécessaire pour que
+`git describe` fonctionne sur `develop` et que celle-ci affiche `vX.Y.Z-N-gsha`. En attendant, `bin/app-version`
+retombe sur le dernier tag et le point commun avec `HEAD`, et, sans aucun tag (clone sans tags), sur le SHA court
+(affiché `dev-<sha>`). Le site de documentation lit le dernier tag `v*` (PR séparée dans `synapse-docs`).
 :::
 
 ## 6. Build de production
@@ -196,7 +200,8 @@ L'image de production est construite depuis la cible `frankenphp_prod` du
 | `frankenphp_prod_builder` | `APP_ENV=prod`, `APP_DEBUG=0`, `DATABASE_URL` factice pour le warmup |
 | `composer install --no-dev` | Dépendances de production uniquement |
 | `composer dump-autoload --classmap-authoritative` | Autoloader optimisé |
-| `composer dump-env prod` | Compile `.env` en `.env.local.php` (dont `APP_VERSION`) |
+| `composer dump-env prod` | Compile `.env` en `.env.local.php` (`APP_VERSION=dev` y est écrasé par la variable d'environnement de l'image) |
+| `frankenphp_prod` (`ARG APP_VERSION`, `APP_REVISION`) | `ENV APP_VERSION` et labels OCI de version et de révision |
 | `asset-map:compile` | Compilation des assets AssetMapper |
 | `frankenphp_prod` | Image finale `debian:13.7-slim`, bits setuid retirés, exécution en `www-data` |
 
@@ -242,7 +247,7 @@ Enchaîner ensuite les [étapes post-déploiement](/deployment/production/#3-ét
 propres à la version et un smoke-test :
 
 - [ ] `curl -I https://<domaine>` → `200`.
-- [ ] Connexion avec 2FA, ouverture d'une étude ; la nouvelle version s'affiche sur la page de connexion et dans le pied de page (`v{{ app_version }}`).
+- [ ] Connexion avec 2FA, ouverture d'une étude ; la nouvelle version (`vX.Y.Z`) s'affiche sur la page de connexion et dans le pied de page.
 - [ ] Hub Mercure joignable (`/.well-known/mercure`).
 - [ ] Tous les conteneurs `healthy` / `running`.
 - [ ] Le service `worker` a été recréé avec la nouvelle image (`ps` : `healthy`) ; `logs worker` sans erreur répétée. Les messages en échec se consultent avec `messenger:failed:show` (voir [Worker Messenger](/deployment/production/#worker-messenger-imports-en-arrière-plan)).
