@@ -1,13 +1,19 @@
 #!/usr/bin/env sh
 # Copies the docs/ folder of the application repository into src/content/docs/
-# and its APP_VERSION into the APP_VERSION file, so this repository builds on
-# its own. Run it to refresh the snapshot; the CI runs it automatically when
+# and its version (latest release tag vX.Y.Z reachable from the synced commit,
+# without the v; -rc tags ignored) into the APP_VERSION file, so this
+# repository builds on its own. Run it to refresh the snapshot; the CI runs it automatically when
 # docs/ changes on develop or main in SYNAPSE-MEDICAL.
 #
 # Source, by priority:
 #   1. SYNAPSE_DIR: path of an existing checkout of the application,
 #      e.g. SYNAPSE_DIR=../symfony-docker make sync
-#   2. otherwise, partial clone (docs/ + root files) of SYNAPSE_REF into .synapse/
+#   2. otherwise, partial clone (docs/ + root files, full history without blobs
+#      so that the tags are available) of SYNAPSE_REF into .synapse/
+#
+# Version, by priority: latest release tag; else APP_VERSION of the .env of the
+# application, unless it is "dev"; else the current APP_VERSION file is kept.
+# A checkout used as SYNAPSE_DIR needs its tags (git fetch --tags).
 #
 # src/content/docs/audit/, guides/, resources/ and recette/ and their en/ counterparts (guides, glossary, compliance
 # FAQ) and the home pages (src/pages/index.astro, built from
@@ -27,7 +33,7 @@ if [ -n "${SYNAPSE_DIR:-}" ]; then
 else
   echo "Cloning docs/ from $SYNAPSE_REPO ($SYNAPSE_REF)…"
   rm -rf .synapse
-  git clone --quiet --depth 1 --filter=blob:none --sparse --branch "$SYNAPSE_REF" "$SYNAPSE_REPO" .synapse
+  git clone --quiet --filter=blob:none --sparse --branch "$SYNAPSE_REF" "$SYNAPSE_REPO" .synapse
   git -C .synapse sparse-checkout set docs
   dir=.synapse
 fi
@@ -48,9 +54,15 @@ if [ -f "$dir/CHANGELOG.md" ]; then
   cp "$dir/CHANGELOG.md" src/data/CHANGELOG.md
 fi
 
-version="$(sed -n 's/^[[:space:]]*APP_VERSION[[:space:]]*=[[:space:]]*//p' "$dir/.env" 2>/dev/null | tail -1 | tr -d "\"'")"
+version="$(git -C "$dir" describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' HEAD 2>/dev/null | sed 's/^v//' || true)"
+if [ -z "$version" ]; then
+  version="$(sed -n 's/^[[:space:]]*APP_VERSION[[:space:]]*=[[:space:]]*//p' "$dir/.env" 2>/dev/null | tail -1 | tr -d "\"'")"
+  [ "$version" = dev ] && version=""
+fi
 if [ -n "$version" ]; then
   echo "$version" > APP_VERSION
+else
+  echo "No release tag nor usable APP_VERSION in $dir: APP_VERSION file unchanged." >&2
 fi
 
 echo "src/content/docs and src/data/CHANGELOG.md synced from $dir (APP_VERSION $(cat APP_VERSION 2>/dev/null || echo unknown))"
