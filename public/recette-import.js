@@ -334,6 +334,24 @@
     var mb = t.closest('.pmode button');
     if (mb) return setMode(mb.dataset.m);
 
+    var tb = t.closest('.ptabs button');
+    if (tb) {
+      var box = tb.closest('.pc-b');
+      $$('.ptabs button', box).forEach(function (y) {
+        y.classList.toggle('on', y === tb);
+        y.setAttribute('aria-selected', String(y === tb));
+      });
+      $$(':scope > .ppane', box).forEach(function (pane) { pane.classList.toggle('on', pane.dataset.p === tb.dataset.t); });
+      return;
+    }
+    var pl = t.closest('.ppills button');
+    if (pl) {
+      var pn = pl.closest('.ppane');
+      $$('.ppills button', pn).forEach(function (y) { y.classList.toggle('on', y === pl); });
+      $$('.pfig', pn).forEach(function (f) { f.classList.toggle('on', f.dataset.f === pl.dataset.sh); });
+      return;
+    }
+
     var sb = t.closest('.pseg button');
     if (sb) {
       var x = sb.closest('.pchk'), key = x.dataset.k, cur = ST.c[key] || {}, s = sb.dataset.s;

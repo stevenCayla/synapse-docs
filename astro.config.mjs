@@ -260,6 +260,7 @@ export default defineConfig({
                   label: 'REC-01b · Étude prospective avec import',
                   translations: { en: 'REC-01b · Prospective study with import' },
                   link: '/recette/prospective-import/',
+                  badge: { text: { fr: 'Nouveau', en: 'New' }, variant: 'tip' },
                 },
                 'recette/saisie-ecrf',
                 'recette/import-donnees',

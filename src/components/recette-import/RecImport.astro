@@ -36,11 +36,17 @@ const checkHtml = (text: string, si: number) => {
 
 const stepHtml = steps.map((s, i) => {
   const shots = (s.shots ?? []).filter((x) => has(x.file));
-  const side = shots.length
-    ? `<div class="pc-side">${shots
+  const n = shots.length;
+  const eye = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+  const doc = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7l-4-4z"></path><path d="M14 3v4h4M9 13h6M9 17h6"></path></svg>';
+  const tabs = n
+    ? `<div class="ptabs" role="tablist"><button type="button" class="on" role="tab" data-t="i" aria-selected="true">${doc}${ui.tabInstr}</button><button type="button" role="tab" data-t="s" aria-selected="false">${eye}${ui.tabScreen}${n > 1 ? `<span>${n}</span>` : ''}</button></div>`
+    : '';
+  const screens = n
+    ? `<div class="ppane" data-p="s" role="tabpanel">${n > 1 ? `<div class="ppills">${shots.map((x, j) => `<button type="button" class="${j ? '' : 'on'}" data-sh="${j}">${esc(x.alt)}</button>`).join('')}</div>` : ''}${shots
         .map(
-          (x) =>
-            `<figure class="shot"><div class="shot-b"><img src="${SHOTS_DIR}${x.file}" alt="${esc(x.alt)}" loading="lazy" width="1200" height="793">${x.old ? `<span class="shot-v">${ui.old}</span>` : ''}</div><figcaption>${x.caption}</figcaption></figure>`,
+          (x, j) =>
+            `<div class="pfig${j ? '' : ' on'}" data-f="${j}"><figure class="shot"><div class="shot-b"><img src="${SHOTS_DIR}${x.file}" alt="${esc(x.alt)}" loading="lazy" width="1200" height="793">${x.old ? `<span class="shot-v">${ui.old}</span>` : ''}</div><figcaption>${x.caption}</figcaption></figure></div>`,
         )
         .join('')}</div>`
     : '';
@@ -50,7 +56,7 @@ const stepHtml = steps.map((s, i) => {
   const kn = s.known ? `<div class="pknown"><div class="pknown-h">${ui.knownStep}</div>${s.known.map((q) => `<div><code>${q[0]}</code>${q[1]}</div>`).join('')}</div>` : '';
   const fixed = s.fixed ? aside('fixed', s.fixed[0], s.fixed[1]) : '';
   const checks = s.checks.length ? `<div class="pchks"><div class="pchks-h">${ui.checksTitle}</div>${s.checks.map((c) => checkHtml(c, i)).join('')}</div>` : '';
-  return `<section class="pc" id="pc-${i + 1}" data-i="${i}"><button class="pc-h" type="button" aria-expanded="true"><span class="pc-n">${i + 1}</span><b>${s.title}</b><span class="pc-p x-only"></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button><div class="pc-b"><div class="pc-g${side ? '' : ' noside'}"><div><p class="where">${s.where}</p>${table}${kn}${fixed}</div>${side}</div>${checks}</div></section>`;
+  return `<section class="pc" id="pc-${i + 1}" data-i="${i}"><button class="pc-h" type="button" aria-expanded="true"><span class="pc-n">${i + 1}</span><b>${s.title}</b><span class="pc-p x-only"></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button><div class="pc-b">${tabs}<div class="ppane on" data-p="i" role="tabpanel"><p class="where">${s.where}</p>${table}${kn}${fixed}</div>${screens}${checks}</div></section>`;
 });
 const totalChecks = k;
 

@@ -377,6 +377,8 @@ export function content(lang: Lang) {
       'Taken on 23/10/2026, before the fixes #175, #176 and #177: the current screen may differ slightly.',
     ),
     old: t('avant correctif', 'before fix'),
+    tabInstr: t('Instructions', 'Instructions'),
+    tabScreen: t('Écran attendu', 'Expected screen'),
     headings: [
       ['pi-avant', t('Avant de commencer', 'Before you start')],
       ['pi-fichier', t('Fichier de test', 'Test file')],

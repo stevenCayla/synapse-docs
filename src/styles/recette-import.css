@@ -255,33 +255,95 @@
   color: var(--sy-ink2);
   font-size: 14.5px;
 }
-.rec-imp .pc-g {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 210px;
-  gap: 18px;
-  align-items: start;
-}
-.rec-imp .pc-g.noside {
-  grid-template-columns: 1fr;
-}
-.rec-imp .pc-g table {
+.rec-imp .pc-b table {
   margin: 8px 0;
 }
-.rec-imp .pc-side {
-  display: grid;
-  gap: 10px;
-  padding-top: 8px;
-}
-.rec-imp .pc-side .shot {
-  display: grid;
+.rec-imp .ptabs {
+  display: flex;
   gap: 4px;
-  margin: 0;
+  margin: 4px 0 10px;
+  border-bottom: 1px solid var(--sy-line);
 }
-.rec-imp .pc-side figcaption {
+.rec-imp .ptabs button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 -1px !important;
+  padding: 9px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--sy-ink3);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rec-imp .ptabs button:hover {
+  color: var(--sy-ink);
+}
+.rec-imp .ptabs button.on {
+  border-bottom-color: var(--sy-accent);
+  color: var(--sy-accent-ink);
+}
+.rec-imp .ptabs button span {
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: var(--sy-bg3);
+  color: var(--sy-ink2);
+  font: 600 11px var(--sy-font-mono);
+}
+.rec-imp .ppane {
+  display: none;
+}
+.rec-imp .ppane.on {
+  display: block;
+}
+.rec-imp .pfig {
+  display: none;
+}
+.rec-imp .pfig.on {
+  display: block;
+}
+.rec-imp .ppills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0 10px;
+}
+.rec-imp .ppills button {
+  margin: 0 !important;
+  padding: 5px 11px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 99px;
+  background: none;
+  color: var(--sy-ink2);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rec-imp .ppills button:hover {
+  border-color: var(--sy-ink3);
+  color: var(--sy-ink);
+}
+.rec-imp .ppills button.on {
+  border-color: transparent;
+  background: var(--sy-accent);
+  color: #fff;
+}
+:root[data-theme='dark'] .rec-imp .ppills button.on {
+  color: #0b0f1a;
+}
+.rec-imp .ppane .shot {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 0;
+}
+.rec-imp .ppane figcaption {
   margin: 0;
   color: var(--sy-ink3);
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 13px;
 }
 .rec-imp .shot-b {
   position: relative;
@@ -291,26 +353,18 @@
   width: 100%;
   height: auto;
   margin: 0;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 .rec-imp .shot-v {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  padding: 1px 5px;
+  top: 8px;
+  right: 8px;
+  padding: 2px 7px;
   border-radius: 4px;
   background: var(--sy-warn-soft);
   color: var(--sy-warn);
-  font-size: 9.5px;
+  font-size: 11px;
   font-weight: 700;
-}
-@container (max-width: 520px) {
-  .rec-imp .pc-g {
-    grid-template-columns: 1fr;
-  }
-  .rec-imp .pc-side {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  }
 }
 .rec-imp .opt {
   display: block;
