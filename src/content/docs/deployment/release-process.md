@@ -23,11 +23,13 @@ release et le déploiement sont réalisés à la main en suivant cette page.
 
 ## Vue d'ensemble
 
-```
-feature/*  ──PR──▶  develop  ──▶  release/AAAA-MM-JJ  ──PR──▶  main  ──tag vX.Y.Z──▶  GitHub Release
-                                                                  │
-                                                                  └──▶ serveur : git pull + build frankenphp_prod + up -d
-                                                                                 (migrations appliquées au démarrage)
+```mermaid
+flowchart LR
+    feat["feature/*"] -->|PR| dev[develop]
+    dev --> rel["release/AAAA-MM-JJ"]
+    rel -->|PR| main[main]
+    main -->|"tag vX.Y.Z"| gh[GitHub Release]
+    main --> srv["Serveur : git pull + build frankenphp_prod + up -d<br/>(migrations appliquées au démarrage)"]
 ```
 
 | Élément | Emplacement | Rôle |

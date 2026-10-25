@@ -22,15 +22,14 @@ terminates TLS** and reverse-proxies to FrankenPHP/Caddy bound to
 
 ## Target architecture
 
-```
-Internet ──HTTPS──▶ Apache2 (Debian host, :443, TLS via Let's Encrypt)
-                        │ ProxyPass (HTTP) + WebSocket (Mercure)
-                        ▼
-                 FrankenPHP/Caddy (container, 127.0.0.1:8080 → :80, auto_https off)
-                        │
-                 PHP 8.5 worker (Symfony 8)         Messenger worker (`worker` container)
-                        │
-                 PostgreSQL 18 (container, internal network only)
+```mermaid
+flowchart TB
+    net([Internet]) -->|HTTPS| apache["Apache2<br/>Debian host, :443, TLS via Let's Encrypt"]
+    apache -->|"ProxyPass (HTTP) + WebSocket (Mercure)"| caddy["FrankenPHP / Caddy<br/>container, 127.0.0.1:8080 → :80, auto_https off"]
+    caddy --> php["PHP 8.5 worker<br/>Symfony 8"]
+    caddy --> msg["Messenger worker<br/>worker container"]
+    php --> pg[("PostgreSQL 18<br/>container, internal network only")]
+    msg --> pg
 ```
 
 - **TLS** is handled by Apache on the host, not inside the container.

@@ -22,15 +22,14 @@ l'hôte) termine le TLS** et fait office de reverse proxy vers FrankenPHP/Caddy
 
 ## Architecture cible
 
-```
-Internet ──HTTPS──▶ Apache2 (hôte Debian, :443, TLS via Let's Encrypt)
-                        │ ProxyPass (HTTP) + WebSocket (Mercure)
-                        ▼
-                 FrankenPHP/Caddy (conteneur, 127.0.0.1:8080 → :80, auto_https off)
-                        │
-                 Worker PHP 8.5 (Symfony 8)         Worker Messenger (conteneur `worker`)
-                        │
-                 PostgreSQL 18 (conteneur, réseau interne uniquement)
+```mermaid
+flowchart TB
+    net([Internet]) -->|HTTPS| apache["Apache2<br/>hôte Debian, :443, TLS via Let's Encrypt"]
+    apache -->|"ProxyPass (HTTP) + WebSocket (Mercure)"| caddy["FrankenPHP / Caddy<br/>conteneur, 127.0.0.1:8080 → :80, auto_https off"]
+    caddy --> php["Worker PHP 8.5<br/>Symfony 8"]
+    caddy --> msg["Worker Messenger<br/>conteneur worker"]
+    php --> pg[("PostgreSQL 18<br/>conteneur, réseau interne uniquement")]
+    msg --> pg
 ```
 
 - Le **TLS** est géré par Apache sur l'hôte, pas dans le conteneur.

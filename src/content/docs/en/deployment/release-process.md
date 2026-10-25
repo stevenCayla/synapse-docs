@@ -22,11 +22,13 @@ releasing and deploying are done by hand following this page.
 
 ## Overview
 
-```
-feature/*  ──PR──▶  develop  ──▶  release/YYYY-MM-DD  ──PR──▶  main  ──tag vX.Y.Z──▶  GitHub Release
-                                                                │
-                                                                └──▶ server: git pull + build frankenphp_prod + up -d
-                                                                             (migrations applied at startup)
+```mermaid
+flowchart LR
+    feat["feature/*"] -->|PR| dev[develop]
+    dev --> rel["release/YYYY-MM-DD"]
+    rel -->|PR| main[main]
+    main -->|"tag vX.Y.Z"| gh[GitHub Release]
+    main --> srv["Server: git pull + build frankenphp_prod + up -d<br/>(migrations applied at startup)"]
 ```
 
 | Item | Location | Role |
