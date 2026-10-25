@@ -568,9 +568,8 @@ footer.sl-flex > .meta {
   color: var(--sy-ink2);
   font-size: 13.5px;
 }
-.sy-own + .sy-fb,
-.sy-own ~ .sy-fb {
-  margin-top: 16px;
+.sy-fb + .sy-own {
+  margin-top: 28px;
 }
 .sy-own-row {
   display: flex;

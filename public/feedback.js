@@ -130,7 +130,7 @@
   });
 
   box.append(row, form);
+  content.appendChild(box);
   var own = document.querySelector('.sy-own');
   if (own) content.appendChild(own);
-  content.appendChild(box);
 })();

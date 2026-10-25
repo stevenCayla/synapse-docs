@@ -168,11 +168,13 @@ abbr.gl {
 /* "Was this page helpful?" widget. */
 .sy-fb {
   margin-top: 48px;
-  padding: 16px 18px;
-  border: 1px solid var(--sy-line);
-  border-radius: 10px;
-  color: var(--sy-ink2);
-  font-size: 14px;
+  padding: 20px 22px;
+  border: 1px solid color-mix(in srgb, var(--sy-accent) 35%, var(--sy-line));
+  border-radius: 12px;
+  background: var(--sy-accent-soft);
+  color: var(--sy-ink);
+  font-size: 15.5px;
+  font-weight: 700;
 }
 .sy-fb-row {
   display: flex;
@@ -198,13 +200,14 @@ abbr.gl {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
-  border: 1px solid var(--sy-line);
-  border-radius: 7px;
-  background: none;
-  color: inherit;
+  padding: 7px 16px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
 }
 .sy-fb button svg {
