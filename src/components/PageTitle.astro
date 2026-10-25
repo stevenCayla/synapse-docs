@@ -102,7 +102,8 @@ const updated = lastUpdated?.toLocaleDateString(t.locale, { day: 'numeric', mont
 
 {
   splash ? (
-    <h1 id="_top">{data.title}</h1>
+    // The splash pages (home, changelog, 404) carry their own h1.
+    <div id="_top"></div>
   ) : (
     <div class="sy-head">
       <nav class="sy-crumbs" aria-label="Breadcrumbs">

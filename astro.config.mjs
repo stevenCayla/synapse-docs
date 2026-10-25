@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sitemap from '@astrojs/sitemap';
 import starlightVersions from 'starlight-versions';
 import { satteri } from '@astrojs/markdown-satteri';
 import mockupPlugin from './integrations/markdown-mockup.mjs';
@@ -61,6 +62,12 @@ export default defineConfig({
     },
   },
   integrations: [
+    // Sitemap: same i18n setup as Starlight's own, minus the pages that must not
+    // be indexed (printable sheets, 404).
+    sitemap({
+      i18n: { defaultLocale: 'root', locales: { root: 'fr', en: 'en' } },
+      filter: (page) => !/\/(fiches|en\/sheets)\/|\/404\/?$/.test(page),
+    }),
     starlight({
       // The 404 page is src/pages/404.astro (design of the mockup).
       disable404Route: true,
@@ -126,6 +133,11 @@ export default defineConfig({
       // ?from=app links opened from the application. lightbox.js: screenshot viewer. feedback.js: "was this page
       // helpful?" widget (opens a pre-filled GitHub issue, sends nothing itself).
       head: [
+        // Preview image of the links shared on social networks and chat tools.
+        { tag: 'meta', attrs: { property: 'og:image', content: 'https://docs.synapse-medical.fr/og-image.png' } },
+        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+        { tag: 'meta', attrs: { name: 'twitter:image', content: 'https://docs.synapse-medical.fr/og-image.png' } },
         { tag: 'script', attrs: { src: '/glossary.js', defer: true } },
         { tag: 'script', attrs: { src: '/recette.js', defer: true } },
         { tag: 'script', attrs: { src: '/recette-import.js', defer: true } },

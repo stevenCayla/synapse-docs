@@ -14,6 +14,7 @@ case "${1:-}" in
   dev)
     # Staging: keep it out of search engines.
     grep -q 'X-Robots-Tag' dist/_headers || printf '\n/*\n  X-Robots-Tag: noindex, nofollow\n' >> dist/_headers
+    printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
     npx wrangler deploy --env dev
     ;;
   prod)
