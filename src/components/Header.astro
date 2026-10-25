@@ -1,0 +1,99 @@
+---
+// Starlight Header override: wordmark, version menu, section tabs, search,
+// social links, theme and language selectors.
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import VersionMenu from './VersionMenu.astro';
+import { activeSectionIndex, firstLink, getSections } from './nav';
+
+const sections = getSections(Astro.locals.starlightRoute.sidebar);
+const active = activeSectionIndex(sections);
+---
+
+<div class="header">
+  <div class="brand sl-flex">
+    <SiteTitle />
+    <VersionMenu />
+  </div>
+  <nav class="tabs" aria-label="Sections">
+    {
+      sections.map((section, i) => (
+        <a
+          href={firstLink(section)}
+          class:list={{ on: i === active }}
+          aria-current={i === active ? 'true' : undefined}
+        >
+          {section.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="grow"></div>
+  <div class="sl-flex print:hidden"><Search /></div>
+  <div class="sl-hidden md:sl-flex print:hidden right-group">
+    <div class="sl-flex social-icons"><SocialIcons /></div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  /* The picker of starlight-versions is replaced by VersionMenu. */
+  :global(starlight-version-select) {
+    display: none;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 100%;
+  }
+  .brand {
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .tabs {
+    display: none;
+    gap: 2px;
+    margin-left: 8px;
+  }
+  .tabs a {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--sy-ink2);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .tabs a:hover {
+    color: var(--sy-ink);
+    background: var(--sy-bg3);
+  }
+  .tabs a.on {
+    color: var(--sy-accent-ink);
+    background: var(--sy-accent-soft);
+  }
+  .grow {
+    flex: 1;
+  }
+  .right-group,
+  .social-icons {
+    gap: 1rem;
+    align-items: center;
+  }
+  .social-icons::after {
+    content: '';
+    height: 2rem;
+    border-inline-end: 1px solid var(--sy-line);
+  }
+  @media (min-width: 64rem) {
+    .tabs {
+      display: flex;
+    }
+  }
+</style>

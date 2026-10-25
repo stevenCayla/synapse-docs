@@ -1,0 +1,10 @@
+---
+// Same as PageTitle.astro, plus the notice of starlight-versions on archived
+// pages. Only used once a version is archived (see astro.config.mjs): the
+// plugin's component needs the plugin to be enabled.
+import VersionNotice from 'starlight-versions/components/VersionNotice.astro';
+import PageTitle from './PageTitle.astro';
+---
+
+<PageTitle />
+<VersionNotice />

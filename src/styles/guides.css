@@ -1,0 +1,343 @@
+/* Guides, glossary and compliance FAQ (src/content/docs/guides, resources). */
+
+/* Glossary terms: dotted underline + tooltip (hover and keyboard focus). */
+abbr.gl {
+  text-decoration: underline dotted var(--sy-ink3);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+.gl-tip {
+  position: fixed;
+  z-index: 100;
+  max-width: min(320px, 80vw);
+  padding: 8px 12px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink2);
+  box-shadow: 0 10px 30px -10px rgba(30, 27, 58, 0.35);
+  font-size: 13px;
+  line-height: 1.45;
+  pointer-events: none;
+}
+.gl-tip[hidden] {
+  display: none;
+}
+.gl-tip b {
+  display: block;
+  color: var(--sy-ink);
+}
+
+/* Field tables: tighter cells, example values as small chips. */
+.sl-markdown-content table td code {
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 0.85em;
+}
+
+/* Compliance FAQ and other <details> blocks. */
+.sl-markdown-content details {
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  background: var(--sy-bg);
+  margin-block: 0.75rem;
+}
+.sl-markdown-content details > summary {
+  cursor: pointer;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  color: var(--sy-ink);
+}
+.sl-markdown-content details[open] > summary {
+  border-bottom: 1px solid var(--sy-line);
+}
+.sl-markdown-content details > :not(summary) {
+  margin-inline: 1rem;
+}
+.sl-markdown-content details > p:last-child,
+.sl-markdown-content details > :last-child {
+  margin-bottom: 1rem;
+}
+
+/* Screenshots: framed. */
+.sl-markdown-content img {
+  border: 1px solid var(--sy-line);
+  border-radius: 12px;
+}
+
+/* Reading progress. */
+.sy-gend {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--sy-line);
+}
+.sy-gend button {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sy-gend button:hover {
+  border-color: var(--sy-ink3);
+}
+.sy-gend button.on {
+  background: var(--sy-accent);
+  border-color: var(--sy-accent);
+  color: var(--sy-bg);
+}
+.sy-gend button.on::before {
+  content: '✓ ';
+}
+.sidebar-content summary .group-label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+/* Progress counter of a group: pill before the chevron (mockup ".gcount"). */
+.sidebar-content .gcount {
+  margin-left: auto;
+  margin-right: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--sy-bg3);
+  color: var(--sy-ink3);
+  font: 600 11px var(--sy-font-mono);
+}
+.sidebar-content .gcount.full {
+  background: var(--sy-ok-soft);
+  color: var(--sy-ok);
+}
+.sidebar-content a.done span::after {
+  content: ' ✓';
+  color: var(--sy-ok);
+  font-weight: 700;
+}
+.sidebar-content a[aria-current='page'].done span::after {
+  color: inherit;
+}
+
+/* Contextual help (opened from the application). */
+.sy-ctx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 1.25rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--sy-accent);
+  border-radius: 10px;
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+  font-size: 14px;
+}
+.sy-ctx a {
+  margin-left: auto;
+  font-weight: 700;
+}
+@keyframes sy-flash {
+  0%,
+  60% {
+    background: var(--sy-accent-soft);
+    box-shadow: 0 0 0 8px var(--sy-accent-soft);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+.sl-markdown-content .sy-flash {
+  border-radius: 6px;
+  animation: sy-flash 2.4s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sl-markdown-content .sy-flash {
+    animation: none;
+    background: var(--sy-accent-soft);
+  }
+}
+
+/* "Was this page helpful?" widget. */
+.sy-fb {
+  margin-top: 48px;
+  padding: 20px 22px;
+  border: 1px solid color-mix(in srgb, var(--sy-accent) 35%, var(--sy-line));
+  border-radius: 12px;
+  background: var(--sy-accent-soft);
+  color: var(--sy-ink);
+  font-size: 15.5px;
+  font-weight: 700;
+}
+.sy-fb-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.sy-fb-q {
+  margin-right: auto;
+}
+/* The buttons stay on the right, also when the question wraps above them. */
+.sy-fb-btns {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 0 auto !important;
+}
+.sy-fb-row > .sy-fb-q,
+.sy-fb-btns > *,
+.sy-fb-chips > *,
+.sy-fb-foot > *,
+.sy-fb-form > * {
+  margin: 0 !important;
+}
+.sy-fb button,
+.sy-fb-send {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sy-fb button svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sy-fb button:hover,
+.sy-fb button.on,
+.sy-fb button[aria-pressed='true'] {
+  border-color: var(--sy-accent);
+  color: var(--sy-accent-ink);
+}
+.sy-fb-chips button {
+  border-radius: 999px;
+  font-size: 13px;
+}
+.sy-fb-chips button[aria-pressed='true'] {
+  background: var(--sy-accent-soft);
+}
+.sy-fb-form {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sy-line);
+}
+.sy-fb-form[hidden] {
+  display: none;
+}
+.sy-fb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+}
+.sy-fb textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 8px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: inherit;
+  font-weight: 400;
+  resize: vertical;
+}
+.sy-fb-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+  font-weight: 400;
+}
+.sy-fb-foot span {
+  flex: 1;
+  min-width: 14rem;
+}
+.sy-fb-send {
+  display: inline-flex;
+  align-items: center;
+  background: var(--sy-accent);
+  border-color: var(--sy-accent);
+  color: var(--sy-bg);
+  text-decoration: none;
+}
+
+/* Screenshot viewer (public/lightbox.js). */
+.sy-lb {
+  max-width: min(96vw, 1400px);
+  max-height: 94vh;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  overflow: visible;
+}
+.sy-lb::backdrop {
+  background: rgb(10 14 20 / 0.78);
+}
+.sy-lb figure {
+  margin: 0;
+}
+.sy-lb img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(94vh - 56px);
+  margin: 0 auto;
+  border: 0;
+  border-radius: 14px 14px 0 0;
+}
+.sy-lb figcaption {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--sy-ink2);
+}
+.sy-lb button {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 999px;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+.sy-lb button:hover {
+  border-color: var(--sy-ink3);
+}
+.sy-lb-x { top: -14px; right: -14px; }
+.sy-lb-p { top: 45%; left: -14px; }
+.sy-lb-n { top: 45%; right: -14px; }
+@media (max-width: 640px) {
+  .sy-lb-x { top: 6px; right: 6px; }
+  .sy-lb-p { left: 6px; }
+  .sy-lb-n { right: 6px; }
+}

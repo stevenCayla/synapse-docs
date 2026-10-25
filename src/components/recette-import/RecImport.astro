@@ -1,0 +1,142 @@
+---
+// REC-01b · Prospective study with import: the test book of the mockup (read
+// mode, run mode with OK / KO / Blocked statuses, report, PV, test file).
+// The content is in data.ts, the behaviour in public/recette-import.js.
+import fs from 'node:fs';
+import { content, COMMIT, VERSION, HEADERS, GROUPS, ROWS, LEGEND, SHOTS_DIR, type Lang } from './data';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const { steps, known, ui } = content(lang);
+const plain = (s: string) => s.replace(/<[^>]+>/g, '');
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// Captures that are in public/recette-shots/ (the others are left out).
+const has = (file: string) => fs.existsSync(`public${SHOTS_DIR}${file}`);
+
+const ICONS: Record<string, string[]> = {
+  note: ['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z', 'M12 16v-4', 'M12 8h.01'],
+  tip: ['M9 18h6', 'M10 21h4', 'M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z'],
+  caution: ['M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z', 'M12 9v4', 'M12 17h.01'],
+  fixed: ['M5 12l5 5 9-10'],
+};
+const aside = (kind: 'note' | 'tip' | 'caution' | 'fixed', title: string, text: string) => {
+  const icon = ICONS[kind].map((d) => `<path d="${d}"/>`).join('');
+  const cls = kind === 'fixed' ? 'tip' : kind;
+  return `<div class="aside ${cls}" role="note"><svg class="sy-aside-icon" viewBox="0 0 24 24" aria-hidden="true">${icon}</svg><p><strong>${title}</strong></p><p>${text}</p></div>`;
+};
+
+let k = 0;
+const checkHtml = (text: string, si: number) => {
+  k += 1;
+  return `<div class="pchk" data-k="c${k}" data-si="${si}"><div class="pchk-r"><span class="pchk-t">${text}</span><span class="pseg x-only" role="group" aria-label="Statut"><button type="button" data-s="ok">OK</button><button type="button" data-s="ko">KO</button><button type="button" data-s="na">${lang === 'fr' ? 'Bloqué' : 'Blocked'}</button></span></div><textarea class="pnote x-only" rows="5" aria-label="${lang === 'fr' ? 'Écart constaté' : 'Deviation'}" placeholder="${lang === 'fr' ? "Décrivez l'écart : ce que vous avez fait, ce qui s'est passé, message exact." : 'Describe the deviation: what you did, what happened, exact message.'}"></textarea></div>`;
+};
+
+const stepHtml = steps.map((s, i) => {
+  const shots = (s.shots ?? []).filter((x) => has(x.file));
+  const n = shots.length;
+  const eye = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+  const doc = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7l-4-4z"></path><path d="M14 3v4h4M9 13h6M9 17h6"></path></svg>';
+  const tabs = n
+    ? `<div class="ptabs" role="tablist"><button type="button" class="on" role="tab" data-t="i" aria-selected="true">${doc}${ui.tabInstr}</button><button type="button" role="tab" data-t="s" aria-selected="false">${eye}${ui.tabScreen}${n > 1 ? `<span>${n}</span>` : ''}</button></div>`
+    : '';
+  const screens = n
+    ? `<div class="ppane" data-p="s" role="tabpanel">${n > 1 ? `<div class="ppills">${shots.map((x, j) => `<button type="button" class="${j ? '' : 'on'}" data-sh="${j}">${esc(x.alt)}</button>`).join('')}</div>` : ''}${shots
+        .map(
+          (x, j) =>
+            `<div class="pfig${j ? '' : ' on'}" data-f="${j}"><figure class="shot"><div class="shot-b"><img src="${SHOTS_DIR}${x.file}" alt="${esc(x.alt)}" loading="lazy" width="1200" height="793">${x.old ? `<span class="shot-v">${ui.old}</span>` : ''}</div><figcaption>${x.caption}</figcaption></figure></div>`,
+        )
+        .join('')}</div>`
+    : '';
+  const table = s.rows
+    ? `<table class="ftbl"><thead><tr>${s.head!.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${s.rows.map((r) => `<tr>${r.map((c, j) => `<td>${j ? c : `<b>${c}</b>`}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+    : '';
+  const kn = s.known ? `<div class="pknown"><div class="pknown-h">${ui.knownStep}</div>${s.known.map((q) => `<div><code>${q[0]}</code>${q[1]}</div>`).join('')}</div>` : '';
+  const fixed = s.fixed ? aside('fixed', s.fixed[0], s.fixed[1]) : '';
+  const checks = s.checks.length ? `<div class="pchks"><div class="pchks-h">${ui.checksTitle}</div>${s.checks.map((c) => checkHtml(c, i)).join('')}</div>` : '';
+  return `<section class="pc" id="pc-${i + 1}" data-i="${i}"><button class="pc-h" type="button" aria-expanded="true"><span class="pc-n">${i + 1}</span><b>${s.title}</b><span class="pc-p x-only"></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button><div class="pc-b">${tabs}<div class="ppane on" data-p="i" role="tabpanel"><p class="where">${s.where}</p>${table}${kn}${fixed}</div>${screens}${checks}</div></section>`;
+});
+const totalChecks = k;
+
+const rail = steps.map((s, i) => `<button type="button" data-go="${i}" title="${i + 1}. ${esc(plain(s.title))}">${i + 1}</button>`).join('');
+const fileTable = `<table class="tdata"><thead><tr>${HEADERS.map((h, i) => `<th class="g${GROUPS[i]}">${h}</th>`).join('')}</tr></thead><tbody>${ROWS.map((r) => `<tr>${r.map((c) => `<td${c === 'NE' ? ' class="flag"' : ''}>${c}</td>`).join('')}</tr>`).join('')}<tr><td colspan="17">&nbsp;</td></tr><tr class="leg">${LEGEND.map((c, i) => `<td>${i ? c : ui.legendLabel}</td>`).join('')}</tr></tbody></table>`;
+const knownRows = known
+  .map((r) => `<tr><td><b>${r[3] ? `<a href="#pc-${r[3]}" data-go="${r[3] - 1}">${r[0]}</a>` : r[0]}</b></td><td>${r[1]}</td><td><code>${r[2]}</code></td></tr>`)
+  .join('');
+const sessionKeys = ['tester', 'env', 'commit', 'browser'];
+const sessionDefaults = ['', 'uat.synapse-medical.fr', `${COMMIT} · v${VERSION}`, ''];
+---
+
+<div class="rec-imp pread" id="recImp" data-lang={lang} data-commit={`${COMMIT} · v${VERSION}`} data-total={totalChecks}>
+  <p class="rec-meta">
+    <span class="rstat ok">{ui.status}</span>
+    develop <code>{COMMIT}</code> · {ui.release}{VERSION} · {ui.updated}
+  </p>
+
+  <div class="pmode" role="tablist" aria-label={ui.modeLabel}>
+    <button type="button" data-m="read" role="tab">{ui.read}</button>
+    <button type="button" data-m="exec" role="tab">{ui.exec}</button>
+  </div>
+
+  <div class="kpis">
+    <div><b>{steps.length}</b><span>{ui.kSteps}</span></div>
+    <div><b>{totalChecks}</b><span>{ui.kChecks}</span></div>
+    <div><b>6</b><span>{ui.kPatients}</span></div>
+    <div><b>45–60 min</b><span>{ui.kTime}</span></div>
+  </div>
+
+  <Fragment set:html={aside('caution', ui.cautionTitle, ui.caution)} />
+  <div class="r-only"><Fragment set:html={aside('tip', ui.tipTitle, ui.tip)} /></div>
+
+  <h2 id="pi-avant">{ui.hBefore}</h2>
+  <ul>{ui.before.map((b) => <li set:html={b} />)}</ul>
+
+  <h2 id="pi-fichier">{ui.hFile}</h2>
+  <p set:html={ui.fileIntro} />
+  <div class="pfile">
+    <button type="button" class="kit-btn pri" id="pi-xlsx">{ui.dl}</button>
+    <button type="button" class="kit-btn" id="pi-copy">{ui.copy}</button>
+  </div>
+  <div class="gkey">
+    <span><i class="g0"></i>{ui.key[0]}</span><span><i class="g1"></i>{ui.key[1]}</span><span><i class="g2"></i>{ui.key[2]}</span><span><i class="g3"></i>{ui.key[3]}</span>
+  </div>
+  <div class="tdata-w" tabindex="0" role="region" aria-label={ui.hFile} set:html={fileTable} />
+  <ul>{ui.fileNotes.map((b) => <li set:html={b} />)}</ul>
+
+  <h2 id="pi-pourquoi">{ui.hWhy}</h2>
+  <p set:html={ui.why} />
+
+  <h2 id="pi-pas">{ui.hSteps}</h2>
+  <div class="psess x-only">
+    {ui.session.map((label, i) => (
+      <label>{label}<input data-m={sessionKeys[i]} value={sessionDefaults[i]} placeholder={i === 0 ? ui.testerPh : ''} /></label>
+    ))}
+  </div>
+  <div class="runbar prb">
+    <div class="prb-top">
+      <span class="prb-st x-only" id="piProg" role="status"></span>
+      <span class="prb-st r-only">{ui.goTo}</span>
+      <span class="sp"></span>
+      <button type="button" class="kit-btn x-only" id="piResume">{ui.resume}</button>
+      <button type="button" class="kit-btn x-only" id="piReset">{ui.reset}</button>
+      <button type="button" class="kit-btn x-only" id="piCopyRep">{ui.copyReport}</button>
+      <button type="button" class="kit-btn pri x-only" id="piPV">{ui.pv}</button>
+    </div>
+    <div class="prail" set:html={rail} />
+  </div>
+  <Fragment set:html={stepHtml.join('')} />
+
+  <h2 id="pi-connus">{ui.hKnown}</h2>
+  <p>{ui.knownIntro}</p>
+  <table>
+    <thead><tr>{ui.knownCols.map((c) => <th>{c}</th>)}</tr></thead>
+    <tbody set:html={knownRows} />
+  </table>
+
+  <h2 id="pi-signaler">{ui.hReport}</h2>
+  <p set:html={ui.reportIntro} />
+  <pre><code class="language-text">{ui.template}</code></pre>
+  <Fragment set:html={aside('note', ui.shotsTitle, ui.shotsNote)} />
+</div>

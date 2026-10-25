@@ -1,0 +1,167 @@
+---
+// Starlight PageTitle override: the page header of the design — breadcrumbs,
+// title, subtitle, then a meta line (review badge, position in the group,
+// reading time, last update, edit link).
+//
+// Front matter used: description (subtitle), time (reading time, otherwise
+// estimated from the length of the page), introduced (version of the
+// application that brings the feature), reviewed (last version of the
+// application the page was reviewed for; the current version when missing).
+import versions from '../../versions.json';
+import { APP_VERSION } from '../version';
+import { compareVersions } from './semver';
+import { findTrail, firstLink } from './nav';
+import { hasOwnNotice, isWip } from '../wip';
+
+const route = Astro.locals.starlightRoute;
+const { entry, lastUpdated, sidebar } = route;
+const data = entry.data as {
+  title: string;
+  description?: string;
+  template?: string;
+  time?: string;
+  introduced?: string;
+  reviewed?: string;
+  wip?: boolean;
+  sheet?: boolean;
+};
+const isEn = Astro.url.pathname.startsWith('/en/');
+const splash = data.template === 'splash';
+
+const t = isEn
+  ? {
+      home: 'Docs',
+      of: 'of',
+      reviewed: 'Reviewed for',
+      stale: (n: number, v: string) => `Not reviewed for ${n} versions (v${v})`,
+      since: 'Since',
+      updated: 'Updated on',
+      edit: 'Edit on GitHub',
+      sheet: 'Printable sheet',
+      locale: 'en-GB',
+      upcomingTitle: 'Upcoming feature',
+      upcoming: (v: string, cur: string) =>
+        `This page describes a feature planned for v${v}. The current version of Synapse is v${cur}.`,
+      wipTitle: 'Content being written',
+      wip: 'This page is still being written: it may be incomplete and will change.',
+      changelog: 'See the changelog',
+      changelogHref: '/en/changelog/',
+      homeHref: '/en/',
+    }
+  : {
+      home: 'Docs',
+      of: 'sur',
+      reviewed: 'Relue pour',
+      stale: (n: number, v: string) => `Non relue depuis ${n} versions (v${v})`,
+      since: 'Depuis',
+      updated: 'Mis à jour le',
+      edit: 'Modifier sur GitHub',
+      sheet: 'Fiche imprimable',
+      locale: 'fr-FR',
+      upcomingTitle: 'Fonctionnalité à venir',
+      upcoming: (v: string, cur: string) =>
+        `Cette page décrit une fonctionnalité prévue pour la v${v}. La version actuelle de Synapse est la v${cur}.`,
+      wipTitle: 'Contenu en cours de rédaction',
+      wip: 'Cette page est en cours de rédaction : elle peut être incomplète et va évoluer.',
+      changelog: 'Voir le journal des modifications',
+      changelogHref: '/changelog/',
+      homeHref: '/',
+    };
+
+// Breadcrumbs and position in the group, from the sidebar.
+const found = splash ? undefined : findTrail(sidebar);
+const groups = found ? (found.trail.length > 1 ? found.trail.slice(1) : found.trail) : [];
+const inner = found && found.trail.length > 1 ? found.trail[found.trail.length - 1] : undefined;
+const position = found && inner ? found.siblings.findIndex((s) => s.isCurrent) + 1 : 0;
+
+// Reading time: front matter, otherwise ~200 words per minute.
+const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
+const time = data.time ?? `${Math.max(1, Math.ceil(words / 200))} min`;
+
+// Review: the current version unless the page says otherwise (an archived
+// page was written for its own version).
+const parts = entry.id.split('/');
+const archivedVersion = versions.find(
+  (v: { slug: string }) => v.slug === (parts[0] === 'en' ? parts[1] : parts[0]),
+);
+const reviewedFor = data.reviewed ?? archivedVersion?.slug ?? APP_VERSION;
+const known = [...versions.map((v: { slug: string }) => v.slug), APP_VERSION];
+const gap = known.filter((v) => compareVersions(v, reviewedFor) > 0).length;
+const wip = !splash && isWip(entry) && !hasOwnNotice(data, entry.body);
+const upcoming = !!data.introduced && compareVersions(data.introduced, APP_VERSION) > 0;
+
+// Edit link: the pages kept in this repository, or the docs/ folder of the application.
+const rel = (entry.filePath ?? `src/content/docs/${entry.id}.md`).replace(/^src\/content\/docs\//, '');
+const own = /^(en\/)?(guides|resources|recette|audit)\//.test(rel);
+const editUrl = own
+  ? `https://github.com/stevenCayla/synapse-docs/edit/develop/src/content/docs/${rel}`
+  : `https://github.com/stevenCayla/SYNAPSE-MEDICAL/edit/develop/docs/${rel}`;
+const sheetHref = data.sheet ? `${isEn ? '/en/sheets/' : '/fiches/'}${entry.id.split('/').pop()}/` : undefined;
+const updated = lastUpdated?.toLocaleDateString(t.locale, { day: 'numeric', month: 'short', year: 'numeric' });
+---
+
+{
+  splash ? (
+    <h1 id="_top">{data.title}</h1>
+  ) : (
+    <div class="sy-head">
+      <nav class="sy-crumbs" aria-label="Breadcrumbs">
+        <a href={t.homeHref}>{t.home}</a>
+        {groups.map((g) => (
+          <>
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+            <a href={firstLink(g)}>{g.label}</a>
+          </>
+        ))}
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+        <span aria-current="page">{data.title}</span>
+      </nav>
+      <h1 id="_top">{data.title}</h1>
+      {data.description && <p class="sy-sub">{data.description}</p>}
+      <div class="sy-meta">
+        <span class:list={['sy-rev', { mid: gap === 1, stale: gap >= 2 }]}>
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            {gap >= 2 ? <path d="M12 3 2 21h20L12 3zM12 10v5M12 18h.01"></path> : <path d="m5 12 5 5 9-10"></path>}
+          </svg>
+          {gap >= 2 ? t.stale(gap, reviewedFor) : `${t.reviewed} v${reviewedFor}`}
+        </span>
+        {inner && <span class="sy-gprog">{inner.label} · {position} {t.of} {found!.siblings.length}</span>}
+        <span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+          {time}
+        </span>
+        {data.introduced && !upcoming && (
+          <span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8L3 12z"></path><path d="M7.5 8.5h.01"></path></svg>
+            {t.since} v{data.introduced}
+          </span>
+        )}
+        {updated && <span>{t.updated} {updated}</span>}
+        {sheetHref && (
+          <a href={sheetHref} class="sy-edit">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"></path></svg>
+            {t.sheet}
+          </a>
+        )}
+        <a href={editUrl} class="sy-edit" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"></path></svg>
+          {t.edit}
+        </a>
+      </div>
+      {wip && (
+        <aside class="sy-vbanner" role="note">
+          <b>{t.wipTitle}</b>
+          <span>{t.wip}</span>
+        </aside>
+      )}
+      {upcoming && (
+        <aside class="sy-vbanner">
+          <b>{t.upcomingTitle}</b>
+          <span>
+            {t.upcoming(data.introduced!, APP_VERSION)} <a href={t.changelogHref}>{t.changelog}</a>
+          </span>
+        </aside>
+      )}
+    </div>
+  )
+}

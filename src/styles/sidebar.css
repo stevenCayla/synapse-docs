@@ -1,0 +1,164 @@
+/* Left column: width, spacing and type sizes of the mockup (".side"). */
+:root {
+  --sl-sidebar-width: 272px;
+  --sl-sidebar-pad-x: 14px;
+}
+@media (min-width: 50rem) {
+  :root {
+    --sl-sidebar-pad-y: 20px;
+  }
+}
+@media (max-width: 1180px) and (min-width: 50rem) {
+  :root {
+    --sl-sidebar-width: 248px;
+  }
+}
+.sidebar-content {
+  gap: 0;
+}
+.sidebar-content ul.top-level {
+  gap: 4px;
+}
+.sidebar-content ul {
+  font-size: 13.5px;
+}
+
+/* Group headers. */
+.sidebar-content summary {
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.sidebar-content summary:hover {
+  background: var(--sy-bg3);
+}
+.sidebar-content summary .large,
+.sidebar-content summary > div > .large {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--sy-ink);
+}
+.sidebar-content summary svg {
+  color: var(--sy-ink3);
+}
+
+/* Single top-level links (e.g. "Accueil"). */
+.sidebar-content ul.top-level > li > a {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--sy-ink2);
+}
+.sidebar-content ul.top-level > li > a:hover {
+  background: var(--sy-bg3);
+  color: var(--sy-ink);
+}
+
+/* Links of a group: a thin rail with an accent mark on the current page. */
+.sidebar-content details > ul {
+  margin: 2px 0 8px 10px;
+  padding: 0 0 0 10px;
+  border-inline-start: 1px solid var(--sy-line);
+}
+.sidebar-content details > ul a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-inline-start: -11px;
+  padding: 5px 10px;
+  border-inline-start: 1px solid transparent;
+  border-radius: 0;
+  background: none;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--sy-ink2);
+}
+.sidebar-content details > ul a:hover {
+  border-color: var(--sy-ink3);
+  background: none;
+  color: var(--sy-ink);
+}
+.sidebar-content details > ul a[aria-current='page'],
+.sidebar-content details > ul a[aria-current='page']:hover {
+  border-color: var(--sy-accent);
+  background: linear-gradient(90deg, var(--sy-accent-soft), transparent);
+  color: var(--sy-accent-ink);
+  font-weight: 600;
+}
+
+/* Current page when it is a single top-level link. */
+.sidebar-content ul.top-level > li > a[aria-current='page'],
+.sidebar-content ul.top-level > li > a[aria-current='page']:hover {
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+  font-weight: 600;
+}
+
+/* Badges ("Nouveau", "En rédaction"): mockup ".tag". */
+.sidebar-content .sl-badge {
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 4px;
+  font: 600 10px/1 var(--sy-font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.sidebar-content .sl-badge.tip,
+.sidebar-content .sl-badge.success {
+  background: var(--sy-ok-soft);
+  color: var(--sy-ok);
+}
+.sidebar-content .sl-badge.caution,
+.sidebar-content .sl-badge.warning {
+  background: var(--sy-warn-soft);
+  color: var(--sy-warn);
+}
+.sidebar-content .sl-badge { white-space: nowrap; }
+
+/* Starlight indents and draws a rail on the items of a sub-list as well: only
+   the list itself keeps them (no double indent). */
+.sidebar-content details > ul > li {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Icons of the groups (mockup ".gi"): set by Sidebar.astro through data-gi. */
+.sidebar-content ul.top-level > li > details[data-gi] > summary .group-label::before,
+.sidebar-content ul.top-level > li > a.large[data-gi]::before {
+  content: '';
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin-right: 9px;
+  background: var(--sy-accent);
+  -webkit-mask: var(--gi) center / contain no-repeat;
+  mask: var(--gi) center / contain no-repeat;
+}
+.sidebar-content ul.top-level > li > a.large[data-gi] {
+  display: flex;
+  align-items: center;
+}
+.sidebar-content ul.top-level > li > details[data-gi] > summary:hover .group-label::before,
+.sidebar-content ul.top-level > li > a.large[data-gi]:hover::before {
+  background: var(--sy-accent-ink);
+}
+.sidebar-content ul.top-level > li > a.large[data-gi][aria-current='page']::before {
+  background: var(--sy-accent-ink);
+}
+
+.sidebar-content [data-gi="home"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m3 11 9-7 9 7%22/%3E%3Cpath d=%22M5 10v10h14V10%22/%3E%3Cpath d=%22M10 20v-5h4v5%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="flag"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 21V4%22/%3E%3Cpath d=%22M5 4h11l-2 4 2 4H5%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="pulse"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M3 12h4l3-7 4 14 3-7h4%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="book"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z%22/%3E%3Cpath d=%22M4 19a2 2 0 0 1 2-2h13%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="layers"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m12 3 9 5-9 5-9-5 9-5z%22/%3E%3Cpath d=%22m3 13 9 5 9-5%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="server"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%224%22 width=%2218%22 height=%227%22 rx=%222%22/%3E%3Crect x=%223%22 y=%2213%22 width=%2218%22 height=%227%22 rx=%222%22/%3E%3Cpath d=%22M7 7.5h.01M7 16.5h.01%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="shield"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3z%22/%3E%3Cpath d=%22m9 12 2 2 4-4%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="code"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m8 7-5 5 5 5M16 7l5 5-5 5%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="rocket"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 3c3 2 5 5.5 5 10l-2 3H9l-2-3c0-4.5 2-8 5-10z%22/%3E%3Ccircle cx=%2212%22 cy=%2210%22 r=%221.6%22/%3E%3Cpath d=%22M9 16l-3 2 1-4M15 16l3 2-1-4M10.5 19.5 12 22l1.5-2.5%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="clip"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%225%22 y=%225%22 width=%2214%22 height=%2216%22 rx=%222%22/%3E%3Cpath d=%22M9 5V3h6v2%22/%3E%3Cpath d=%22m9 13 2 2 4-4%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="tool"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M14.5 6.5a4 4 0 0 0 5 5L21 13l-8 8-3-3 8-8%22/%3E%3Cpath d=%22M14.5 6.5 13 5a4 4 0 0 0-5.6 5.6L3 15l3 3 4.4-4.4%22/%3E%3C/svg%3E"); }
+.sidebar-content [data-gi="check"] { --gi: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m5 12 5 5 9-10%22/%3E%3C/svg%3E"); }
