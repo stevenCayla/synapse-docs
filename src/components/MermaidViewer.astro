@@ -1,0 +1,268 @@
+---
+// Mermaid diagrams of the pages (design of the mockup): each ```mermaid block
+// (turned into <pre class="mermaid"> by integrations/markdown-mockup.mjs) becomes
+// a figure with a Diagram / Source switch, zoom (Ctrl + wheel, buttons, + − 0),
+// pan, fit on double click, copy of the code, SVG download and full screen.
+// The Mermaid library is only loaded on the pages that have a diagram.
+---
+
+<script>
+  type Mermaid = typeof import('mermaid').default;
+  type View = { s: number; x: number; y: number; w: number; h: number };
+
+  const blocks = Array.from(document.querySelectorAll<HTMLPreElement>('pre.mermaid'));
+  if (blocks.length) void run(blocks);
+
+  async function run(blocks: HTMLPreElement[]) {
+    const en = document.documentElement.lang.startsWith('en');
+    const T = en
+      ? {
+          diagram: 'Diagram', source: 'Source', title: 'Diagram', zoomOut: 'Zoom out (−)', zoomIn: 'Zoom in (+)',
+          fit: 'Fit (0)', copy: 'Copy the Mermaid code', svg: 'Download as SVG', full: 'Full screen',
+          hint: 'Ctrl + wheel to zoom · drag to move · double-click to fit', copied: 'Mermaid code copied',
+          loading: 'Loading the diagram…', failed: 'This diagram cannot be generated. See the Source tab.',
+        }
+      : {
+          diagram: 'Schéma', source: 'Source', title: 'Schéma', zoomOut: 'Zoom arrière (−)', zoomIn: 'Zoom avant (+)',
+          fit: 'Recadrer (0)', copy: 'Copier le code Mermaid', svg: 'Télécharger en SVG', full: 'Plein écran',
+          hint: 'Ctrl + molette pour zoomer · glisser pour déplacer · double-clic pour recadrer',
+          copied: 'Code Mermaid copié', loading: 'Chargement du schéma…',
+          failed: "Impossible de générer ce schéma. Consultez l'onglet Source.",
+        };
+    const icon = (p: string) =>
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true">${p}</svg>`;
+    const IC = {
+      minus: icon('<path d="M5 12h14"/>'),
+      plus: icon('<path d="M12 5v14M5 12h14"/>'),
+      fit: icon('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
+      fs: icon('<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>'),
+      dl: icon('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>'),
+      copy: icon('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>'),
+    };
+    const btn = (attr: string, label: string, svg: string) =>
+      `<button type="button" ${attr} title="${label}" aria-label="${label}">${svg}</button>`;
+
+    // Heading above the diagram, used as the title of the figure.
+    const titleOf = (pre: HTMLElement) => {
+      let node: Element | null = pre.parentElement?.classList.contains('sl-markdown-content') ? pre : pre;
+      while (node) {
+        let prev = node.previousElementSibling;
+        while (prev) {
+          const h = prev.matches('h1,h2,h3,h4') ? prev : prev.querySelector('h1,h2,h3,h4');
+          if (h) return (h.textContent ?? '').replace(/\s+/g, ' ').trim();
+          prev = prev.previousElementSibling;
+        }
+        node = node.parentElement;
+        if (!node || node.classList.contains('sl-markdown-content')) break;
+      }
+      return T.title;
+    };
+
+    const figures = blocks.map((pre) => {
+      const source = pre.textContent ?? '';
+      const fig = document.createElement('figure');
+      fig.className = 'mmd';
+      const title = titleOf(pre);
+      fig.innerHTML = `<div class="mmd-h"><b></b>
+        <div class="mmd-tabs" role="tablist"><button type="button" class="on" data-v="d" role="tab" aria-selected="true">${T.diagram}</button><button type="button" data-v="s" role="tab" aria-selected="false">${T.source}</button></div>
+        <span class="mmd-sp"></span>
+        <div class="mmd-tools">${btn('data-z="-"', T.zoomOut, IC.minus)}<span class="mmd-pct" aria-live="polite">100%</span>${btn('data-z="+"', T.zoomIn, IC.plus)}${btn('data-z="fit"', T.fit, IC.fit)}<i></i>${btn('data-a="copy"', T.copy, IC.copy)}${btn('data-a="svg"', T.svg, IC.dl)}${btn('data-a="fs"', T.full, IC.fs)}</div></div>
+        <div class="mmd-stage" tabindex="0"><div class="mmd-canvas"><div class="mmd-load">${T.loading}</div></div><div class="mmd-hint">${T.hint}</div></div>
+        <pre class="mmd-src"></pre>`;
+      (fig.querySelector('.mmd-h b') as HTMLElement).textContent = title;
+      (fig.querySelector('.mmd-src') as HTMLElement).textContent = source;
+      fig.querySelector('.mmd-stage')!.setAttribute('aria-label', `${title} — ${T.hint}`);
+      pre.replaceWith(fig);
+      return { fig, source };
+    });
+
+    const mermaid: Mermaid = (await import('mermaid')).default;
+    const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const init = () =>
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: 'base',
+        fontFamily: 'Nunito Variable, system-ui, sans-serif',
+        themeVariables: {
+          darkMode: document.documentElement.dataset.theme === 'dark',
+          background: css('--sy-bg'),
+          primaryColor: css('--sy-accent-soft'),
+          primaryBorderColor: css('--sy-accent'),
+          primaryTextColor: css('--sy-ink'),
+          secondaryColor: css('--sy-bg2'),
+          tertiaryColor: css('--sy-bg3'),
+          lineColor: css('--sy-ink3'),
+          textColor: css('--sy-ink'),
+          mainBkg: css('--sy-accent-soft'),
+          nodeBorder: css('--sy-accent'),
+          clusterBkg: css('--sy-tint'),
+          clusterBorder: css('--sy-line2'),
+          edgeLabelBackground: css('--sy-bg'),
+          actorBkg: css('--sy-accent-soft'),
+          actorBorder: css('--sy-accent'),
+          signalColor: css('--sy-ink2'),
+          noteBkgColor: css('--sy-bg3'),
+          noteBorderColor: css('--sy-line2'),
+          attributeBackgroundColorOdd: css('--sy-bg'),
+          attributeBackgroundColorEven: css('--sy-bg2'),
+          fontSize: '14px',
+        },
+      });
+
+    const views = new WeakMap<HTMLElement, View>();
+    const apply = (f: HTMLElement) => {
+      const v = views.get(f)!;
+      (f.querySelector('.mmd-canvas') as HTMLElement).style.transform = `translate(${v.x}px,${v.y}px) scale(${v.s})`;
+      f.querySelector('.mmd-pct')!.textContent = `${Math.round(v.s * 100)}%`;
+    };
+    const fit = (f: HTMLElement, full?: boolean) => {
+      const v = views.get(f);
+      const stage = f.querySelector<HTMLElement>('.mmd-stage')!;
+      const W = stage.clientWidth;
+      if (!v || !v.w || !W) return;
+      if (full || document.fullscreenElement === f) {
+        const H = stage.clientHeight;
+        v.s = Math.min((W - 48) / v.w, (H - 48) / v.h, 1.4);
+        v.x = (W - v.w * v.s) / 2;
+        v.y = (H - v.h * v.s) / 2;
+        return apply(f);
+      }
+      v.s = Math.min(1.15, Math.max(0.75, (W - 48) / v.w));
+      const H = Math.min(640, Math.max(360, v.h * v.s + 48));
+      stage.style.height = `${H}px`;
+      v.x = Math.max(24, (W - v.w * v.s) / 2);
+      v.y = Math.max(24, (H - v.h * v.s) / 2);
+      apply(f);
+    };
+    const zoomAt = (f: HTMLElement, k: number, cx?: number, cy?: number) => {
+      const v = views.get(f);
+      if (!v) return;
+      const stage = f.querySelector<HTMLElement>('.mmd-stage')!;
+      cx ??= stage.clientWidth / 2;
+      cy ??= stage.clientHeight / 2;
+      const s = Math.min(4, Math.max(0.2, v.s * k));
+      v.x = cx - ((cx - v.x) * s) / v.s;
+      v.y = cy - ((cy - v.y) * s) / v.s;
+      v.s = s;
+      apply(f);
+    };
+
+    let counter = 0;
+    const draw = async ({ fig, source }: { fig: HTMLElement; source: string }) => {
+      const canvas = fig.querySelector<HTMLElement>('.mmd-canvas')!;
+      try {
+        const { svg } = await mermaid.render(`mmd${++counter}`, source);
+        canvas.innerHTML = svg;
+        const el = canvas.querySelector('svg')!;
+        const vb = el.viewBox.baseVal;
+        el.removeAttribute('style');
+        el.setAttribute('width', String(vb.width));
+        el.setAttribute('height', String(vb.height));
+        views.set(fig, { s: 1, x: 0, y: 0, w: vb.width, h: vb.height });
+        fit(fig);
+      } catch {
+        canvas.innerHTML = `<div class="mmd-load">${T.failed}</div>`;
+      }
+    };
+    const drawAll = async () => {
+      init();
+      for (const f of figures) await draw(f);
+    };
+    await drawAll();
+    new MutationObserver(() => void drawAll()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    const toast = (text: string) => {
+      const d = document.createElement('div');
+      d.className = 'mmd-toast';
+      d.setAttribute('role', 'status');
+      d.textContent = text;
+      document.body.appendChild(d);
+      setTimeout(() => d.remove(), 1600);
+    };
+
+    for (const { fig, source } of figures) {
+      fig.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
+        if (!b) return;
+        if (b.dataset.v) {
+          fig.querySelectorAll<HTMLElement>('.mmd-tabs button').forEach((x) => {
+            x.classList.toggle('on', x === b);
+            x.setAttribute('aria-selected', String(x === b));
+          });
+          fig.classList.toggle('src', b.dataset.v === 's');
+        } else if (b.dataset.z === '+') zoomAt(fig, 1.25);
+        else if (b.dataset.z === '-') zoomAt(fig, 0.8);
+        else if (b.dataset.z === 'fit') fit(fig, true);
+        else if (b.dataset.a === 'copy') {
+          void navigator.clipboard?.writeText(source);
+          toast(T.copied);
+        } else if (b.dataset.a === 'svg') {
+          const s = fig.querySelector('.mmd-canvas svg');
+          if (!s) return;
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([s.outerHTML], { type: 'image/svg+xml' }));
+          a.download = 'synapse-diagram.svg';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        } else if (b.dataset.a === 'fs') {
+          if (document.fullscreenElement) void document.exitFullscreen();
+          else void fig.requestFullscreen?.();
+        }
+      });
+      const stage = fig.querySelector<HTMLElement>('.mmd-stage')!;
+      stage.addEventListener(
+        'wheel',
+        (e) => {
+          if (!(e.ctrlKey || e.metaKey || document.fullscreenElement === fig)) return;
+          e.preventDefault();
+          const r = stage.getBoundingClientRect();
+          zoomAt(fig, e.deltaY < 0 ? 1.12 : 0.89, e.clientX - r.left, e.clientY - r.top);
+        },
+        { passive: false },
+      );
+      stage.addEventListener('pointerdown', (e) => {
+        const v = views.get(fig);
+        if (!v || e.button !== 0) return;
+        const sx = e.clientX - v.x;
+        const sy = e.clientY - v.y;
+        stage.classList.add('drag');
+        stage.setPointerCapture(e.pointerId);
+        const move = (ev: PointerEvent) => {
+          v.x = ev.clientX - sx;
+          v.y = ev.clientY - sy;
+          apply(fig);
+        };
+        const up = () => {
+          stage.classList.remove('drag');
+          stage.removeEventListener('pointermove', move);
+          stage.removeEventListener('pointerup', up);
+        };
+        stage.addEventListener('pointermove', move);
+        stage.addEventListener('pointerup', up);
+      });
+      stage.addEventListener('dblclick', () => fit(fig, true));
+      stage.addEventListener('keydown', (e) => {
+        if (e.key === '+' || e.key === '=') zoomAt(fig, 1.25);
+        else if (e.key === '-') zoomAt(fig, 0.8);
+        else if (e.key === '0') fit(fig, true);
+        else if (e.key.startsWith('Arrow')) {
+          const v = views.get(fig);
+          if (!v) return;
+          const d = 40;
+          if (e.key === 'ArrowLeft') v.x += d;
+          if (e.key === 'ArrowRight') v.x -= d;
+          if (e.key === 'ArrowUp') v.y += d;
+          if (e.key === 'ArrowDown') v.y -= d;
+          apply(fig);
+        } else return;
+        e.preventDefault();
+      });
+    }
+    document.addEventListener('fullscreenchange', () => setTimeout(() => figures.forEach(({ fig }) => fit(fig)), 60));
+    addEventListener('resize', () => figures.forEach(({ fig }) => fit(fig)));
+  }
+</script>

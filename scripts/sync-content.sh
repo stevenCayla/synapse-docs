@@ -9,8 +9,11 @@
 #      e.g. SYNAPSE_DIR=../symfony-docker make sync
 #   2. otherwise, partial clone (docs/ + root files) of SYNAPSE_REF into .synapse/
 #
-# src/content/docs/audit/ (maintained in this repository) and the archived
-# versions listed in versions.json (src/content/docs/<x.y>/, en/<x.y>/) are
+# src/content/docs/audit/, guides/, resources/ and recette/ and their en/ counterparts (guides, glossary, compliance
+# FAQ) and the home pages (src/pages/index.astro, built from
+# src/components/home/) are maintained in this repository; the index.md of the
+# application is not synced. The archived versions
+# listed in versions.json (src/content/docs/<x.y>/, en/<x.y>/) are
 # never synced.
 set -eu
 
@@ -31,7 +34,7 @@ fi
 
 test -d "$dir/docs" || { echo "$dir does not contain a docs/ folder." >&2; exit 1; }
 
-set -- --exclude '/audit/'
+set -- --exclude '/audit/' --exclude '/guides/' --exclude '/resources/' --exclude '/recette/' --exclude '/index.md' --exclude '/en/index.md' --exclude '/en/guides/' --exclude '/en/resources/' --exclude '/en/recette/'
 for slug in $(node -p 'require("./versions.json").map((v) => v.slug).join(" ")'); do
   set -- "$@" --exclude "/$slug/" --exclude "/en/$slug/"
 done
@@ -39,9 +42,15 @@ done
 mkdir -p src/content/docs
 rsync -a --delete "$@" "$dir/docs/" src/content/docs/
 
+# The changelog of the application (source of the changelog timeline).
+if [ -f "$dir/CHANGELOG.md" ]; then
+  mkdir -p src/data
+  cp "$dir/CHANGELOG.md" src/data/CHANGELOG.md
+fi
+
 version="$(sed -n 's/^[[:space:]]*APP_VERSION[[:space:]]*=[[:space:]]*//p' "$dir/.env" 2>/dev/null | tail -1 | tr -d "\"'")"
 if [ -n "$version" ]; then
   echo "$version" > APP_VERSION
 fi
 
-echo "src/content/docs synced from $dir (APP_VERSION $(cat APP_VERSION 2>/dev/null || echo unknown))"
+echo "src/content/docs and src/data/CHANGELOG.md synced from $dir (APP_VERSION $(cat APP_VERSION 2>/dev/null || echo unknown))"

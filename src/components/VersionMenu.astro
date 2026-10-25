@@ -1,0 +1,162 @@
+---
+// Version menu of the header, next to the "Docs" tag: the current version of
+// the application, the archived versions (same page when it exists there) and
+// a link to the changelog. Replaces the picker of starlight-versions, which is
+// hidden (see Header.astro).
+import { getCollection } from 'astro:content';
+import { DOCS_VERSION } from '../version';
+import versions from '../../versions.json';
+
+const isEn = Astro.url.pathname.startsWith('/en/');
+const t = isEn
+  ? { current: 'Current', archived: 'Archived', changelog: 'Changelog →', label: 'Documentation version' }
+  : { current: 'Actuelle', archived: 'Archivée', changelog: 'Journal des modifications →', label: 'Version de la documentation' };
+
+// "en/3.1/backend/x" -> locale prefix, archived slug, page id.
+const id = Astro.locals.starlightRoute.id;
+const prefix = id.startsWith('en/') ? 'en/' : '';
+const rest = id.slice(prefix.length);
+const pageSlug = versions.find((v) => rest === v.slug || rest.startsWith(`${v.slug}/`))?.slug;
+const base = pageSlug ? rest.slice(pageSlug.length).replace(/^\//, '') : rest;
+
+const ids = new Set((await getCollection('docs')).map((entry) => entry.id));
+const url = (docId: string) => `/${docId.replace(/\/?index$/, '')}/`.replace(/\/+/g, '/');
+const fallback = 'getting-started';
+const target = (slug?: string) => {
+  const wanted = `${prefix}${slug ? `${slug}/` : ''}${base}`;
+  const alt = `${prefix}${slug ? `${slug}/` : ''}${fallback}`;
+  return url(ids.has(wanted) ? wanted : alt);
+};
+
+const entries = [
+  { label: `v${DOCS_VERSION}`, note: t.current, href: target(), slug: '' },
+  ...versions.map((v) => ({ label: v.label ?? v.slug, note: t.archived, href: target(v.slug), slug: v.slug })),
+];
+const shown = entries.find((e) => e.slug === (pageSlug ?? '')) ?? entries[0];
+const changelog = isEn ? '/en/changelog/' : '/changelog/';
+---
+
+<div class="verw" data-archived={pageSlug ? 'true' : undefined}>
+  <button type="button" class="ver" aria-haspopup="true" aria-expanded="false" aria-label={`${t.label} : ${shown.label}`}>
+    <span>{shown.label}</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+  </button>
+  <div class="vermenu" hidden>
+    {
+      entries.map((e) => (
+        <a href={e.href} class:list={{ on: e === shown }} aria-current={e === shown ? 'true' : undefined}>
+          {e.label}
+          <small>{e.note}</small>
+        </a>
+      ))
+    }
+    <a class="vlog" href={changelog}>{t.changelog}</a>
+  </div>
+</div>
+
+<style>
+  .verw {
+    position: relative;
+  }
+  .ver {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border: 1px solid var(--sy-line);
+    border-radius: 6px;
+    background: var(--sy-bg2);
+    color: var(--sy-ink2);
+    font: 500 12px var(--sy-font-mono);
+    cursor: pointer;
+  }
+  .ver:hover {
+    border-color: var(--sy-line2);
+  }
+  .ver svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .verw[data-archived] .ver {
+    background: var(--sy-warn-soft);
+    color: var(--sy-warn);
+    border-color: color-mix(in oklab, var(--sy-warn) 35%, transparent);
+  }
+  .vermenu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 40;
+    min-width: 220px;
+    padding: 6px;
+    border: 1px solid var(--sy-line);
+    border-radius: 10px;
+    background: var(--sy-bg);
+    box-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.2);
+  }
+  @media (max-width: 480px) {
+    .vermenu {
+      position: fixed;
+      top: 64px;
+      right: 16px;
+      left: 16px;
+    }
+  }
+  .vermenu[hidden] {
+    display: none;
+  }
+  .vermenu a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 7px;
+    color: var(--sy-ink);
+    font: 600 13px var(--sy-font-mono);
+    text-decoration: none;
+  }
+  .vermenu a small {
+    color: var(--sy-ink3);
+    font: 500 11.5px var(--sy-font-sans, 'Nunito', sans-serif);
+  }
+  .vermenu a:hover,
+  .vermenu a.on {
+    background: var(--sy-accent-soft);
+    color: var(--sy-accent-ink);
+  }
+  .vermenu a.vlog {
+    display: block;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--sy-line);
+    border-radius: 0 0 7px 7px;
+    color: var(--sy-accent-ink);
+    font: 500 13px var(--sy-font-sans, 'Nunito', sans-serif);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.verw').forEach((wrap) => {
+    const button = wrap.querySelector<HTMLButtonElement>('.ver')!;
+    const menu = wrap.querySelector<HTMLElement>('.vermenu')!;
+    const set = (open: boolean) => {
+      menu.hidden = !open;
+      button.setAttribute('aria-expanded', String(open));
+    };
+    button.addEventListener('click', () => set(menu.hidden));
+    document.addEventListener('click', (e) => {
+      if (!wrap.contains(e.target as Node)) set(false);
+    });
+    wrap.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Escape') {
+        set(false);
+        button.focus();
+      }
+    });
+  });
+</script>

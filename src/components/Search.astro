@@ -1,0 +1,420 @@
+---
+// Starlight Search override: a command palette (Ctrl/Cmd+K) on top of the
+// Pagefind index built by Starlight. Results are grouped by type of content.
+import versions from '../../versions.json';
+
+const isEn = Astro.url.pathname.startsWith('/en/');
+
+// Versioned documentation (starlight-versions): the search is limited to the
+// version of the current page. Pages are tagged with a Pagefind filter
+// "version:<id>", like the plugin's own search component does.
+const parts = Astro.locals.starlightRoute.entry.id.split('/');
+const first = parts[0] === 'en' ? parts[1] : parts[0];
+const archived = versions.find((v: { slug: string }) => v.slug === first);
+// Pages excluded from versioning (audit/**) exist in every version.
+const everywhere = /^(en\/)?audit\//.test(Astro.locals.starlightRoute.entry.id);
+const [versionId, ...otherVersionIds] = archived
+  ? [archived.slug]
+  : ['current', ...(everywhere ? versions.map((v: { slug: string }) => v.slug) : [])];
+const t = isEn
+  ? {
+      label: 'Search',
+      placeholder: 'Search the documentation',
+      empty: 'No result for',
+      hint: 'Type to search, or start with one of these pages.',
+      scope: (label: string) => `Search limited to ${label}.`,
+      dev: 'Search is only available in the built site (npm run build && npm run preview).',
+      cancel: 'Cancel',
+      groups: {
+        guides: 'Guides',
+        resources: 'Resources',
+        recette: 'Acceptance tests',
+        changelog: 'Changelog',
+        dev: 'Developers',
+        compliance: 'Compliance',
+        other: 'Other',
+      },
+      quick: [
+        ['Getting started', '/en/guides/premiers-pas/'],
+        ['Create a study', '/en/guides/creer-etude/'],
+        ['Glossary', '/en/resources/glossary/'],
+        ['Compliance FAQ', '/en/resources/compliance-faq/'],
+        ['Changelog', '/en/changelog/'],
+      ],
+    }
+  : {
+      label: 'Rechercher',
+      placeholder: 'Rechercher dans la documentation',
+      empty: 'Aucun résultat pour',
+      hint: 'Tapez pour rechercher, ou commencez par l’une de ces pages.',
+      scope: (label: string) => `Recherche limitée à la ${label}.`,
+      dev: 'La recherche n’est disponible que sur le site construit (npm run build && npm run preview).',
+      cancel: 'Annuler',
+      groups: {
+        guides: 'Guides',
+        resources: 'Ressources',
+        recette: 'Recette',
+        changelog: 'Journal des modifications',
+        dev: 'Développeurs',
+        compliance: 'Conformité',
+        other: 'Autres',
+      },
+      quick: [
+        ['Premiers pas', '/guides/premiers-pas/'],
+        ['Créer une étude', '/guides/creer-etude/'],
+        ['Glossaire', '/resources/glossary/'],
+        ['FAQ conformité', '/resources/compliance-faq/'],
+        ['Journal des modifications', '/changelog/'],
+      ],
+    };
+const config = JSON.stringify({
+  groups: t.groups,
+  empty: t.empty,
+  quick: t.quick,
+  hint: t.hint,
+  version: versionId,
+  scope: archived ? t.scope(archived.label) : '',
+});
+---
+
+<site-palette data-config={config} data-pagefind-filter={`version:${versionId}`}>
+  {otherVersionIds.map((id) => <span hidden data-pagefind-filter={`version:${id}`} />)}
+  <button type="button" class="open" data-open aria-label={t.label} aria-keyshortcuts="Control+K" disabled>
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+    <span class="label">{t.label}</span>
+    <kbd class="kbd"><span data-key>Ctrl</span> K</kbd>
+  </button>
+
+  <dialog aria-label={t.label}>
+    <div class="frame">
+      <div class="bar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input type="search" data-q placeholder={t.placeholder} aria-label={t.placeholder} autocomplete="off" spellcheck="false" />
+        <button type="button" class="cancel" data-close>{t.cancel}</button>
+      </div>
+      <div class="res" data-res role="listbox" aria-live="polite">
+        {import.meta.env.DEV && <p class="msg">{t.dev}</p>}
+      </div>
+    </div>
+  </dialog>
+</site-palette>
+
+<script>
+  type Config = {
+    groups: Record<string, string>;
+    empty: string;
+    quick: string[][];
+    hint: string;
+    version: string;
+    scope: string;
+  };
+  type Hit = { url: string; title: string; excerpt: string; group: string };
+
+  // Maps a URL (without the locale prefix) to a group of results.
+  const groupOf = (url: string) => {
+    const path = url.replace(/^\/(en\/)?(\d+\.\d+\/)?/, '/');
+    if (path.startsWith('/guides/')) return 'guides';
+    if (path.startsWith('/resources/')) return 'resources';
+    if (path.startsWith('/recette/')) return 'recette';
+    if (path.startsWith('/changelog')) return 'changelog';
+    if (/^\/(audit|rgpd)\//.test(path)) return 'compliance';
+    if (/^\/(backend|architecture|deployment|security|code-convention|database|commands|api|troubleshooting|qa|contribute|getting-started)\//.test(path)) return 'dev';
+    return 'other';
+  };
+  const ORDER = ['guides', 'resources', 'recette', 'changelog', 'dev', 'compliance', 'other'];
+
+  class SitePalette extends HTMLElement {
+    private pagefind: any;
+    private hits: Hit[] = [];
+    private sel = 0;
+    private timer = 0;
+
+    connectedCallback() {
+      const cfg: Config = JSON.parse(this.dataset.config || '{}');
+      const dialog = this.querySelector('dialog')!;
+      const open = this.querySelector<HTMLButtonElement>('[data-open]')!;
+      const input = this.querySelector<HTMLInputElement>('[data-q]')!;
+      const res = this.querySelector<HTMLElement>('[data-res]')!;
+      if (/(Mac|iPhone|iPad)/i.test(navigator.platform)) {
+        this.querySelector('[data-key]')!.textContent = '⌘';
+      }
+
+      const showQuick = () => {
+        res.replaceChildren();
+        const p = document.createElement('p');
+        p.className = 'msg';
+        p.textContent = cfg.scope ? `${cfg.scope} ${cfg.hint}` : cfg.hint;
+        res.append(p, ...cfg.quick.map(([title, url]) => this.item({ url, title, excerpt: '', group: 'other' }, false)));
+        this.hits = [];
+        this.sel = 0;
+        this.mark();
+      };
+
+      const run = async () => {
+        const q = input.value.trim();
+        if (!q) return showQuick();
+        try {
+          if (!this.pagefind) {
+            const url = '/pagefind/pagefind.js';
+            this.pagefind = await import(/* @vite-ignore */ url);
+            await this.pagefind.init?.();
+          }
+        } catch {
+          return;
+        }
+        const search = await this.pagefind.search(q, { filters: { version: cfg.version } });
+        if (input.value.trim() !== q) return;
+        const data = await Promise.all(search.results.slice(0, 20).map((r: any) => r.data()));
+        this.hits = data
+          .map((d: any) => ({
+            url: d.url as string,
+            title: (d.meta?.title as string) || d.url,
+            excerpt: d.excerpt as string,
+            group: groupOf(d.url),
+          }))
+          .sort((a, b) => ORDER.indexOf(a.group) - ORDER.indexOf(b.group));
+        this.sel = 0;
+        res.replaceChildren();
+        if (!this.hits.length) {
+          const p = document.createElement('p');
+          p.className = 'msg';
+          p.textContent = `${cfg.empty} « ${q} »`;
+          res.append(p);
+          return;
+        }
+        let last = '';
+        for (const hit of this.hits) {
+          if (hit.group !== last) {
+            const n = this.hits.filter((h) => h.group === hit.group).length;
+            const h = document.createElement('h5');
+            h.textContent = cfg.groups[hit.group];
+            const c = document.createElement('span');
+            c.textContent = String(n);
+            h.append(c);
+            res.append(h);
+            last = hit.group;
+          }
+          res.append(this.item(hit, true));
+        }
+        this.mark();
+      };
+
+      const openPalette = () => {
+        if (dialog.open) return;
+        dialog.showModal();
+        document.body.toggleAttribute('data-search-modal-open', true);
+        input.value = '';
+        showQuick();
+        input.focus();
+      };
+      const close = () => dialog.close();
+      dialog.addEventListener('close', () => document.body.toggleAttribute('data-search-modal-open', false));
+      open.disabled = false;
+      open.addEventListener('click', openPalette);
+      this.querySelector('[data-close]')!.addEventListener('click', close);
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) close();
+      });
+      input.addEventListener('input', () => {
+        clearTimeout(this.timer);
+        this.timer = window.setTimeout(run, 120);
+      });
+      const links = () => [...res.querySelectorAll<HTMLAnchorElement>('a')];
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          dialog.open ? close() : openPalette();
+          return;
+        }
+        if (!dialog.open) return;
+        const items = links();
+        if (e.key === 'ArrowDown') {
+          this.sel = Math.min(this.sel + 1, items.length - 1);
+          this.mark();
+          e.preventDefault();
+        } else if (e.key === 'ArrowUp') {
+          this.sel = Math.max(this.sel - 1, 0);
+          this.mark();
+          e.preventDefault();
+        } else if (e.key === 'Enter' && items[this.sel]) {
+          items[this.sel].click();
+        }
+      });
+    }
+
+    private item(hit: Hit, withExcerpt: boolean) {
+      const a = document.createElement('a');
+      a.href = hit.url;
+      a.setAttribute('role', 'option');
+      const title = document.createElement('b');
+      title.textContent = hit.title;
+      a.append(title);
+      if (withExcerpt && hit.excerpt) {
+        const small = document.createElement('small');
+        small.innerHTML = hit.excerpt; // Pagefind escapes the text and only adds <mark>.
+        a.append(small);
+      }
+      return a;
+    }
+
+    private mark() {
+      const items = [...this.querySelectorAll<HTMLAnchorElement>('[data-res] a')];
+      items.forEach((a, i) => {
+        a.classList.toggle('sel', i === this.sel);
+        a.setAttribute('aria-selected', String(i === this.sel));
+        if (i === this.sel) a.scrollIntoView({ block: 'nearest' });
+      });
+    }
+  }
+  customElements.define('site-palette', SitePalette);
+</script>
+
+<style is:global>
+  site-palette .open {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--sy-line2);
+    border-radius: 10px;
+    background: var(--sy-bg);
+    color: var(--sy-ink3);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  site-palette .open:hover {
+    border-color: var(--sy-ink3);
+  }
+  site-palette .open .label {
+    flex: 1;
+    text-align: left;
+  }
+  site-palette .kbd {
+    font: 500 11px var(--sy-font-mono);
+    border: 1px solid var(--sy-line2);
+    border-radius: 5px;
+    padding: 1px 6px;
+    background: var(--sy-bg2);
+  }
+  @media (max-width: 63.99rem) {
+    site-palette .open {
+      width: 40px;
+      justify-content: center;
+      border-color: transparent;
+    }
+    site-palette .open .label,
+    site-palette .kbd {
+      display: none;
+    }
+  }
+  @media (min-width: 64rem) {
+    site-palette .open {
+      width: 260px;
+    }
+  }
+
+  site-palette dialog {
+    width: min(640px, calc(100vw - 24px));
+    max-height: min(560px, 80vh);
+    margin: 10vh auto auto;
+    padding: 0;
+    border: 1px solid var(--sy-line2);
+    border-radius: 14px;
+    background: var(--sy-bg);
+    color: var(--sy-ink);
+    box-shadow: 0 30px 80px -20px rgba(20, 15, 60, 0.5);
+    overflow: hidden;
+  }
+  site-palette dialog::backdrop {
+    background: rgba(15, 17, 36, 0.55);
+    backdrop-filter: blur(3px);
+  }
+  site-palette .frame {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+  }
+  site-palette .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--sy-line);
+    color: var(--sy-ink3);
+  }
+  site-palette .bar input {
+    flex: 1;
+    height: 56px;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--sy-ink);
+    font: inherit;
+    font-size: 16px;
+  }
+  site-palette .cancel {
+    border: 0;
+    background: none;
+    color: var(--sy-ink3);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  site-palette .res {
+    overflow-y: auto;
+    padding: 8px;
+  }
+  site-palette .res h5 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 8px 4px;
+    font: 600 11px var(--sy-font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sy-ink3);
+  }
+  site-palette .res h5 span {
+    background: var(--sy-bg3);
+    border-radius: 999px;
+    padding: 0 7px;
+  }
+  site-palette .res a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: var(--sy-ink);
+    text-decoration: none;
+  }
+  site-palette .res a b {
+    display: block;
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+  site-palette .res a small {
+    display: block;
+    margin-top: 2px;
+    color: var(--sy-ink3);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  site-palette .res a mark {
+    background: var(--sy-accent-soft);
+    color: var(--sy-accent-ink);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  site-palette .res a.sel,
+  site-palette .res a:hover {
+    background: var(--sy-accent-soft);
+  }
+  site-palette .msg {
+    margin: 12px;
+    color: var(--sy-ink3);
+    font-size: 14px;
+  }
+</style>

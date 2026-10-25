@@ -4,6 +4,11 @@
 // (compatible with a strict "script-src 'self'" CSP — no inline handler).
 import { DOCS_VERSION, RELEASES_URL } from '../version';
 
+import versions from '../../versions.json';
+
+// Once a version is archived, starlight-versions provides its own picker
+// (through the ThemeSelect override): this simple selector is then hidden.
+const archived = versions.length > 0;
 const isEn = Astro.url.pathname.startsWith('/en/');
 const changelogHref = isEn ? '/en/changelog/readme/' : '/changelog/readme/';
 
@@ -12,6 +17,7 @@ const t = isEn
   : { label: 'Documentation', changelog: 'Journal des modifications', releases: 'Toutes les versions (GitHub) ↗' };
 ---
 
+{!archived && (
 <div class="version-select">
   <span class="vs-label">{t.label}</span>
   <select class="vs-select" aria-label={`${t.label} v${DOCS_VERSION}`}>
@@ -20,6 +26,7 @@ const t = isEn
     {RELEASES_URL && <option value={RELEASES_URL}>{t.releases}</option>}
   </select>
 </div>
+)}
 
 <script>
   document.querySelectorAll('select.vs-select').forEach((el) => {
@@ -65,5 +72,14 @@ const t = isEn
   }
   .vs-select:hover {
     border-color: var(--sl-color-text-accent);
+  }
+</style>
+
+<style>
+  /* The full selector stays in the sidebar for narrow screens only. */
+  @media (min-width: 64rem) {
+    .version-select {
+      display: none;
+    }
   }
 </style>

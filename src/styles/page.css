@@ -1,0 +1,707 @@
+/* Page header (src/components/PageTitle.astro) and headings of the content. */
+.sy-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--sy-ink3);
+}
+.sy-crumbs a {
+  color: var(--sy-ink3);
+  text-decoration: none;
+}
+.sy-crumbs a:hover {
+  color: var(--sy-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sy-head h1,
+#_top {
+  font-family: var(--sy-font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 4.4vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+  color: var(--sy-ink);
+}
+.sy-sub {
+  max-width: 700px;
+  margin: 0 0 18px;
+  font-size: 17px;
+  color: var(--sy-ink2);
+}
+.sy-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  font-size: 13px;
+  color: var(--sy-ink3);
+}
+.sy-meta > span,
+.sy-meta > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sy-edit {
+  color: var(--sy-ink3);
+  text-decoration: none;
+}
+.sy-edit:hover {
+  color: var(--sy-accent);
+}
+.sy-rev {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: color-mix(in oklab, var(--sy-ok) 14%, var(--sy-bg));
+  color: var(--sy-ok);
+}
+.sy-rev.mid {
+  background: var(--sy-bg3);
+  color: var(--sy-ink2);
+}
+.sy-rev.stale {
+  background: color-mix(in oklab, #c2283b 14%, var(--sy-bg));
+  color: #c2283b;
+}
+:root[data-theme='dark'] .sy-rev.stale {
+  color: #ff7a8a;
+}
+.sy-gprog {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+}
+.sy-vbanner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d98a00;
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: color-mix(in oklab, #d98a00 12%, var(--sy-bg));
+  color: var(--sy-ink2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sy-vbanner b {
+  color: var(--sy-ink);
+}
+
+/* Headings of the content. */
+.sl-markdown-content h2 {
+  font-family: var(--sy-font-display);
+  font-weight: 500;
+  font-size: clamp(24px, 3vw, 30px);
+  letter-spacing: -0.015em;
+  color: var(--sy-ink);
+}
+.sl-markdown-content h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sy-ink);
+}
+
+/* The date and edit link are in the page header; keep only the pagination. */
+footer.sl-flex > .meta {
+  display: none;
+}
+
+/* Numbered lists: numbered steps joined by a line (mockup ".steps"). */
+.sl-markdown-content ol:not([class]) {
+  list-style: none;
+  counter-reset: sy-s;
+  padding: 0;
+  margin: 20px 0;
+}
+.sl-markdown-content ol:not([class]) > li {
+  counter-increment: sy-s;
+  position: relative;
+  margin: 0;
+  padding: 3px 0 8px 44px;
+  min-height: 36px;
+  color: var(--sy-ink2);
+}
+.sl-markdown-content ol:not([class]) > li::before {
+  content: counter(sy-s);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--sy-line2);
+  border-radius: 50%;
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  font: 600 13px var(--sy-mono, 'JetBrains Mono', ui-monospace, monospace);
+}
+.sl-markdown-content ol:not([class]) > li::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 32px;
+  bottom: 0;
+  width: 1px;
+  background: var(--sy-line);
+}
+.sl-markdown-content ol:not([class]) > li:last-child::after {
+  display: none;
+}
+.sl-markdown-content ol:not([class]) > li > p:first-child {
+  margin: 2px 0 6px;
+  color: var(--sy-ink);
+  font-weight: 600;
+}
+
+/* Tables (mockup "table.t"). Class-less tables only: the test book and the
+   test file keep their own styles. */
+.sl-markdown-content table:not([class]) {
+  display: table;
+  width: 100%;
+  margin: 14px 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 14px;
+}
+.sl-markdown-content table:not([class]) th {
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--sy-line);
+  background: var(--sy-bg2);
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+}
+.sl-markdown-content table:not([class]) td {
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--sy-line);
+  color: var(--sy-ink2);
+  vertical-align: top;
+}
+.sl-markdown-content table:not([class]) tr:last-child td {
+  border-bottom: 0;
+}
+@media (max-width: 640px) {
+  .sl-markdown-content table:not([class]) {
+    display: block;
+    overflow-x: auto;
+  }
+}
+.sl-markdown-content table:not([class]) th code {
+  background: transparent;
+  border-color: transparent;
+  color: var(--sy-ink2);
+}
+
+/* Asides (mockup ".aside"): Starlight asides and the asides made from the
+   blockquotes of the application pages (integrations/rehype-mockup.mjs). */
+.sl-markdown-content .aside,
+.sl-markdown-content .starlight-aside {
+  --aside-c: var(--sy-accent);
+  --aside-ink: var(--sy-accent-ink);
+  --aside-bg: var(--sy-accent-soft);
+  display: block;
+  margin: 20px 0;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in oklab, var(--aside-c) 30%, transparent);
+  border-radius: 10px;
+  background: var(--aside-bg);
+  font-size: 14px;
+}
+.sl-markdown-content .aside.tip,
+.sl-markdown-content .starlight-aside--tip {
+  --aside-c: var(--sy-ok);
+  --aside-ink: var(--sy-ok);
+  --aside-bg: var(--sy-ok-soft);
+}
+.sl-markdown-content .aside.caution,
+.sl-markdown-content .starlight-aside--caution {
+  --aside-c: var(--sy-warn);
+  --aside-ink: var(--sy-warn);
+  --aside-bg: var(--sy-warn-soft);
+}
+.sl-markdown-content .starlight-aside--danger {
+  --aside-c: var(--sy-danger);
+  --aside-ink: var(--sy-danger);
+  --aside-bg: var(--sy-danger-soft);
+}
+.sl-markdown-content .aside {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  column-gap: 12px;
+}
+.sl-markdown-content .aside > :not(svg) {
+  grid-column: 2;
+}
+.sl-markdown-content .aside > svg {
+  grid-column: 1;
+  grid-row: 1;
+}
+.sl-markdown-content .aside .sy-aside-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  fill: none;
+  stroke: var(--aside-ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sl-markdown-content .aside > :last-child,
+.sl-markdown-content .starlight-aside__content > :last-child {
+  margin-bottom: 0;
+}
+.sl-markdown-content .aside p,
+.sl-markdown-content .starlight-aside p {
+  margin: 0 0 8px;
+  color: var(--sy-ink2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.sl-markdown-content .starlight-aside__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 2px !important;
+  color: var(--sy-ink) !important;
+  font-size: 14px !important;
+  font-weight: 600;
+}
+.sl-markdown-content .starlight-aside__title svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--aside-ink);
+}
+.sl-markdown-content .starlight-aside__content {
+  padding-inline-start: 28px;
+}
+
+/* Prerequisite cards (mockup ".reqs"). */
+.sl-markdown-content .reqs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.sl-markdown-content .req {
+  padding: 12px 14px;
+  border: 1px solid var(--sy-line);
+  border-radius: 9px;
+}
+.sl-markdown-content .req b {
+  display: block;
+  color: var(--sy-ink);
+  font-size: 14px;
+}
+.sl-markdown-content .req span {
+  color: var(--sy-ink3);
+  font: 500 12.5px var(--sy-font-mono);
+}
+.sl-markdown-content .req small {
+  display: block;
+  margin-top: 4px;
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+/* Code blocks: header with the language label and a visible "Copy" button. */
+.expressive-code .frame.is-terminal .header,
+.expressive-code .frame.has-title .header {
+  justify-content: flex-start;
+  height: 38px;
+  padding-inline: 14px;
+}
+.expressive-code .frame.is-terminal .header .title::before {
+  content: 'terminal';
+  font: 500 12px var(--sy-font-mono);
+  color: var(--sy-ink3);
+}
+.expressive-code .frame.is-terminal .header::before {
+  display: none;
+}
+.expressive-code .frame.is-terminal .copy,
+.expressive-code .frame.has-title .copy {
+  inset-block-start: 5px;
+  inset-inline-end: 6px;
+}
+.expressive-code .frame.is-terminal .copy button,
+.expressive-code .frame.has-title .copy button {
+  opacity: 1;
+  width: auto;
+  height: 28px;
+  padding: 0 8px;
+  gap: 6px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  color: var(--sy-ink3);
+  font: 500 12px var(--sy-font-mono);
+}
+.expressive-code .frame.is-terminal .copy button::after,
+.expressive-code .frame.has-title .copy button::after {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  mask: none;
+  background: none;
+  opacity: 1;
+  content: 'Copier';
+}
+:lang(en) .expressive-code .frame.is-terminal .copy button::after,
+:lang(en) .expressive-code .frame.has-title .copy button::after {
+  content: 'Copy';
+}
+.expressive-code .frame .copy button:hover {
+  background: var(--sy-bg3);
+  color: var(--sy-ink);
+}
+
+.sl-markdown-content .reqs > .req,
+.sl-markdown-content .req > * {
+  margin: 0;
+}
+.sl-markdown-content .req > small {
+  margin-top: 4px;
+}
+
+/* Mermaid diagrams (src/components/MermaidViewer.astro; mockup ".mmd"). */
+.mmd {
+  margin: 18px 0 26px;
+  border: 1px solid var(--sy-line);
+  border-radius: 12px;
+  background: var(--sy-bg);
+  overflow: hidden;
+}
+.mmd-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 14px;
+  border-bottom: 1px solid var(--sy-line);
+  background: var(--sy-bg2);
+}
+.mmd-h b {
+  font-size: 13.5px;
+}
+.mmd-sp {
+  flex: 1;
+}
+.mmd-tabs {
+  display: flex;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--sy-bg3);
+}
+.mmd button {
+  cursor: pointer;
+}
+.mmd-tabs button {
+  height: 24px;
+  padding: 0 10px;
+  line-height: 1;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--sy-ink3);
+  font: 700 12px var(--sl-font);
+}
+.mmd-tabs button.on {
+  background: var(--sy-bg);
+  color: var(--sy-ink);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+.mmd-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.mmd-tools i {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: var(--sy-line2);
+}
+.mmd-tools button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--sy-ink2);
+}
+.mmd-tools button:hover {
+  background: var(--sy-bg3);
+  color: var(--sy-accent-ink);
+}
+.mmd-pct {
+  min-width: 42px;
+  color: var(--sy-ink3);
+  font: 600 11.5px var(--sy-font-mono);
+  text-align: center;
+}
+.mmd-stage {
+  position: relative;
+  height: 440px;
+  overflow: hidden;
+  outline: 0;
+  background-color: var(--sy-bg);
+  background-image: radial-gradient(color-mix(in oklab, var(--sy-accent) 18%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+  cursor: grab;
+  touch-action: none;
+}
+.mmd-stage:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--sy-accent);
+}
+.mmd-stage.drag {
+  cursor: grabbing;
+}
+.mmd-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.mmd-canvas svg {
+  display: block;
+  max-width: none !important;
+}
+.mmd-load {
+  padding: 24px;
+  color: var(--sy-ink3);
+  font-size: 13px;
+}
+.mmd-hint {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 3px 8px;
+  border: 1px solid var(--sy-line);
+  border-radius: 6px;
+  background: var(--sy-bg2);
+  color: var(--sy-ink3);
+  font-size: 11.5px;
+  pointer-events: none;
+}
+.mmd-src {
+  display: none;
+  max-height: 440px;
+  margin: 0;
+  padding: 16px 18px;
+  overflow: auto;
+  background: var(--sy-code);
+  color: var(--sy-ink2);
+  font: 500 12.5px/1.6 var(--sy-font-mono);
+}
+.mmd.src .mmd-stage {
+  display: none;
+}
+.mmd.src .mmd-src {
+  display: block;
+}
+.mmd.src .mmd-tools button[data-z],
+.mmd.src .mmd-pct {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.mmd:fullscreen {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+}
+.mmd:fullscreen .mmd-stage,
+.mmd:fullscreen .mmd-src {
+  flex: 1;
+  height: auto !important;
+  max-height: none;
+}
+.mmd-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  z-index: 90;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--sy-ink);
+  color: var(--sy-bg);
+  font-size: 13px;
+  font-weight: 700;
+  transform: translateX(-50%);
+}
+.mmd-h > *,
+.mmd-tabs > *,
+.mmd-tools > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Who edited the page: avatars, last edit, history (git log of the page). */
+.sy-own {
+  margin-top: 40px;
+  border-top: 1px solid var(--sy-line);
+  color: var(--sy-ink2);
+  font-size: 13.5px;
+}
+.sy-fb + .sy-own {
+  margin-top: 28px;
+}
+.sy-own-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 16px 0;
+}
+.sy-own-avs {
+  display: flex;
+}
+.sy-av {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin-left: -7px;
+  border: 2px solid var(--sy-bg);
+  border-radius: 50%;
+  background: oklch(0.93 0.045 var(--h));
+  color: oklch(0.35 0.09 var(--h));
+  font-weight: 700;
+  font-size: 10.5px;
+}
+.sy-own-avs .sy-av:first-child {
+  margin-left: 0;
+}
+:root[data-theme='dark'] .sy-av {
+  background: oklch(0.36 0.07 var(--h));
+  color: oklch(0.9 0.06 var(--h));
+}
+.sy-own-txt {
+  flex: 1;
+  min-width: 220px;
+  line-height: 1.45;
+}
+.sy-own-txt b {
+  color: var(--sy-ink);
+}
+.sy-own-txt small {
+  display: block;
+  margin: 0;
+  line-height: 1.4;
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+}
+.sy-own-hist {
+  display: contents;
+}
+.sy-own-hist summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin: 0 !important;
+  padding: 0 11px !important;
+  border: 1px solid var(--sy-line);
+  border-radius: 8px;
+  color: var(--sy-ink2);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.sy-own-hist summary::before,
+.sy-own-hist summary::after {
+  content: none !important;
+}
+.sy-own-hist summary::-webkit-details-marker {
+  display: none;
+}
+.sy-own-hist summary:hover {
+  border-color: var(--sy-ink3);
+  color: var(--sy-ink);
+}
+.sy-own-hist[open] summary {
+  border-color: transparent;
+  background: var(--sy-accent-soft);
+  color: var(--sy-accent-ink);
+}
+.sy-own .sy-own-hist ol {
+  order: 9;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+  border: 1px solid var(--sy-line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sy-own .sy-own-hist li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin: 0 !important;
+  padding: 9px 12px;
+  border-top: 1px solid var(--sy-line);
+}
+.sy-own-hist li:first-child {
+  border-top: 0;
+}
+.sy-own-hist li .sy-av {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border: 0;
+  font-size: 9.5px;
+}
+.sy-own-hist li span:not(.sy-av) {
+  color: var(--sy-ink);
+}
+.sy-own-hist li em {
+  color: var(--sy-ink3);
+  font-size: 12.5px;
+  font-style: normal;
+  white-space: nowrap;
+}
+.sy-own-hist li.full {
+  grid-template-columns: 1fr;
+}
+.sy-own-hist code {
+  font-size: 11.5px;
+}
+@media (max-width: 640px) {
+  .sy-own-hist li {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+  .sy-own-hist li em {
+    grid-column: 2;
+    white-space: normal;
+  }
+}

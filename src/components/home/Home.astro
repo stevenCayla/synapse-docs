@@ -1,0 +1,117 @@
+---
+// Home page (hero, study cycle, value cards, roles, learning path, reference).
+// Strings live in content.ts; links are prefixed with the locale.
+import { Image } from 'astro:assets';
+import recap from '../../assets/home/12-recap.webp';
+import Icon from './Icon.astro';
+import { homeContent } from './content';
+import { APP_VERSION } from '../../version';
+
+const { lang } = Astro.props as { lang: 'fr' | 'en' };
+const c = homeContent[lang];
+const base = lang === 'en' ? '/en' : '';
+const href = (path: string) => (path.startsWith('/') ? base + path : path);
+const discord = 'https://discord.com/channels/1521440528388984934/1521440528829382718';
+---
+
+<div class="sy-home sy-full not-content">
+  <div class="sy-hero-wrap">
+    <section class="sy-hero">
+      <div>
+        <a class="sy-eyebrow" href={href(c.eyebrow.href)}>
+          <b>v{APP_VERSION}</b><span>{c.eyebrow.text}</span>
+        </a>
+        <h1>{c.title[0]}<em>{c.title[1]}</em>{c.title[2]}</h1>
+        <p class="sy-lede"><strong>{c.lede[0]}</strong>{c.lede[1]}</p>
+        <div class="sy-chips">{c.chips.map((chip) => <span>{chip}</span>)}</div>
+        <div class="sy-actions">
+          <a class="sy-btn sy-btn-pri" href={href(c.actions.start.href)}>{c.actions.start.label}<Icon name="arrow" /></a>
+          <a class="sy-btn" href={href(c.actions.local.href)}><Icon name="code" />{c.actions.local.label}</a>
+        </div>
+      </div>
+      <a class="sy-hero-shot" href={href(c.shot.href)}>
+        <Image src={recap} alt={c.shot.alt} widths={[600, 900, 1200]} sizes="(min-width: 820px) 560px, 100vw" loading="eager" />
+        <span class="sy-hero-tag">{c.shot.tag}</span>
+      </a>
+    </section>
+  </div>
+
+  <section class="sy-sec sy-dots">
+    <div class="sy-sec-h"><h2>{c.cycle.heading}</h2><p>{c.cycle.sub}</p></div>
+    <ol class="sy-cycle">
+      {c.cycle.steps.map((s, i) => (
+        <li><span class="sy-cy-n">{i + 1}</span><b>{s.title}</b><p>{s.text}</p></li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="sy-sec">
+    <div class="sy-sec-h"><h2>{c.why.heading}</h2></div>
+    <div class="sy-why">
+      {c.why.items.map((i) => (
+        <div><span class="sy-ic"><Icon name={i.icon} size={18} /></span><b>{i.title}</b><p>{i.text}</p></div>
+      ))}
+    </div>
+  </section>
+
+  <section class="sy-sec">
+    <div class="sy-sec-h"><h2>{c.roles.heading}</h2><p>{c.roles.sub}</p></div>
+    <div class="sy-roles">
+      {c.roles.items.map((r) => (
+        <div class="sy-role">
+          <div class="sy-role-h">
+            <span class="sy-ic"><Icon name={r.icon} size={18} /></span>
+            <div><b>{r.title}</b><small>{r.sub}</small></div>
+          </div>
+          <ul>{r.links.map(([to, label]) => <li><a href={href(to)}>{label}</a></li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="sy-sec sy-dots">
+    <div class="sy-sec-h">
+      <h2>{c.path.heading}</h2>
+      <div class="sy-hprog">
+        <span>{c.path.progress.start}</span><span class="sy-hbar"><i data-gbar="start"></i></span><b data-gcount="start"></b>
+        <span>{c.path.progress.run}</span><span class="sy-hbar"><i data-gbar="run"></i></span><b data-gcount="run"></b>
+        <button type="button" class="sy-reset" data-reset-progress>{lang === 'en' ? 'Reset' : 'Réinitialiser'}</button>
+      </div>
+    </div>
+    <div class="sy-stages">
+      {c.path.stages.map((s) => (
+        <div class="sy-stage">
+          <div class="sy-stage-l"><span class="sy-stage-n">{s.n}</span><h3>{s.title}</h3><p>{s.text}</p></div>
+          <div class="sy-stage-c">
+            {s.links.map((l) => (
+              <a class="sy-jc" href={href(l.href)}><b>{l.title}</b><p>{l.text}</p><span>{l.cta}</span></a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="sy-sec">
+    <div class="sy-sec-h"><h2>{c.reference.heading}</h2></div>
+    <div class="sy-lcards">
+      {c.reference.items.map((r) => (
+        <a class="sy-lcard" href={href(r.href)}>
+          <div><b>{r.title}</b><small>{r.text}</small></div>
+          <Icon name="arrow" />
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="sy-sec">
+    <div class="sy-band">
+      <div><h3>{c.contribute.title}</h3><p>{c.contribute.text}</p></div>
+      <div class="sy-actions">
+        <a class="sy-btn sy-btn-pri" href={href('/contribute/')}>{c.contribute.guide}</a>
+        <a class="sy-btn" href={discord} target="_blank" rel="noopener noreferrer"><Icon name="chat" />{c.contribute.discord}</a>
+      </div>
+    </div>
+  </section>
+
+</div>

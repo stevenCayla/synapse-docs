@@ -1,0 +1,9 @@
+---
+import Sheet from '../../../components/fiches/Sheet.astro';
+import { sheets } from '../../../components/fiches/content';
+
+export const getStaticPaths = () => Object.keys(sheets).map((slug) => ({ params: { slug } }));
+const { slug } = Astro.params;
+---
+
+<Sheet slug={slug!} lang="en" />
