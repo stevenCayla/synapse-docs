@@ -697,9 +697,6 @@ footer.sl-flex > .meta {
 .sy-own-hist code {
   font-size: 11.5px;
 }
-.sy-revt td:first-child {
-  white-space: nowrap;
-}
 @media (max-width: 640px) {
   .sy-own-hist li {
     grid-template-columns: 24px minmax(0, 1fr);
