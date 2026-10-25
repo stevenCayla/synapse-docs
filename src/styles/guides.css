@@ -192,7 +192,10 @@ abbr.gl {
   margin: 0 0 0 auto !important;
 }
 .sy-fb-row > .sy-fb-q,
-.sy-fb-btns > * {
+.sy-fb-btns > *,
+.sy-fb-chips > *,
+.sy-fb-foot > *,
+.sy-fb-form > * {
   margin: 0 !important;
 }
 .sy-fb button,
@@ -258,6 +261,7 @@ abbr.gl {
   background: var(--sy-bg);
   color: var(--sy-ink);
   font: inherit;
+  font-weight: 400;
   resize: vertical;
 }
 .sy-fb-foot {
@@ -267,6 +271,7 @@ abbr.gl {
   gap: 10px;
   color: var(--sy-ink3);
   font-size: 12.5px;
+  font-weight: 400;
 }
 .sy-fb-foot span {
   flex: 1;
