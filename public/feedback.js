@@ -130,5 +130,7 @@
   });
 
   box.append(row, form);
+  var own = document.querySelector('.sy-own');
+  if (own) content.appendChild(own);
   content.appendChild(box);
 })();

@@ -4,6 +4,7 @@
 // (Contribute · Community · GitHub).
 import Default from '@astrojs/starlight/components/Footer.astro';
 import MermaidViewer from './MermaidViewer.astro';
+import { pageHistory, initials, hue } from '../history';
 
 const isEn = Astro.url.pathname.startsWith('/en/');
 const contributeHref = isEn ? '/en/contribute/' : '/contribute/';
@@ -16,10 +17,73 @@ const year = new Date().getFullYear();
 const t = isEn
   ? { contribute: 'Contribute', community: 'Community', changelog: 'Changelog', github: 'View on GitHub' }
   : { contribute: 'Contribuer', community: 'Communauté', changelog: 'Journal des modifications', github: 'Voir sur GitHub' };
+
+// Who edited the page (git history of its source file).
+const { entry } = Astro.locals.starlightRoute;
+const rel = (entry.filePath ?? `src/content/docs/${entry.id}.md`).replace(/^src\/content\/docs\//, '');
+const history = entry.data.template === 'splash' ? [] : pageHistory(`src/content/docs/${rel}`);
+const contributors = [...new Set(history.map((r) => r.author))].slice(0, 5);
+const last = history[0];
+const registry = /^(en\/)?(recette\/|resources\/compliance-faq)/.test(rel);
+const fmt = (d: Date) => d.toLocaleDateString(isEn ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+const historyHref = `https://github.com/stevenCayla/synapse-docs/commits/develop/src/content/docs/${rel}`;
+const o = isEn
+  ? { edited: 'Edited on', by: 'by', n: (n: number) => `${n} contributor${n > 1 ? 's' : ''}`, btn: 'History', full: 'Full history on GitHub', title: 'Revision history', intro: 'Every change to this page is recorded in the repository history.', cols: ['Date', 'Author', 'Reason'] }
+  : { edited: 'Modifiée le', by: 'par', n: (n: number) => `${n} contributeur${n > 1 ? 's' : ''}`, btn: 'Historique', full: "Voir l'historique complet sur GitHub", title: 'Historique des révisions', intro: 'Toute modification de cette page est enregistrée dans l’historique du dépôt.', cols: ['Date', 'Auteur', 'Motif'] };
 ---
 
 <Default><slot /></Default>
 <MermaidViewer />
+
+{
+  last && (
+    <div class="sy-own" data-pagefind-ignore>
+      {registry && (
+        <>
+          <h2 id="revisions">{o.title}</h2>
+          <p>{o.intro}</p>
+          <table class="sy-revt">
+            <thead><tr>{o.cols.map((c) => <th>{c}</th>)}</tr></thead>
+            <tbody>
+              {history.map((r) => (
+                <tr><td>{fmt(r.date)}</td><td>{r.author}</td><td>{r.subject} <code>{r.sha}</code></td></tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+      <div class="sy-own-row">
+        <div class="sy-own-avs">
+          {contributors.map((a) => (
+            <span class="sy-av" style={`--h:${hue(a)}`} title={a}>{initials(a)}</span>
+          ))}
+        </div>
+        <div class="sy-own-txt">
+          {o.edited} <b>{fmt(last.date)}</b> {o.by} <b>{last.author}</b>
+          <small>{o.n(contributors.length)}</small>
+        </div>
+        {!registry && (
+          <details class="sy-own-hist">
+            <summary>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+              {o.btn}
+            </summary>
+            <ol>
+              {history.map((r) => (
+                <li>
+                  <span class="sy-av" style={`--h:${hue(r.author)}`}>{initials(r.author)}</span>
+                  <span>{r.subject} <code>{r.sha}</code></span>
+                  <em>{r.author} · {fmt(r.date)}</em>
+                </li>
+              ))}
+              <li class="full"><a href={historyHref} target="_blank" rel="noopener noreferrer">{o.full}</a></li>
+            </ol>
+          </details>
+        )}
+      </div>
+    </div>
+  )
+}
 
 <section class="sm-community sl-flex" data-pagefind-ignore>
   <span class="sm-copy">© {year} Synapse Medical · Documentation</span>
