@@ -28,8 +28,8 @@ export const ROWS = [
 ];
 export const LEGEND = ['', '', '', '', '', '0: homme 1: femme', '', '1: carcinome 2: mélanome', 'stade AJCC 8e éd.', 'en mm, NE = non évaluable', '0: non 1: oui', '', '0: aucun 1: radiothérapie 2: chimiothérapie', '', '0: non 1: oui', '0: non 1: oui', ''];
 
-export const COMMIT = 'd4f204a';
-export const VERSION = '3.1.0';
+export const COMMIT = 'c8b9516';
+export const VERSION = '3.2.0';
 
 export const SHOTS_DIR = '/recette-shots/';
 
@@ -96,7 +96,7 @@ export function content(lang: Lang) {
       where: t("Structure de l'essai.", 'Structure of the trial.'),
       head: hEnter,
       rows: [
-        ['Phase ' + req, v(t('Phase III', 'Phase III')), t('Pour un dispositif, choisir la plus proche.', 'For a device, choose the closest.')],
+        ['Phase ' + req, v(t('Investigation pivot', 'Pivotal investigation')), t("Pour un dispositif médical, l'application propose : Investigation pilote, Investigation pivot, Suivi post-commercialisation, Sans objet.", 'For a medical device, the application offers: Pilot investigation, Pivotal investigation, Post-market follow-up, Not applicable.')],
         ['Design ' + req, v(t('Bras unique', 'Single arm')), t('Un seul groupe, sans comparateur ni tirage au sort.', 'One group, no comparator and no randomisation.')],
         [t('Randomisation', 'Randomisation'), t('laisser vide', 'leave empty'), t('Sans objet pour un bras unique.', 'Not applicable for a single arm.')],
         [t('Aveugle', 'Blinding') + ' ' + req, v(t('Ouvert', 'Open')), ''],
@@ -105,7 +105,7 @@ export function content(lang: Lang) {
         [t('Durée totale', 'Total duration') + ' ' + req, v('24') + ' ' + t('(calculée)', '(calculated)'), t('Somme automatique, modifiable.', 'Automatic sum, editable.')],
       ],
       shots: [{ file: '04-design.webp', alt: t('Étape 4 remplie', 'Step 4 filled in'), caption: t('Durée totale calculée seule.', 'Total duration calculated on its own.') }],
-      known: [['#188', t('Phase obligatoire même pour un dispositif ; Randomisation visible en bras unique.', 'Phase is required even for a device; Randomisation is visible for a single arm.')]],
+      known: [['#188', t('Phase obligatoire même pour un dispositif (la randomisation est bien masquée en bras unique).', 'Phase is required even for a device (randomisation is correctly hidden for a single arm).')]],
       checks: [t('La durée totale se remplit seule avec 24.', 'The total duration fills itself in with 24.')],
     },
     {
@@ -124,7 +124,6 @@ export function content(lang: Lang) {
         { file: '05b-ages.webp', alt: t('Âges incohérents refusés', 'Inconsistent ages refused'), caption: t('Âges 80 / 18 refusés.', 'Ages 80 / 18 refused.') },
         { file: '05-population.webp', alt: t('Étape 5 remplie', 'Step 5 filled in'), caption: t('Étape remplie.', 'Step filled in.') },
       ],
-      known: [['#180', t("Après refus, l'étape est cochée en vert à gauche et l'ancien message reste jusqu'au prochain « Continuer ».", 'After a refusal, the step is ticked green on the left and the old message stays until the next “Continue”.')]],
       checks: [t('Âges 80 / 18 refusés au « Continuer », avec le message sous le champ.', 'Ages 80 / 18 refused on “Continue”, with the message under the field.'), t('Âges 18 / 99 acceptés.', 'Ages 18 / 99 accepted.')],
     },
     {
@@ -142,7 +141,7 @@ export function content(lang: Lang) {
         { file: '06a-sites-vide.webp', alt: t('Sites vide', 'Empty sites'), caption: t('Sans site.', 'Without a site.') },
         { file: '06-sites.webp', alt: t('Sites rempli', 'Sites filled in'), caption: t('Somme des objectifs = cible.', 'Sum of targets = target.') },
       ],
-      known: [['#189', t("Sans site, « Σ objectifs sites » affiche « -50 vs cible » en orange alors que les sites sont optionnels.", 'Without a site, “Σ site targets” shows “-50 vs target” in orange although sites are optional.')]],
+      known: [['#189', t("Avec un site sans objectif saisi, « Σ objectifs sites » affiche « -50 vs cible » en orange.", 'With a site that has no target entered, “Σ site targets” shows “-50 vs target” in orange.')]],
       checks: [t('Un site sans investigateur principal bloque l\'étape.', 'A site without a principal investigator blocks the step.'), t('Avec un objectif de 50, « Σ objectifs sites » affiche « cible de l\'étude : 50 ».', 'With a target of 50, “Σ site targets” shows “study target: 50”.')],
     },
     {
@@ -158,7 +157,7 @@ export function content(lang: Lang) {
       ],
       shots: [{ file: '07-reglementaire.webp', alt: t('Matrice France 4/15', 'France matrix 4/15'), caption: t('« cadre RIPH 2 », France 4/15.', '“RIPH 2 framework”, France 4/15.') }],
       fixed: [t('Corrigé le 23/10 (#177)', 'Fixed on 23/10 (#177)'), t('Le premier dépôt pouvait être refusé (« document non attendu »). Tout refus est désormais à signaler.', 'The first upload could be refused (“unexpected document”). Any refusal must now be reported.')],
-      checks: [t("L'en-tête indique « Exigences déduites du cadre RIPH 2 ».", 'The header reads “Requirements deduced from the RIPH 2 framework”.'), t('Le consentement et « Conservation des données identifiantes » passent à « Conforme ».', 'Consent and “Retention of identifying data” turn “Compliant”.'), t('Un ID-RCB au mauvais format est signalé.', 'A badly formatted ID-RCB is flagged.')],
+      checks: [t("L'en-tête indique « Exigences déduites du cadre RIPH 2 ».", 'The header reads “Requirements deduced from the RIPH 2 framework”.'), t('« Conservation des données identifiantes » est déjà « Conforme » avant le dépôt ; le consentement passe à « Conforme » après le dépôt.', '“Retention of identifying data” is already “Compliant” before the upload; consent turns “Compliant” after the upload.'), t('Un ID-RCB au mauvais format est signalé.', 'A badly formatted ID-RCB is flagged.')],
     },
     {
       title: 'eCRF',
@@ -178,11 +177,11 @@ export function content(lang: Lang) {
       rows: [
         [t('Modèle', 'Template'), t('aucun', 'none'), t('J0 = inclusion.', 'D0 = enrolment.')],
         [t('Test des doublons', 'Duplicates test'), v('V0') + ' · Inclusion · J0 ' + t('puis', 'then') + ' ' + v('V0') + ' · Doublon · J30', t("Enregistrer chaque visite avant d'en ajouter une autre.", 'Save each visit before adding another.')],
-        [t('Nettoyage', 'Clean-up'), t('<b>supprimer les deux visites</b>', '<b>delete both visits</b>'), t("Sur ce parcours, les formulaires n'existent pas encore.", 'On this path, the forms do not exist yet.')],
+        [t('Nettoyage', 'Clean-up'), t('<b>supprimer les deux visites</b>', '<b>delete both visits</b>'), t("Sur ce parcours, les formulaires n'existent pas encore : une visite sans formulaire reste un point « avant production ».", 'On this path, the forms do not exist yet: a visit without a form only remains a “before production” item.')],
       ],
-      shots: [{ file: '09b-doublon.webp', alt: t('Deux visites V0', 'Two V0 visits'), caption: t('Deux bloquants, puis suppression.', 'Two blockers, then deletion.') }],
-      known: [['#179', t('Une visite sans formulaire bloque ; ajouter une visite pendant une saisie la vide.', 'A visit without a form blocks; adding a visit during an entry empties it.')]],
-      checks: [t('Deux visites au même code sont refusées.', 'Two visits with the same code are refused.'), t('Sans visite, « Continuer » passe à Équipe.', 'With no visit, “Continue” moves to Team.')],
+      shots: [{ file: '09b-doublon.webp', alt: t('Deux visites V0', 'Two V0 visits'), caption: t('« Code déjà utilisé » sous le champ, puis suppression.', '“Code already used” under the field, then deletion.') }],
+      known: [['#179', t("Ajouter une visite pendant une saisie la vide (une visite sans formulaire n'est plus qu'un point « avant production »).", 'Adding a visit during an entry empties it (a visit without a form is now only a “before production” item).')]],
+      checks: [t('Deux visites au même code sont refusées sous le champ (« Code déjà utilisé »).', 'Two visits with the same code are refused under the field (“Code already used”).'), t('Sans visite, « Continuer » passe à Équipe.', 'With no visit, “Continue” moves to Team.')],
     },
     {
       title: t('Équipe', 'Team'),
@@ -196,7 +195,7 @@ export function content(lang: Lang) {
         ['Invitations', t('aucune', 'none'), t('Envoyées au lancement : aucune adresse réelle sur le dev.', 'Sent at launch: no real address on the dev server.')],
       ],
       shots: [{ file: '10-equipe.webp', alt: t('Étape Équipe', 'Team step'), caption: t("Avant #176 : les PI apparaissent désormais en tête, « Inclus d'office ».", 'Before #176: PIs now appear first, “Included by default”.'), old: true }],
-      checks: [t('Le PI coordinateur apparaît « Inclus d\'office », coché et grisé, « toute l\'étude ».', 'The coordinating PI appears “Included by default”, ticked and greyed, “whole study”.'), t('Champs obligatoires remplis : plus de bloquant.', 'Required fields filled in: no more blocker.')],
+      checks: [t("Le PI coordinateur apparaît « Inclus d'office (investigateur principal de site) · rôle Gestionnaire · restreint à <site> ».", 'The coordinating PI appears “Included by default (site principal investigator) · role Manager · restricted to <site>”.'), t('Champs obligatoires remplis : plus de bloquant.', 'Required fields filled in: no more blocker.')],
     },
     {
       title: t('Import · 1. Fichier', 'Import · 1. File'),
@@ -228,23 +227,23 @@ export function content(lang: Lang) {
         { file: '11c-definir.webp', alt: t('Panneau de définition', 'Definition panel'), caption: t('Autre fichier.', 'Another file.') },
         { file: '11d-champs-crees.webp', alt: t('Champs créés', 'Fields created'), caption: t('Colonnes rapprochées.', 'Columns matched.') },
       ],
-      known: [['#193', t('Libellés bruts et sections « Groupe N » à renommer.', 'Raw labels and “Group N” sections to rename.')], ['#198', t('Listes réduites aux valeurs présentes dans le fichier.', 'Lists reduced to the values present in the file.')]],
+      known: [['#193', t('Libellés sans accents et sections « Groupe 1 à 3 » à renommer (reproduit).', 'Labels without accents and “Group 1 to 3” sections to rename (reproduced).')], ['#198', t('Listes réduites aux valeurs présentes dans le fichier.', 'Lists reduced to the values present in the file.')]],
       fixed: [t('Corrigé le 23/10 (#175)', 'Fixed on 23/10 (#175)'), t("« Créer les champs sélectionnés et les mapper » ne faisait rien. Si rien ne se passe, c'est une régression.", '“Create the selected fields and map them” did nothing. If nothing happens, it is a regression.')],
-      checks: [t('Plus aucune colonne sans champ.', 'No column left without a field.'), t('Les listes reprennent la légende (diagnostic : 1 carcinome, 2 mélanome).', 'The lists reuse the legend (diagnostic: 1 carcinoma, 2 melanoma).'), t("Les colonnes de même couleur sont dans la même section.", 'Columns of the same colour are in the same section.')],
+      checks: [t('Plus aucune colonne sans champ.', 'No column left without a field.'), t('Les options des listes reprennent les codes de la légende (diagnostic : 1, 2) ; les libellés (carcinome, mélanome) restent en texte d\'aide.', 'The list options reuse the codes of the legend (diagnostic: 1, 2); the labels (carcinoma, melanoma) stay as help text.'), t("Les colonnes de même couleur sont dans la même section.", 'Columns of the same colour are in the same section.')],
     },
     {
       title: t('Import · 3. Contrôles', 'Import · 3. Controls'),
       where: t('Erreurs bloquantes et avertissements.', 'Blocking errors and warnings.'),
       head: [t('Problème', 'Problem'), t('Action', 'Action'), t('Explication', 'Explanation')],
       rows: [
-        [t('<code>NE</code> dans <code>breslow_mm</code>', '<code>NE</code> in <code>breslow_mm</code>'), t('<b>Corriger</b> (vider) ou <b>Remplacer</b>', '<b>Fix</b> (empty) or <b>Replace</b>'), t("Valeur d'origine conservée dans l'audit trail.", 'Original value kept in the audit trail.')],
+        [t('<code>NE</code> dans <code>breslow_mm</code>', '<code>NE</code> in <code>breslow_mm</code>'), t('<b>Remplacer</b> avec une valeur vide, dans le bloc « Problèmes par règle »', '<b>Replace</b> with an empty value, in the “Problems by rule” block'), t("« Corriger » avec une cellule vide est refusé (« Saisissez la nouvelle valeur de la cellule »). Valeur d'origine conservée dans l'audit trail ; le résumé affiche « corrections 0 » (écart de l'application signalé).", '“Fix” with an empty cell is refused (“Enter the new value of the cell”). Original value kept in the audit trail; the summary shows “corrections 0” (application gap reported).')],
         [t('« Hors plage »', '“Out of range”'), t('ne rien faire', 'do nothing'), ''],
         [t('« Accepter et créer une requête »', '“Accept and create a query”'), t('tester sur un avertissement', 'test on a warning'), t("Requête créée après application de l'import.", 'Query created after the import is applied.')],
         [t('« Exclure les lignes »', '“Exclude the rows”'), t('non', 'no'), ''],
       ],
       shots: [{ file: '11e-controles.webp', alt: t('Import · Contrôles', 'Import · Controls'), caption: t('Autre fichier.', 'Another file.') }],
       known: [['#178', t("Bornes tirées du fichier : la valeur extrême est parfois signalée « hors plage » à tort.", 'Bounds drawn from the file: the extreme value is sometimes wrongly flagged “out of range”.')]],
-      checks: [t('<code>NE</code> est signalé et corrigeable.', '<code>NE</code> is flagged and can be fixed.'), t('« Aucune erreur » une fois corrigé.', '“No errors” once fixed.')],
+      checks: [t('<code>NE</code> est signalé et remplaçable.', '<code>NE</code> is flagged and can be replaced.'), t('« Aucune erreur » une fois corrigé.', '“No errors” once fixed.')],
     },
     {
       title: t('Import · 4. Confirmation et signature', 'Import · 4. Confirmation and signature'),
@@ -283,11 +282,10 @@ export function content(lang: Lang) {
     [t('Partout', 'Everywhere'), t("Complétude et pastilles mises à jour seulement au « Continuer ».", 'Completeness and badges only updated on “Continue”.'), '#184', 2],
     [t("Reprise d'un brouillon", 'Resuming a draft'), t("Ouverture à la première étape incomplète ; étapes jamais ouvertes cochées.", 'Opens on the first incomplete step; steps never opened are ticked.'), '#185', 0],
     [t('Cadre réglementaire', 'Regulatory framework'), t('Catégorie connue seulement après le choix des pays.', 'Category only known after the countries are chosen.'), '#187', 3],
-    ['Design', t('Phase obligatoire pour un dispositif ; Randomisation visible en bras unique.', 'Phase required for a device; Randomisation visible for a single arm.'), '#188', 4],
-    ['Population', t('Étape cochée malgré un refus ; message périmé affiché.', 'Step ticked despite a refusal; outdated message shown.'), '#180', 5],
-    ['Sites', t("« Σ objectifs sites » en orange sans aucun site.", '“Σ site targets” in orange with no site at all.'), '#189', 6],
-    [t('Calendrier', 'Schedule'), t("Visite sans formulaire bloquante ; ajouter une visite pendant une saisie la vide.", 'A visit without a form blocks; adding a visit during an entry empties it.'), '#179', 9],
-    ['Import', t('Libellés bruts, sections « Groupe N », « hors plage » à tort, listes réduites aux valeurs du fichier.', 'Raw labels, “Group N” sections, wrongly “out of range”, lists reduced to the values of the file.'), '#193, #178, #198', 12],
+    ['Design', t('Phase obligatoire pour un dispositif.', 'Phase required for a device.'), '#188', 4],
+    ['Sites', t("« Σ objectifs sites » en orange avec un site sans objectif saisi.", '“Σ site targets” in orange with a site that has no target entered.'), '#189', 6],
+    [t('Calendrier', 'Schedule'), t("Ajouter une visite pendant une saisie la vide.", 'Adding a visit during an entry empties it.'), '#179', 9],
+    ['Import', t('Libellés sans accents, sections « Groupe 1 à 3 », « hors plage » à tort, listes réduites aux valeurs du fichier.', 'Labels without accents, “Group 1 to 3” sections, wrongly “out of range”, lists reduced to the values of the file.'), '#193, #178, #198', 12],
     ['Session', t('Le wizard ne prolonge pas la session (expiration après 15 min).', 'The wizard does not extend the session (expires after 15 min).'), '#181', 0],
   ];
 
@@ -298,7 +296,7 @@ export function content(lang: Lang) {
       'Create a RIPH 2 prospective study in Advanced mode, import an Excel file keeping the identifying data, and build the eCRF from the columns of the file.',
     ),
     status: t('Prêt à exécuter', 'Ready to run'),
-    updated: t('Mis à jour le 23 oct. 2026', 'Updated on 23 Oct 2026'),
+    updated: t('Mis à jour le 25 oct. 2026', 'Updated on 25 Oct 2026'),
     release: t('release v', 'release v'),
     read: t('Lire le parcours', 'Read the path'),
     exec: t('Exécuter la recette', 'Run the test'),
@@ -357,8 +355,8 @@ export function content(lang: Lang) {
     checksTitle: t('À vérifier', 'To check'),
     hKnown: t('Problèmes connus', 'Known issues'),
     knownIntro: t(
-      "Relevés le 23/10/2026, suivis dans le jalon « Study wizard — UX polish ». Ils sont aussi rappelés dans l'étape concernée.",
-      'Recorded on 23/10/2026, tracked in the “Study wizard — UX polish” milestone. They are also repeated in the relevant step.',
+      "Relevés le 23/10/2026 et revérifiés le 25/10/2026 sur la v3.2.0, suivis dans le jalon « Study wizard — UX polish ». Ils sont aussi rappelés dans l'étape concernée.",
+      'Recorded on 23/10/2026 and rechecked on 25/10/2026 on v3.2.0, tracked in the “Study wizard — UX polish” milestone. They are also repeated in the relevant step.',
     ),
     knownCols: [t('Où', 'Where'), t('Ce que vous verrez', 'What you will see'), t('Suivi', 'Tracking')],
     knownStep: t('Déjà connu, inutile de signaler', 'Already known, no need to report'),
