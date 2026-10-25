@@ -8,8 +8,8 @@ import externalizeInlineScripts from './integrations/externalize-inline-scripts.
 import fs from 'node:fs';
 import { ExpressiveCodeTheme } from 'astro-expressive-code';
 
-// Application version, synced from APP_VERSION in the application's .env by
-// scripts/sync-content.sh, so the version selector stays in sync without a
+// Application version, synced from the latest release tag of the application
+// (vX.Y.Z) by scripts/sync-content.sh, so the version selector stays in sync without a
 // hard-coded value.
 function readAppVersion() {
   try {
