@@ -3,6 +3,7 @@ title: "REC-01 · Study creation"
 description: "Acceptance test scenarios for the \"New study\" wizard: prospective and retrospective paths, regulatory framework deduction and go-live."
 time: "45 min"
 introduced: "3.2.0"
+pagefind: false
 ---
 
 <p class="rec-meta"><span class="rstat">Draft</span> Cases TC-02 to TC-08 and TC-11 to TC-14 are to be reviewed by QA before the test book is approved</p>

@@ -1,6 +1,7 @@
 ---
 title: Acceptance test kit
 description: The test file, known issues and issue report template, shared by all acceptance test books.
+pagefind: false
 ---
 
 :::caution[Fictitious data only]

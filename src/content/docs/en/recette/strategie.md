@@ -1,6 +1,7 @@
 ---
 title: Acceptance test strategy
 description: "How Synapse acceptance testing is organised: scope, test books, criticality, statuses and acceptance criteria."
+pagefind: false
 ---
 
 Acceptance testing checks, on a dedicated environment, that each version of Synapse behaves as the documentation describes before it goes into production. This page sets the rules shared by all test books.

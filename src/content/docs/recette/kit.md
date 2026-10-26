@@ -1,6 +1,7 @@
 ---
 title: Kit de recette
 description: Le fichier de test, les problèmes connus et le modèle de signalement, communs à tous les cahiers de recette.
+pagefind: false
 ---
 
 :::caution[Données fictives uniquement]
