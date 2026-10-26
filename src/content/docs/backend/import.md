@@ -46,7 +46,11 @@ Un re-parse qui change la feuille, le séparateur ou la ligne d'en-tête alors q
 
 ## Mapping
 
-- **Cibles** (`FieldCatalog`) : `patient_id` et `visit_date` (système), puis chaque champ eCRF importable de l'étude (type, `required`, `validationMin` / `validationMax`, `unit`, `options`, variable SDTM lus depuis le champ). Blocs statiques, fichiers, matrices et champs calculés ne sont pas des cibles. Clé : l'id du champ en chaîne.
+- **Cibles** (`FieldCatalog`) : `patient_id` (numéro de sujet de l'étude, `StudyPatient::subjectId`), `patient_ipp` (« IPP du patient », `Patient::externalId`, distinct du numéro de sujet ;
+  une seule colonne), `site` et `visit_date` (système), puis chaque champ eCRF importable de l'étude (type, `required`, `validationMin` / `validationMax`, `unit`, `options`, variable SDTM lus depuis le champ). Blocs statiques, fichiers, matrices et champs calculés ne sont pas des cibles. Clé : l'id du champ en chaîne.
+  `AutoMapper` propose `patient_ipp` pour `IPP`, `NIP`, `N° IPP`... **uniquement sous la politique « conserver »** (`IdentifyingPolicy::KEEP` ; passer à « conserver » relance la suggestion sur une colonne encore en attente), sans jamais prendre la colonne du numéro de sujet (`id`, `N° patient` restent `patient_id`) ;
+  un fichier dont le seul identifiant est une colonne `IPP` l'utilise comme numéro de sujet (comportement historique, aussi hors « conserver »).
+  Un champ eCRF texte, liste ou choix unique reconnu comme **sexe** (variable SDTM `SEX`, ou nom / libellé du concept `sex` du dictionnaire) alimente aussi `Patient::gender` (`TargetField::$patientSex`, `SexNormalizer` : M / H / homme / masculin, F / femme / féminin, autre, U / inconnu ; les codes numériques ne sont pas devinés).
 - **Synonymes** : `config/import/synonyms.yaml` (FR / EN / CDISC). Un concept s'attache à un champ par sa variable SDTM ou par un nom / libellé égal à un terme ; le champ répond alors à tous ses termes. Par champ : règle de validation `{"type": "import_synonyms", "params": {"terms": [...]}}`. Le même fichier contient les catégories identifiantes et les cibles système.
 - **`AutoMapper`** : insensible aux accents, à la casse et à la ponctuation. Score 1,00 (nom, libellé ou variable SDTM), 0,95 (synonyme), 0,60 à 0,90 (mot entier d'un terme de 4 lettres ou plus). À partir de 0,85 le mapping est appliqué (`auto`), de 0,50 à 0,85 c'est une suggestion `review` (état `pending`). Une colonne par champ, meilleur score d'abord.
 - **Suffixes de visite** (`ColumnAnalyzer`) : `_n` ou `.n`. Une colonne n'est une colonne de visite que si sa **colonne de base existe** (`WEIGHT_1` exige `WEIGHT`) ; `1ere_cs`, `rcTNM_infiltrant1`, `contrôle_regional` sont des colonnes simples. Sans aucune paire de suffixes, toute la ligne est une
@@ -66,13 +70,18 @@ Groupées par champ et règle (`ProblemGroup`).
 
 | Règle | Gravité |
 |---|---|
-| `missing_patient_id`, `duplicate_patient_id` (occurrences suivantes) | erreur |
+| `missing_patient_id`, `duplicate_patient_id` (occurrences suivantes), `duplicate_ipp` (le même IPP sur deux patients différents du fichier, ligne suivante) | erreur |
 | `required_missing` (visites existantes, champ obligatoire) | erreur |
 | `invalid_date`, `future_date` | erreur |
 | `not_numeric` (texte avec chiffres), `unrecognised_value` (valeur de liste, booléen, jeton sans chiffre dans une colonne numérique : remplaçable) | erreur |
 | `unit_not_convertible` | erreur |
 | `visit_values_without_date`, `visit_dates_out_of_order` | erreur |
 | `out_of_range` (après conversion), `non_standard_icd10` (SDTM `MHDECOD` / `AEDECOD` ou règle `icd10`), `ambiguous_date` (format auto, jour et mois tous deux inférieurs ou égaux à 12) | avertissement |
+| `ipp_conflict` (l'IPP appartient à un autre patient du workspace, ou le patient du numéro de sujet en a déjà un autre : l'IPP du fichier n'est pas écrit) | avertissement |
+| `ipp_ignored` (une colonne est mappée à l'IPP mais la politique n'est pas « conserver » : colonne jamais lue, un seul avertissement pour le fichier) | avertissement |
+| `unrecognised_sex` (valeur de la colonne sexe que la fiche patient ne sait pas porter : valeur eCRF conservée, sexe du patient laissé vide ; remplaçable) | avertissement |
+
+Un IPP de plus de 100 caractères est une `unrecognised_value` sur la cible `patient_ipp`. L'IPP n'apparaît jamais dans un problème, l'aperçu (`•••`) ni les exemples du mapping.
 
 Les nombres acceptent la virgule ou le point décimal, les séparateurs de milliers et la notation scientifique (`1E-3`). Dates : ISO toujours, `dmy` / `mdy` / `auto`, calendrier strict, années à deux chiffres. Une visite dont la date est vide est absente. Les erreurs bloquent (`blockingReasons()`) ;
 les avertissements non, et un groupe accepté crée une requête par ligne (`summary.queries`).
@@ -129,6 +138,12 @@ Un brouillon, une étude terminée, archivée ou gelée refuse l'application. `I
   signature ; le choix est couvert par la signature), ou le site propre à la ligne si une colonne est mappée à la cible système « Site » (code ou nom, sans casse ni accent ; valeur inconnue = erreur `unrecognised_value` remplaçable). Un site d'une autre étude ou d'un autre workspace est refusé, date d'inclusion = première visite.
   La garde d'inclusion (`StudyInclusionGuard`, option `$validatedImport`) admet l'import validé en Configuration et En cours sans attendre l'ouverture des inclusions du site ; l'inclusion manuelle d'un patient réel reste refusée en Configuration. **Aucune valeur identifiante n'est enregistrée** avec la politique par défaut ; elle ne l'est que sous « conserver »
   (champs chiffrés du patient : nom, nom de naissance, prénom, date de naissance ; `ImportIdentityWriter`), option que la base réglementaire de l'étude doit autoriser (voir ci-dessous).
+  **IPP et sexe** (`ImportApplier::completePatient()`) : un patient existant est toujours retrouvé par son numéro de sujet dans l'étude (jamais par l'IPP) ; l'IPP de la colonne `patient_ipp` (champ chiffré `externalId`, recherchable par son hash) et le sexe ne sont écrits **que s'ils sont vides** sur la fiche, jamais par-dessus une valeur existante.
+  Un IPP déjà porté par un autre patient réel du workspace (`ImportPatientIpp`, requêtes toujours bornées au workspace de l'étude, patients de recette ignorés) ou différent de celui du patient n'est pas écrit : compteur `ippConflicts` et avertissement `ipp_conflict` aux contrôles ; compteurs `ippWritten` et `sexWritten`.
+  L'IPP est une donnée identifiante : il n'est lu et écrit que sous la politique **« conserver »** (`IdentifyingPolicy::KEEP`, base réglementaire exigée).
+  Sous toute autre politique, la cible n'est pas proposée à l'étape 2, une colonne qui la vise encore (brouillon enregistré, appel direct) n'est jamais lue (`ImportPlanner`) et les contrôles affichent l'avertissement `ipp_ignored` ; l'application n'écrit jamais `externalId`. Le sexe, donnée clinique, est écrit sous toutes les politiques.
+  L'IPP est masqué dans l'aperçu et **absent de la copie expurgée archivée** (`RedactedCopyWriter`) ; il n'est pas pseudonymisé. La colonne n'est pas dans le modèle de fichier téléchargeable.
+  La colonne n'est pas dans le modèle de fichier téléchargeable.
 - **Conserver les données identifiantes** (`ImportIdentityPolicy::decide()`) : la décision vient du dossier réglementaire de l'étude (`StudyRegulatoryRecordService`) et du moteur de règles, sans logique par pays dans le code. Les packs portent la règle : une exigence `info` dont les options sont `{"rule": "keepIdentified", "requires": "code1,code2"}` (et `accept:<code>` pour restreindre les
   valeurs
   admises d'une exigence), applicable par sa propre condition. L'étude peut conserver si au moins une règle s'applique et si toutes les règles applicables ont leurs exigences au statut « ok » (aucune erreur ouverte). Graines (packs en brouillon, à valider par les affaires réglementaires) : rétrospectif, niveau d'anonymisation « Identifiées » et base éthique + référence
