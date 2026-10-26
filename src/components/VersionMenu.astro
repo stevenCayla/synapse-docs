@@ -21,7 +21,7 @@ const base = pageSlug ? rest.slice(pageSlug.length).replace(/^\//, '') : rest;
 
 const ids = new Set((await getCollection('docs')).map((entry) => entry.id));
 const url = (docId: string) => `/${docId.replace(/\/?index$/, '')}/`.replace(/\/+/g, '/');
-const fallback = 'getting-started';
+const fallback = 'backend/getting-started';
 const target = (slug?: string) => {
   const wanted = `${prefix}${slug ? `${slug}/` : ''}${base}`;
   const alt = `${prefix}${slug ? `${slug}/` : ''}${fallback}`;
