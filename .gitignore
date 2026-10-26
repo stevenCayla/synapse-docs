@@ -10,3 +10,6 @@ dist/
 
 # Editor
 .idea/
+
+# Local secrets for "wrangler dev"
+.dev.vars

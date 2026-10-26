@@ -1,14 +1,21 @@
-// Cloudflare Workers hosting (static assets, no server-side code).
+// Cloudflare Workers hosting: static assets, plus a small script that asks for a
+// password on the acceptance-test pages only (worker/index.js).
 //   wrangler deploy --env=""   → production: docs.synapse-medical.fr     (main branch)
 //   wrangler deploy --env dev  → staging:    dev-docs.synapse-medical.fr (develop branch)
+// The password is the secret RECETTE_PASSWORD, set per environment:
+//   npx wrangler secret put RECETTE_PASSWORD --env=""    (production)
+//   npx wrangler secret put RECETTE_PASSWORD --env dev   (development)
 // Security and cache headers: public/_headers (copied into dist/ at build time).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "synapse-docs",
   "compatibility_date": "2026-09-01",
+  "main": "./worker/index.js",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/recette", "/recette/*", "/en/recette", "/en/recette/*"]
   },
   "workers_dev": false,
   "preview_urls": false,

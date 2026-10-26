@@ -44,7 +44,10 @@ A re-parse that changes the sheet, the separator or the header row while decisio
 
 ## Mapping
 
-- **Targets** (`FieldCatalog`): `patient_id` and `visit_date` (system), then every importable eCRF field of the study (type, `required`, `validationMin` / `validationMax`, `unit`, `options`, SDTM variable are read from the field). Static blocks, files, matrices and calculated fields are not targets. Key: field id as a string.
+- **Targets** (`FieldCatalog`): `patient_id` (study subject id, `StudyPatient::subjectId`), `patient_ipp` ("IPP du patient", `Patient::externalId`, distinct from the subject id;
+  one column at most), `site` and `visit_date` (system), then every importable eCRF field of the study (type, `required`, `validationMin` / `validationMax`, `unit`, `options`, SDTM variable are read from the field). Static blocks, files, matrices and calculated fields are not targets. Key: field id as a string.
+  `AutoMapper` suggests `patient_ipp` for `IPP`, `NIP`, `N° IPP`... **only under the "keep" policy** (`IdentifyingPolicy::KEEP`; switching to "keep" re-runs the suggestion on a column still pending), and never takes the subject id column (`id`, `N° patient` stay `patient_id`); a file whose only identifier is an `IPP` column uses it as the subject id (historical behaviour, under any policy).
+  A text, list or single choice eCRF field recognised as **sex** (SDTM variable `SEX`, or name / label of the dictionary's `sex` concept) also feeds `Patient::gender` (`TargetField::$patientSex`, `SexNormalizer`: M / H / homme / masculin, F / femme / féminin, autre, U / inconnu; numeric codes are not guessed).
 - **Synonyms**: `config/import/synonyms.yaml` (FR / EN / CDISC). A concept attaches to a field by SDTM variable or by name / label equal to a term; the field then answers to all its terms. Per field: validation rule `{"type": "import_synonyms", "params": {"terms": [...]}}`. The same file holds the identifying categories and the system targets.
 - **`AutoMapper`**: accent / case / punctuation insensitive. Score 1.00 (name, label or SDTM variable), 0.95 (synonym), 0.60 to 0.90 (whole-word match of a term of 4 letters or more). From 0.85 the mapping is applied (`auto`), from 0.50 it is a suggestion `review` (state `pending`). One column per field, best score first.
 - **Visit suffixes** (`ColumnAnalyzer`): `_n` or `.n`. A column is a visit column only when its **base column exists** (`WEIGHT_1` needs `WEIGHT`); `1ere_cs`, `rcTNM_infiltrant1`, `contrôle_regional` are plain columns. Without any suffix pair the whole row is one (first) visit. The base column is
@@ -63,13 +66,18 @@ Grouped by field and rule (`ProblemGroup`).
 
 | Rule | Severity |
 |---|---|
-| `missing_patient_id`, `duplicate_patient_id` (later occurrences) | error |
+| `missing_patient_id`, `duplicate_patient_id` (later occurrences), `duplicate_ipp` (the same IPP on two different patients of the file, the later row) | error |
 | `required_missing` (existing visits, field flagged required) | error |
 | `invalid_date`, `future_date` | error |
 | `not_numeric` (text with digits), `unrecognised_value` (list value, boolean, token without digit in a numeric column: replaceable) | error |
 | `unit_not_convertible` | error |
 | `visit_values_without_date`, `visit_dates_out_of_order` | error |
 | `out_of_range` (after conversion), `non_standard_icd10` (SDTM `MHDECOD` / `AEDECOD` or rule `icd10`), `ambiguous_date` (auto format, day and month both 12 or less) | warning |
+| `ipp_conflict` (the IPP belongs to another patient of the workspace, or the patient of the subject id already has another one: the IPP of the file is not written) | warning |
+| `ipp_ignored` (a column is mapped to the IPP but the policy is not "keep": the column is never read, one warning for the file) | warning |
+| `unrecognised_sex` (value of the sex column the patient record cannot hold: the eCRF value is kept, the patient's sex stays empty; replaceable) | warning |
+
+An IPP longer than 100 characters is an `unrecognised_value` on the `patient_ipp` target. The IPP never appears in a problem, in the preview (`•••`) or in the mapping samples.
 
 Numbers accept the decimal comma or dot, thousand separators and scientific notation (`1E-3`). Dates: ISO always, `dmy` / `mdy` / `auto`, strict calendar, two-digit years. A visit whose date cell is empty is absent. Errors block (`blockingReasons()`); warnings do not, and an accepted group creates a query per row (`summary.queries`).
 
@@ -122,6 +130,10 @@ archived or frozen study refuses the application. `ImportApplyScheduler` queues 
   the signature), or the row's own site when a column is mapped to the "Site" system target (code or name, case and accent insensitive; unknown value = replaceable `unrecognised_value` error). A site of another study or workspace is refused, inclusion date = first visit. The inclusion guard (`StudyInclusionGuard`,
   `$validatedImport` option) admits the validated import in Configuration and Active without waiting for the site to open enrolment; a manual real inclusion stays refused in Configuration. **No identifying value is stored** under the default policy; only under "keep" (encrypted patient fields: last name, birth name, first name, birth date; `ImportIdentityWriter`), an option the
   regulatory basis of the study must allow (see below).
+  **IPP and sex** (`ImportApplier::completePatient()`): an existing patient is always found by its subject id in the study (never by IPP); the IPP of the `patient_ipp` column (encrypted `externalId` field, searchable by its hash) and the sex are written **only when empty** on the record, never over an existing value.
+  An IPP already carried by another real patient of the workspace (`ImportPatientIpp`, every query bound to the study's workspace, UAT patients ignored) or different from the patient's own is not written: `ippConflicts` counter and `ipp_conflict` warning in the controls; `ippWritten` and `sexWritten` counters.
+  The IPP is identifying data: it is read and written only under the **"keep"** policy (`IdentifyingPolicy::KEEP`, regulatory basis required). Under any other policy the target is not offered in step 2, a column that still targets it (saved draft, direct call) is never read (`ImportPlanner`) and the controls show the `ipp_ignored` warning;
+  the application never writes `externalId`. The sex, clinical data, is written under every policy. The IPP is masked in the preview and **absent from the redacted archived copy** (`RedactedCopyWriter`); it is not pseudonymised. The column is not part of the downloadable file template.
 - **Keeping identifying data** (`ImportIdentityPolicy::decide()`): the decision comes from the regulatory record of the study (`StudyRegulatoryRecordService`) and the rules engine, with no per-country logic in the code. The packs carry the rule: an `info` requirement whose options are `{"rule": "keepIdentified", "requires": "code1,code2"}` (and `accept:<code>` to restrict the accepted values of a
   requirement), applicable through its own condition. The study may keep when at least one rule applies and every applicable rule has its requirements at status "ok" (no open error). Seed data (draft packs, to be validated by regulatory affairs): retrospective, anonymisation level "Identified" and ethics basis + reference (`core.retro.keep-identified`), in France MR-004 or a CNIL
   authorisation with a patient

@@ -1,6 +1,7 @@
 ---
 title: Stratégie de recette
 description: "Comment la recette de Synapse est organisée : périmètre, cahiers, criticité, statuts et critères d'acceptation."
+pagefind: false
 ---
 
 La recette vérifie, sur un environnement dédié, que chaque version de Synapse se comporte comme la documentation le décrit avant sa mise en production. Cette page fixe les règles communes à tous les cahiers.

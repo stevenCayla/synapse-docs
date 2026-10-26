@@ -13,7 +13,7 @@ const { steps, known, ui } = content(lang);
 const plain = (s: string) => s.replace(/<[^>]+>/g, '');
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-// Captures that are in public/recette-shots/ (the others are left out).
+// Captures that are in public/recette/shots/ (the others are left out).
 const has = (file: string) => fs.existsSync(`public${SHOTS_DIR}${file}`);
 
 const ICONS: Record<string, string[]> = {
@@ -66,7 +66,7 @@ const knownRows = known
   .map((r) => `<tr><td><b>${r[3] ? `<a href="#pc-${r[3]}" data-go="${r[3] - 1}">${r[0]}</a>` : r[0]}</b></td><td>${r[1]}</td><td><code>${r[2]}</code></td></tr>`)
   .join('');
 const sessionKeys = ['tester', 'env', 'commit', 'browser'];
-const sessionDefaults = ['', 'uat.synapse-medical.fr', `${COMMIT} · v${VERSION}`, ''];
+const sessionDefaults = ['', 'uat-app.synapse-medical.fr', `${COMMIT} · v${VERSION}`, ''];
 ---
 
 <div class="rec-imp pread" id="recImp" data-lang={lang} data-commit={`${COMMIT} · v${VERSION}`} data-total={totalChecks}>

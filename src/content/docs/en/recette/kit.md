@@ -1,6 +1,7 @@
 ---
 title: Acceptance test kit
 description: The test file, known issues and issue report template, shared by all acceptance test books.
+pagefind: false
 ---
 
 :::caution[Fictitious data only]
@@ -43,7 +44,7 @@ For each defect, send this information with a screenshot:
 
 ```text
 Test book and step: (e.g. REC-01 · step 6 Sites)
-Page address: https://dev.synapse-medical.fr/…
+Page address: https://dev-app.synapse-medical.fr/…
 What I did: (values entered)
 What I expected:
 What happened: (exact message, screenshot)

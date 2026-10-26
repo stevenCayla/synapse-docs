@@ -131,8 +131,9 @@ The equivalent npm commands are `npm ci`, `npm run dev`, `npm run build`,
 .
 ├── .github/workflows/ci.yaml       Build, sync and deployment pipeline
 ├── integrations/                   Astro integrations (Markdown design, CSP-safe inline scripts)
-├── public/                         Static files: scripts, headers (_headers), test-book screenshots
+├── public/                         Static files: scripts, headers (_headers), test-book screenshots (public/recette/shots)
 ├── scripts/                        sync-content.sh, archive-version.sh, deploy.sh
+├── worker/                         Password gate of the acceptance-test pages
 ├── src/
 │   ├── components/                 Header, sidebar, page title, footer, home, changelog, sheets, REC-01b
 │   ├── content/docs/               Pages (French at the root, English under en/, archived versions)
@@ -164,8 +165,8 @@ content sync; the audit and compliance pages are not versioned.
 
 ## Hosting and deployment
 
-The site is a Cloudflare Worker with no server-side code that serves the files of
-`dist/` (`wrangler.jsonc`).
+The site is a Cloudflare Worker that serves the files of `dist/` (`wrangler.jsonc`).
+A small script (`worker/index.js`) runs only for the acceptance-test pages (see below).
 
 | Environment | Command | Domain |
 |-------------|---------|--------|
@@ -176,6 +177,25 @@ Security headers (including the Content Security Policy) and caching rules are
 defined in `public/_headers`. The CSP enforces `script-src 'self'`, so no inline
 script is allowed: `integrations/externalize-inline-scripts.mjs` moves every inline
 script of the generated HTML into a `/_astro/inline.<hash>.js` file.
+
+### Acceptance-test pages
+
+`/recette/*` and `/en/recette/*` (test books, kit and screenshots in
+`public/recette/shots/`) ask for a password. The Worker script `worker/index.js` runs
+first for those paths only, checks the HTTP Basic password (any user name) against the
+secret `RECETTE_PASSWORD` and then serves the file. Without the secret the pages stay
+closed (503). The pages remain in the menu but are excluded from search, the sitemap
+and `robots.txt`.
+
+```bash
+# After the first deployment of each environment
+npx wrangler secret put RECETTE_PASSWORD --env=""    # production
+npx wrangler secret put RECETTE_PASSWORD --env dev   # development
+```
+
+Locally, put `RECETTE_PASSWORD=...` in `.dev.vars` (ignored by git) and run
+`npx wrangler dev` after a build. Any new file that must be protected goes under
+`public/recette/`.
 
 ### CI pipeline
 

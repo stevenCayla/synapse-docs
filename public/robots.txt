@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /recette/
+Disallow: /en/recette/
 
 Sitemap: https://docs.synapse-medical.fr/sitemap-index.xml
