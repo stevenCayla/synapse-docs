@@ -26,7 +26,7 @@ This page describes the tests and their expected results. Signed results (test r
 
 ## Prerequisites
 
-- Acceptance test environment `uat.synapse-medical.fr`, release `v3.2.0` deployed.
+- Acceptance test environment `uat-app.synapse-medical.fr`, release `v3.2.0` deployed.
 - Accounts `dm@synapse.local` (Data Manager) and `sponsor@synapse.local` (Sponsor), GCP training up to date.
 - Regulatory pack `FR-2026.2` published.
 

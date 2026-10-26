@@ -26,7 +26,7 @@ Cette page décrit les tests et leurs résultats attendus. Les résultats signé
 
 ## Prérequis
 
-- Environnement de recette `uat.synapse-medical.fr`, release `v3.2.0` déployée.
+- Environnement de recette `uat-app.synapse-medical.fr`, release `v3.2.0` déployée.
 - Comptes `dm@synapse.local` (Data Manager) et `sponsor@synapse.local` (Promoteur), formation BPC à jour.
 - Pack réglementaire `FR-2026.2` publié.
 

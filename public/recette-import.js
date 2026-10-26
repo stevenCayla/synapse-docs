@@ -189,7 +189,7 @@
   var meta = function () {
     return {
       tester: ST.m.tester || '—',
-      env: ST.m.env || 'uat.synapse-medical.fr',
+      env: ST.m.env || 'uat-app.synapse-medical.fr',
       commit: ST.m.commit || COMMIT,
       browser: ST.m.browser || browserName(),
     };

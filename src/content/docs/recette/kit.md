@@ -43,7 +43,7 @@ Pour chaque anomalie, envoyez ces informations avec une capture d'écran :
 
 ```text
 Cahier et étape : (ex. REC-01 · étape 6 Sites)
-Adresse de la page : https://dev.synapse-medical.fr/…
+Adresse de la page : https://dev-app.synapse-medical.fr/…
 Ce que j'ai fait : (valeurs saisies)
 Ce que j'attendais :
 Ce qui s'est passé : (message exact, capture)
