@@ -63,10 +63,10 @@ export default defineConfig({
   },
   integrations: [
     // Sitemap: same i18n setup as Starlight's own, minus the pages that must not
-    // be indexed (printable sheets, 404).
+    // be indexed (printable sheets, 404, password-protected acceptance tests).
     sitemap({
       i18n: { defaultLocale: 'root', locales: { root: 'fr', en: 'en' } },
-      filter: (page) => !/\/(fiches|en\/sheets)\/|\/404\/?$/.test(page),
+      filter: (page) => !/\/(fiches|en\/sheets)\/|\/404\/?$|\/(en\/)?recette\//.test(page),
     }),
     starlight({
       // The 404 page is src/pages/404.astro (design of the mockup).

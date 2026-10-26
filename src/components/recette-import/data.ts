@@ -31,7 +31,7 @@ export const LEGEND = ['', '', '', '', '', '0: homme 1: femme', '', '1: carcinom
 export const COMMIT = 'c8b9516';
 export const VERSION = '3.2.0';
 
-export const SHOTS_DIR = '/recette-shots/';
+export const SHOTS_DIR = '/recette/shots/';
 
 export function content(lang: Lang) {
   const fr = lang === 'fr';

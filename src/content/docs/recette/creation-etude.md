@@ -3,6 +3,7 @@ title: "REC-01 · Création d'étude"
 description: "Scénarios de recette de l'assistant « Nouvelle étude » : parcours prospectif, rétrospectif, déduction du cadre réglementaire et passage en production."
 time: "45 min"
 introduced: "3.2.0"
+pagefind: false
 ---
 
 <p class="rec-meta"><span class="rstat">Brouillon</span> Les cas TC-02 à TC-08 et TC-11 à TC-14 sont à relire par la QA avant approbation du cahier</p>

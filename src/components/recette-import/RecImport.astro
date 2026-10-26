@@ -13,7 +13,7 @@ const { steps, known, ui } = content(lang);
 const plain = (s: string) => s.replace(/<[^>]+>/g, '');
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-// Captures that are in public/recette-shots/ (the others are left out).
+// Captures that are in public/recette/shots/ (the others are left out).
 const has = (file: string) => fs.existsSync(`public${SHOTS_DIR}${file}`);
 
 const ICONS: Record<string, string[]> = {
