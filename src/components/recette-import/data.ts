@@ -307,8 +307,8 @@ export function content(lang: Lang) {
     kTime: t('durée', 'duration'),
     cautionTitle: t('Données fictives uniquement', 'Fictitious data only'),
     caution: t(
-      "Le serveur de recette <code>uat.synapse-medical.fr</code> n'est pas un hébergement de santé certifié. N'importez jamais de vrais patients : utilisez le fichier de test ci-dessous.",
-      'The acceptance server <code>uat.synapse-medical.fr</code> is not a certified health data host. Never import real patients: use the test file below.',
+      "Le serveur de recette <code>uat-app.synapse-medical.fr</code> n'est pas un hébergement de santé certifié. N'importez jamais de vrais patients : utilisez le fichier de test ci-dessous.",
+      'The acceptance server <code>uat-app.synapse-medical.fr</code> is not a certified health data host. Never import real patients: use the test file below.',
     ),
     tipTitle: t('Vous lancez une session ?', 'Starting a session?'),
     tip: t(
@@ -366,8 +366,8 @@ export function content(lang: Lang) {
       'In Run mode, mark the check <b>KO</b>: the template opens pre-filled under the line. For a problem outside a check, attach a screenshot and this information:',
     ),
     template: t(
-      "Étape du plan : (numéro et titre)\nAdresse de la page : https://uat.synapse-medical.fr/…\nCe que j'ai fait : (valeurs saisies)\nCe que j'attendais :\nCe qui s'est passé : (message exact, capture)\nNavigateur et heure :",
-      'Plan step: (number and title)\nPage address: https://uat.synapse-medical.fr/…\nWhat I did: (values entered)\nWhat I expected:\nWhat happened: (exact message, screenshot)\nBrowser and time:',
+      "Étape du plan : (numéro et titre)\nAdresse de la page : https://uat-app.synapse-medical.fr/…\nCe que j'ai fait : (valeurs saisies)\nCe que j'attendais :\nCe qui s'est passé : (message exact, capture)\nNavigateur et heure :",
+      'Plan step: (number and title)\nPage address: https://uat-app.synapse-medical.fr/…\nWhat I did: (values entered)\nWhat I expected:\nWhat happened: (exact message, screenshot)\nBrowser and time:',
     ),
     shotsTitle: t('Captures', 'Screenshots'),
     shotsNote: t(
