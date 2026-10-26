@@ -86,6 +86,7 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 | `CADDY_MERCURE_JWT_SECRET` | Mercure publisher/subscriber JWT |
 | `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Database credentials (owner: migrations and maintenance) |
 | `POSTGRES_APP_PASSWORD` | Password of the restricted role `app_runtime` the application uses ([see below](#application-database-role)) |
+| `APP_DOCS_URL` | URL of the documentation linked from the login page (defaults to `https://docs.synapse-medical.fr`; development server: `https://dev-docs.synapse-medical.fr`) |
 | `DOMAIN` | Public domain (Mercure public URL, default URI) |
 | `TRUSTED_PROXIES` | Defaults to `127.0.0.1,172.16.0.0/12` (covers Docker bridges) |
 
