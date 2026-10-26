@@ -83,14 +83,13 @@ Application **monolithique** : un seul conteneur applicatif embarque le serveur 
 
 Architecture Symfony en couches, namespace racine `App\` (PSR-4, `src/`).
 
-```
-Controller ──▶ Service ──▶ Repository ──▶ Doctrine ──▶ PostgreSQL
-    │              │
-    │              └─▶ EventListener (chiffrement transparent)
-    │
-    └─▶ Voter (autorisation) ─▶ AccessService (rôle effectif)
-
-EventSubscriber : transverse (2FA, RLS, sessions, headers, login/logout)
+```mermaid
+flowchart LR
+    ctl[Controller] --> svc[Service] --> repo[Repository] --> orm[Doctrine] --> pg[(PostgreSQL)]
+    svc --> evl["EventListener<br/>chiffrement transparent"]
+    ctl --> vot["Voter<br/>autorisation"] --> acc["AccessService<br/>rôle effectif"]
+    sub["EventSubscriber : transverse<br/>2FA, RLS, sessions, headers, login/logout"]:::note
+    classDef note stroke-dasharray: 4 3
 ```
 
 | Couche | Responsabilité | Détail |
@@ -145,17 +144,25 @@ Détails : [modèle de données](/database/data-model/) · [sécurité](/en/secu
 
 Le cœur métier (recueil de données) repose sur une architecture **template → instance** :
 
-```
-EcrfTemplate ── EcrfTemplateSection ── EcrfTemplateField     (modèles réutilisables, par workspace)
-      │  (instanciation + snapshot)
-      ▼
-EcrfForm ── EcrfSection ── EcrfField                          (formulaire vivant, rattaché à une étude)
-      │
-      ▼
-EcrfRecord ── EcrfValue ── EcrfValueAudit                     (données saisies + historique)
-      ├── EcrfSignature   (signature électronique 21 CFR Part 11)
-      ├── EcrfAttachment  (fichier, token opaque)
-      └── EcrfQuery       (discordances / clarifications)
+```mermaid
+flowchart TB
+    subgraph tpl["Modèles réutilisables, par workspace"]
+        direction LR
+        t1[EcrfTemplate] --- t2[EcrfTemplateSection] --- t3[EcrfTemplateField]
+    end
+    subgraph form["Formulaire vivant, rattaché à une étude"]
+        direction LR
+        f1[EcrfForm] --- f2[EcrfSection] --- f3[EcrfField]
+    end
+    subgraph rec["Données saisies et historique"]
+        direction LR
+        r1[EcrfRecord] --- r2[EcrfValue] --- r3[EcrfValueAudit]
+    end
+    tpl -->|"instanciation + snapshot"| form
+    form --> rec
+    rec --- sig["EcrfSignature<br/>signature électronique 21 CFR Part 11"]
+    rec --- att["EcrfAttachment<br/>fichier, token opaque"]
+    rec --- qry["EcrfQuery<br/>discordances / clarifications"]
 ```
 
 Moteurs serveur associés : `EcrfRuleEngine` (règles conditionnelles), `EcrfFormulaEngine` (champs calculés), `EcrfAuditWriter` (audit chaîné), `EcrfSignatureService` (signatures).
@@ -218,19 +225,20 @@ sequenceDiagram
 
 Ordre des subscribers sur une requête authentifiée (priorités indicatives) :
 
-```
-kernel.request
-  ├─ (auth firewall, 2FA)         TwoFactorSubscriber
-  ├─ ForcePasswordChangeSubscriber (-5)
-  ├─ SessionInactivitySubscriber  (+5)
-  └─ WorkspaceRlsSubscriber       (-128, après auth → SET app.workspace_id)
-kernel.controller
-  └─ WorkspaceContextSubscriber   (globals Twig workspace)
-[ Controller → Service → Repository (RLS actif) → DB ]
-kernel.response
-  └─ SecurityHeadersSubscriber    (CSP nonce, HSTS, X-Frame-Options…)
-kernel.terminate
-  └─ WorkspaceRlsSubscriber       (RESET app.workspace_id)
+```mermaid
+sequenceDiagram
+    participant K as Kernel
+    participant S as Subscribers
+    participant C as Controller → Service → Repository
+    K->>S: kernel.request
+    Note over S: auth firewall, 2FA : TwoFactorSubscriber<br/>ForcePasswordChangeSubscriber (-5)<br/>SessionInactivitySubscriber (+5)<br/>WorkspaceRlsSubscriber (-128, après auth → SET app.workspace_id)
+    K->>S: kernel.controller
+    Note over S: WorkspaceContextSubscriber (globals Twig workspace)
+    K->>C: Controller → Service → Repository (RLS actif) → DB
+    K->>S: kernel.response
+    Note over S: SecurityHeadersSubscriber (CSP nonce, HSTS, X-Frame-Options…)
+    K->>S: kernel.terminate
+    Note over S: WorkspaceRlsSubscriber (RESET app.workspace_id)
 ```
 
 ---

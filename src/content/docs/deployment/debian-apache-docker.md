@@ -6,18 +6,12 @@ description: "Internet ──HTTPS──► Apache2 (hôte Debian, port 443) │
 > Architecture cible : Apache2 sur l'hôte Debian gère SSL/TLS et fait office de reverse proxy
 > vers FrankenPHP/Caddy qui tourne dans un conteneur Docker en HTTP simple.
 
-```
-Internet ──HTTPS──► Apache2 (hôte Debian, port 443)
-                        │
-                    ProxyPass HTTP
-                        │
-                    Docker réseau interne
-                        │
-                    FrankenPHP/Caddy (conteneur, port 80, 127.0.0.1:8080)
-                        │
-                    PHP 8.5 Worker (Symfony 8)
-                        │
-                    PostgreSQL (conteneur, port 5432 interne uniquement)
+```mermaid
+flowchart TB
+    net([Internet]) -->|HTTPS| apache["Apache2<br/>hôte Debian, :443, TLS via Let's Encrypt"]
+    apache -->|"ProxyPass (HTTP) + WebSocket (Mercure)"| caddy["FrankenPHP / Caddy<br/>conteneur, 127.0.0.1:8080 → :80, auto_https off"]
+    caddy --> php["Worker PHP 8.5<br/>Symfony 8"]
+    php --> pg[("PostgreSQL<br/>conteneur, réseau interne uniquement")]
 ```
 
 ---

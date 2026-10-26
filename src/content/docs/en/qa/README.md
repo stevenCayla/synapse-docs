@@ -225,7 +225,7 @@ For security settings in detail, see the
 
 ### After deployment
 
-- [ ] The displayed version (login page, footer) matches `APP_VERSION`.
+- [ ] The displayed version (login page, footer) matches the git tag of the build (`vX.Y.Z`, or `vX.Y.Z-N-gsha` between two tags).
 - [ ] Production smoke test described in the [Release process](/en/deployment/release-process/#7-deploy-to-the-server).
 
 ## See also

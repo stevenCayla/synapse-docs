@@ -69,7 +69,7 @@ so the documentation evolves with the code.
 | `src/content/docs/audit/` (audit and compliance) | this repository |
 | `src/content/docs/guides/`, `resources/`, `recette/` and their `en/` counterparts (guides, glossary, compliance FAQ, acceptance tests) | this repository **for now**: they describe the application and belong in the `docs/` folder of SYNAPSE-MEDICAL, where they should move (then drop them from the exclusions of `scripts/sync-content.sh`) |
 | `src/pages/recette/prospective-import.astro` and `src/components/recette-import/` (REC-01b test book) | this repository |
-| `src/data/CHANGELOG.md`, `APP_VERSION` | nowhere: copied from `CHANGELOG.md` and `.env` of the application by the sync, never edited by hand |
+| `src/data/CHANGELOG.md`, `APP_VERSION` | nowhere: copied from `CHANGELOG.md` and the latest release tag of the application by the sync, never edited by hand |
 | everything else in `src/content/docs/` | the `docs/` folder of SYNAPSE-MEDICAL |
 
 `src/content/docs/` (except `audit/`, `guides/`, `resources/` and `recette/`, French
@@ -77,7 +77,7 @@ and English) is a snapshot of the application's `docs/` folder, refreshed by
 `scripts/sync-content.sh`. The CI runs it automatically when `docs/` changes on
 `develop` in SYNAPSE-MEDICAL, checks that the site still builds and commits the new
 snapshot. Changes made directly to the synced pages here are overwritten by the next
-sync. The `APP_VERSION` file (shown in the version menu) is synced the same way.
+sync. The `APP_VERSION` file (shown in the version menu) holds the latest release tag `vX.Y.Z` of the application, without the `v` (`-rc` tags ignored); it falls back to `APP_VERSION` of the application's `.env` when no tag is available (never `dev`), otherwise it is left unchanged. A checkout given as `SYNAPSE_DIR` needs its tags (`git fetch --tags`).
 
 The synced pages get the design without any change to their Markdown:
 `integrations/markdown-mockup.mjs` turns quotes into asides, the prerequisites table

@@ -39,17 +39,32 @@ Set up the environment, run the application and contribute locally.
 
 ## 2. Local installation
 
-```bash
-git clone <repo-url> synapse-medical
-cd synapse-medical
+1. Clone the repository
 
-# Copy and adapt the local configuration
-cp .env.local.example .env.local
-# → optional: DATABASE_URL and your own encryption keys (see below)
+   ```bash
+   git clone <repo-url> synapse-medical
+   cd synapse-medical
+   ```
 
-make build      # docker compose build --pull --no-cache
-make up         # start containers in the background
-```
+2. Copy and adapt the local configuration
+
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+   Optional: `DATABASE_URL` and your own encryption keys (see below).
+
+3. Build the images
+
+   ```bash
+   make build      # docker compose build --pull --no-cache
+   ```
+
+4. Start the containers
+
+   ```bash
+   make up         # start containers in the background
+   ```
 
 On first start, the entrypoint (`frankenphp/docker-entrypoint.sh`) automatically runs `composer install`, waits for the database, then applies migrations.
 

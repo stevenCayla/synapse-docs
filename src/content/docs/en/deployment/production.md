@@ -22,15 +22,14 @@ terminates TLS** and reverse-proxies to FrankenPHP/Caddy bound to
 
 ## Target architecture
 
-```
-Internet ──HTTPS──▶ Apache2 (Debian host, :443, TLS via Let's Encrypt)
-                        │ ProxyPass (HTTP) + WebSocket (Mercure)
-                        ▼
-                 FrankenPHP/Caddy (container, 127.0.0.1:8080 → :80, auto_https off)
-                        │
-                 PHP 8.5 worker (Symfony 8)         Messenger worker (`worker` container)
-                        │
-                 PostgreSQL 18 (container, internal network only)
+```mermaid
+flowchart TB
+    net([Internet]) -->|HTTPS| apache["Apache2<br/>Debian host, :443, TLS via Let's Encrypt"]
+    apache -->|"ProxyPass (HTTP) + WebSocket (Mercure)"| caddy["FrankenPHP / Caddy<br/>container, 127.0.0.1:8080 → :80, auto_https off"]
+    caddy --> php["PHP 8.5 worker<br/>Symfony 8"]
+    caddy --> msg["Messenger worker<br/>worker container"]
+    php --> pg[("PostgreSQL 18<br/>container, internal network only")]
+    msg --> pg
 ```
 
 - **TLS** is handled by Apache on the host, not inside the container.
@@ -87,6 +86,7 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 | `CADDY_MERCURE_JWT_SECRET` | Mercure publisher/subscriber JWT |
 | `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Database credentials (owner: migrations and maintenance) |
 | `POSTGRES_APP_PASSWORD` | Password of the restricted role `app_runtime` the application uses ([see below](#application-database-role)) |
+| `APP_DOCS_URL` | URL of the documentation linked from the login page (defaults to `https://docs.synapse-medical.fr`; development server: `https://dev-docs.synapse-medical.fr`) |
 | `DOMAIN` | Public domain (Mercure public URL, default URI) |
 | `TRUSTED_PROXIES` | Defaults to `127.0.0.1,172.16.0.0/12` (covers Docker bridges) |
 
@@ -126,7 +126,7 @@ $DC up -d database
 # 3. Create the role (idempotent: can be run again, it also updates the password)
 $DC exec -T database sh /docker-entrypoint-initdb.d/10-create-app-role.sh
 
-# 4. Rebuild and start: migration Version20261022100000 grants the DML rights to the role
+# 4. Rebuild and start (APP_VERSION exported as in § 2): migration Version20261022100000 grants the DML rights to the role
 $DC build --pull --no-cache
 $DC up -d
 
@@ -143,6 +143,10 @@ does not exist when the migration runs, it grants nothing and prints a warning: 
 ## 2. Build & start
 
 ```bash
+# Version derived from the git tag (bin/app-version), baked into the image: export it before every build
+# (do not define it in .env.local)
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
+
 # Build the production image (no cache to avoid stale layers)
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 
@@ -238,7 +242,8 @@ Follow the **[Release process](/deployment/release-process/)** (French) for the 
 flow (pull, rebuild, migrate, smoke-test) and rollback strategy. In short:
 
 ```bash
-git pull
+git pull --tags
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 docker compose -f compose.yaml -f compose.prod.yaml up -d   # migrations run on boot, worker recreated
 ```

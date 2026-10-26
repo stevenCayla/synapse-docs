@@ -22,15 +22,14 @@ l'hôte) termine le TLS** et fait office de reverse proxy vers FrankenPHP/Caddy
 
 ## Architecture cible
 
-```
-Internet ──HTTPS──▶ Apache2 (hôte Debian, :443, TLS via Let's Encrypt)
-                        │ ProxyPass (HTTP) + WebSocket (Mercure)
-                        ▼
-                 FrankenPHP/Caddy (conteneur, 127.0.0.1:8080 → :80, auto_https off)
-                        │
-                 Worker PHP 8.5 (Symfony 8)         Worker Messenger (conteneur `worker`)
-                        │
-                 PostgreSQL 18 (conteneur, réseau interne uniquement)
+```mermaid
+flowchart TB
+    net([Internet]) -->|HTTPS| apache["Apache2<br/>hôte Debian, :443, TLS via Let's Encrypt"]
+    apache -->|"ProxyPass (HTTP) + WebSocket (Mercure)"| caddy["FrankenPHP / Caddy<br/>conteneur, 127.0.0.1:8080 → :80, auto_https off"]
+    caddy --> php["Worker PHP 8.5<br/>Symfony 8"]
+    caddy --> msg["Worker Messenger<br/>conteneur worker"]
+    php --> pg[("PostgreSQL 18<br/>conteneur, réseau interne uniquement")]
+    msg --> pg
 ```
 
 - Le **TLS** est géré par Apache sur l'hôte, pas dans le conteneur.
@@ -87,6 +86,7 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 | `CADDY_MERCURE_JWT_SECRET` | JWT publisher/subscriber Mercure |
 | `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Identifiants base de données (propriétaire : migrations et maintenance) |
 | `POSTGRES_APP_PASSWORD` | Mot de passe du rôle restreint `app_runtime` que l'application utilise ([voir plus bas](#rôle-de-base-de-données-de-lapplication)) |
+| `APP_DOCS_URL` | URL de la documentation liée depuis la page de connexion (défaut `https://docs.synapse-medical.fr` ; serveur de développement : `https://dev-docs.synapse-medical.fr`) |
 | `DOMAIN` | Domaine public (URL publique Mercure, URI par défaut) |
 | `TRUSTED_PROXIES` | Défaut `127.0.0.1,172.16.0.0/12` (couvre les bridges Docker) |
 
@@ -127,7 +127,7 @@ $DC up -d database
 # 3. Créer le rôle (idempotent : peut être relancé, met aussi à jour le mot de passe)
 $DC exec -T database sh /docker-entrypoint-initdb.d/10-create-app-role.sh
 
-# 4. Reconstruire et démarrer : la migration Version20261022100000 donne les droits DML au rôle
+# 4. Reconstruire et démarrer (APP_VERSION exporté comme en § 2) : la migration Version20261022100000 donne les droits DML au rôle
 $DC build --pull --no-cache
 $DC up -d
 
@@ -144,6 +144,10 @@ dans `compose.prod.yaml`, relancer `up -d` ; le rôle peut rester.
 ## 2. Build & démarrage
 
 ```bash
+# Version issue du tag git (bin/app-version), figée dans l'image : à exporter avant chaque build
+# (ne pas la définir dans .env.local)
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
+
 # Construire l'image de production (sans cache pour éviter les couches périmées)
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 
@@ -243,7 +247,8 @@ jour (pull, rebuild, migration, smoke-test) et la stratégie de rollback. En
 résumé :
 
 ```bash
-git pull
+git pull --tags
+export APP_VERSION="$(bin/app-version)" APP_REVISION="$(git rev-parse HEAD)"
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 docker compose -f compose.yaml -f compose.prod.yaml up -d   # migrations au boot, worker recréé
 ```

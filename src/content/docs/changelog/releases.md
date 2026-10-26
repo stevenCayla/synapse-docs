@@ -21,8 +21,8 @@ Chaque version publiée est matérialisée par un **tag Git `vX.Y.Z`** et une
 | **MINOR** | Fonctionnalité rétrocompatible | `3.0.0` → `3.1.0` |
 | **PATCH** | Correction rétrocompatible | `3.0.0` → `3.0.1` |
 
-La version courante est exposée par la variable d'environnement `APP_VERSION`
-(**`3.2.0`** actuellement).
+La version est celle du dernier tag git `vX.Y.Z` : l'image la reçoit au build dans la variable d'environnement
+`APP_VERSION` (`vX.Y.Z` sur un tag, `vX.Y.Z-N-gsha` entre deux tags, `dev` en développement), sans fichier à modifier.
 
 ## Processus de publication
 
@@ -30,8 +30,8 @@ La version courante est exposée par la variable d'environnement `APP_VERSION`
    version daté.
 2. Taguer : `git tag -a v2.1.0 -m "Release 2.1.0"` puis `git push --tags`.
 3. Créer la **GitHub Release** correspondante (notes = section du changelog).
-4. Mettre à jour `APP_VERSION` (`.env`). Le sélecteur de version de la documentation est
-   **dérivé automatiquement** de cette variable au build — aucune autre action.
+4. Aucune version à modifier dans le dépôt : le tag fait foi. Le sélecteur de version de la documentation
+   est **dérivé automatiquement** du dernier tag au build — aucune autre action.
 
 :::tip
 Les notes de release reprennent **mot pour mot** la section correspondante du

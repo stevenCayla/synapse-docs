@@ -1,6 +1,6 @@
 ---
 title: "Release process"
-description: "Prepare, validate, tag and deploy a new Synapse Medical version — branches, changelog, APP_VERSION, CI, production build and rollback."
+description: "Prepare, validate, tag and deploy a new Synapse Medical version — branches, changelog, version, CI, production build and rollback."
 sidebar:
   label: "Release process"
   order: 2
@@ -22,18 +22,20 @@ releasing and deploying are done by hand following this page.
 
 ## Overview
 
-```
-feature/*  ──PR──▶  develop  ──▶  release/YYYY-MM-DD  ──PR──▶  main  ──tag vX.Y.Z──▶  GitHub Release
-                                                                │
-                                                                └──▶ server: git pull + build frankenphp_prod + up -d
-                                                                             (migrations applied at startup)
+```mermaid
+flowchart LR
+    feat["feature/*"] -->|PR| dev[develop]
+    dev --> rel["release/YYYY-MM-DD"]
+    rel -->|PR| main[main]
+    main -->|"tag vX.Y.Z"| gh[GitHub Release]
+    main --> srv["Server: git pull + build frankenphp_prod + up -d<br/>(migrations applied at startup)"]
 ```
 
 | Item | Location | Role |
 |------|----------|------|
 | Changelog | `CHANGELOG.md` (root) | [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format, `[Unreleased]` section |
-| Application version | `APP_VERSION` in `.env` (currently `3.2.0`) | Exposed to Twig (`app_version`) and to the documentation site |
-| Docs version | `synapse-docs` repository: `astro.config.mjs` → `src/version.ts` | Derived from `APP_VERSION` at build time |
+| Application version | The git tag `vX.Y.Z` (no file copies it); `bin/app-version` computes it at build time | Passed as `APP_VERSION` to the image (`Dockerfile`, `compose.prod.yaml`), shown through `app_version` (footer, login page) |
+| Docs version | `synapse-docs` repository: `astro.config.mjs` → `src/version.ts` | Derived from the latest `v*` tag (see the `synapse-docs` repository) |
 | CI | `.github/workflows/ci.yaml` | Docker build, HTTP/Mercure smoke tests, migrations + PHPUnit, `composer audit`, lint |
 | Production image | `Dockerfile`, target `frankenphp_prod` + `compose.prod.yaml` | Slim `debian:13.7-slim` image, runs as `www-data` |
 | Migrations | `frankenphp/docker-entrypoint.sh` | `doctrine:migrations:migrate --all-or-nothing` on container startup |
@@ -113,7 +115,7 @@ opening the release PR:
       (see [§ 6](#6-production-build)).
 - [ ] **Changelog**: `[Unreleased]` renamed to `[X.Y.Z] - YYYY-MM-DD`, a new empty
       `[Unreleased]` section added, comparison links at the bottom updated.
-- [ ] **Version**: `APP_VERSION=X.Y.Z` in `.env` (and `.env.local.example`).
+- [ ] **Version**: nothing to edit (neither `.env` nor `.env.local.example`): it comes from the tag created in step 3.
 - [ ] **Breaking changes** documented if the version is MAJOR.
 
 ### Check migrations on a fresh database
@@ -145,7 +147,7 @@ commands.
    make archive VERSION=2.0   # keeps the 2.0 docs online under /2.0/
    ```
    Commit the result on `develop` (see the `synapse-docs` README).
-1. **Release commit** on `develop`: dated changelog + updated `APP_VERSION`, e.g.
+1. **Release commit** on `develop`: dated changelog (no version to edit in the repository), e.g.
    `chore(release): 2.1.0`.
 2. **Release branch and PR**, only on explicit request: create `release/YYYY-MM-DD`
    from `origin/develop`, push it, then open the PR `release/YYYY-MM-DD` → `main`.
@@ -167,14 +169,19 @@ commands.
    production (docs.synapse-medical.fr) is deployed **only by hand** (workflow run
    on `main` in `synapse-docs`).
 
-:::tip[Bump APP_VERSION before building]
-`APP_VERSION` is read from `.env` and **baked into the image** at build time
-(`composer dump-env prod` in the `frankenphp_prod_builder` stage). The
-documentation site receives it through the content sync (`APP_VERSION` file of the
-`synapse-docs` repository, read at build time by `astro.config.mjs` and injected through
-`vite.define` as `__DOCS_VERSION__`). It must therefore be changed **in the release commit**,
-before tagging and building; otherwise the application and the docs version
-selector will show the previous version.
+:::tip[The version comes from the tag, at build time]
+The `vX.Y.Z` tag is the **single source** of the version. `bin/app-version` computes it at build time
+(`3.2.0` on the tag, `3.2.0-3-gdd49366` three commits later); it is passed as a build argument
+(`APP_VERSION`, `APP_REVISION`), baked into the image (`ENV APP_VERSION` and the OCI labels
+`org.opencontainers.image.version` / `revision`) and overrides the `dev` value compiled into
+`.env.local.php`. **Export `APP_VERSION` before every `build`** (`make build` does it; see
+[§ 6](#6-production-build)) and do not define it in `.env.local`. The application never reads git at runtime.
+
+Tags sit on the merge commit of `main`, which `develop` does not contain until `main` is merged back after the
+tag: that merge of `main` into `develop` (#251) is required for `git describe` to work on `develop` and for it to
+show `vX.Y.Z-N-gsha`. Meanwhile `bin/app-version` falls back to the latest tag and the common point with `HEAD`,
+and, with no tag at all (clone without tags), to the short SHA (shown as `dev-<sha>`). The documentation site reads
+the latest `v*` tag (separate PR in `synapse-docs`).
 :::
 
 ## 6. Production build
@@ -187,7 +194,8 @@ The production image is built from the `frankenphp_prod` target of the
 | `frankenphp_prod_builder` | `APP_ENV=prod`, `APP_DEBUG=0`, dummy `DATABASE_URL` for cache warmup |
 | `composer install --no-dev` | Production dependencies only |
 | `composer dump-autoload --classmap-authoritative` | Optimised autoloader |
-| `composer dump-env prod` | Compiles `.env` into `.env.local.php` (including `APP_VERSION`) |
+| `composer dump-env prod` | Compiles `.env` into `.env.local.php` (`APP_VERSION=dev` there is overridden by the image environment variable) |
+| `frankenphp_prod` (`ARG APP_VERSION`, `APP_REVISION`) | `ENV APP_VERSION` and the OCI version and revision labels |
 | `asset-map:compile` | AssetMapper asset compilation |
 | `frankenphp_prod` | Final `debian:13.7-slim` image, setuid bits stripped, runs as `www-data` |
 
@@ -233,7 +241,7 @@ Then run the version-specific
 [post-deployment steps](/en/deployment/production/) and a smoke test:
 
 - [ ] `curl -I https://<domain>` → `200`.
-- [ ] Log in with 2FA, open a study; the new version shows on the login page and in the footer (`v{{ app_version }}`).
+- [ ] Log in with 2FA, open a study; the new version (`vX.Y.Z`) shows on the login page and in the footer.
 - [ ] Mercure hub reachable (`/.well-known/mercure`).
 - [ ] All containers `healthy` / `running`.
 - [ ] The `worker` service was recreated with the new image (`ps`: `healthy`); `logs worker` shows no repeated error. Failed messages are listed with `messenger:failed:show` (see [Messenger worker](/en/deployment/production/#messenger-worker-background-imports)).

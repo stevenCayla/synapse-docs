@@ -81,6 +81,9 @@ jobs:
           ssh-key: ${{ secrets.SYNAPSE_REPO_SSH_KEY }}
           path: .synapse
           sparse-checkout: docs
+          # Full history without blobs: the release tags give APP_VERSION
+          fetch-depth: 0
+          filter: blob:none
           persist-credentials: false
 
       - name: Setup Node
