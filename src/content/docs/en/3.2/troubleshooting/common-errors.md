@@ -1,0 +1,15 @@
+---
+title: Common Errors
+sidebar:
+  badge:
+    text: WIP
+    variant: caution
+slug: en/3.2/troubleshooting/common-errors
+---
+
+:::caution[Work in progress]
+This page is a **stub**: its content is being written and will be completed soon.
+
+Want to help complete it? See the [contribution guide](/en/3.2/contribute/) — every
+contribution, however small, is welcome.
+:::
