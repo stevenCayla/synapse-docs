@@ -23,8 +23,6 @@ Drop the file by drag and drop, then check how it was read.
 | **Date format** | `Automatic` | For dates entered as text: DD/MM/YYYY or MM/DD/YYYY. |
 | **Identifying data** \* | `Do not import` | **Do not import** (recommended), **Pseudonymize**, or **Keep** encrypted, only if the regulatory database allows it. |
 
-<!-- Screenshot to provide: the identifying data policy and the masked preview. -->
-
 ## 11.2 Columns
 
 Map each column to a study field, or create the missing fields.
@@ -34,8 +32,6 @@ Map each column to a study field, or create the missing fields.
 | **Patient identifier** \* | `id → Patient identifier` | Mapped automatically when the name is recognized. |
 | **Identifying columns** | — | No eCRF field: they follow the policy chosen at the File step. |
 | **Define as fields** | `New form…` | Creates a form and its fields: label, type, unit and section for each column. |
-
-<!-- Screenshots to provide: mapping grouped by header color; the "Define these columns as fields" panel; each column mapped to its new field. -->
 
 :::tip[Readable labels]
 Labels reuse the raw column name. Rename them here ("Date of diagnosis") or later in the designer.
@@ -51,8 +47,6 @@ The values in the file are checked against the fields: blocking errors and warni
 | **Accept and create a query** | — | Keeps the value and opens a question to the site, created when the import is applied. |
 | **Exclude rows** | — | Removes the affected patients from the import. |
 
-<!-- Screenshot to provide: "out of range" warnings and rows to review. -->
-
 ## 11.4 Confirmation and signature
 
 Review the summary, then sign the import.
@@ -62,8 +56,6 @@ Review the summary, then sign the import.
 | **Certification** \* | check | You attest that the data and the mapping are correct. |
 | **Meaning** \* | `Conformity with source documents` | The legal meaning of the signature, recorded with it (21 CFR Part 11). |
 | **Password** \* | your password | Re-authentication required for any electronic signature. |
-
-<!-- Screenshot to provide: the import summary and the signature block. -->
 
 :::note[When is the data applied?]
 The signed import session is saved now; patients are created when the study is launched.
