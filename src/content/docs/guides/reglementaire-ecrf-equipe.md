@@ -42,8 +42,6 @@ Les visites de l'étude et les formulaires remplis à chacune. J0 = jour d'inclu
 | **Visite** | `V1 · Inclusion · J0` | Code unique, nom et jour par rapport à l'inclusion, avec une fenêtre de tolérance. |
 | **Matrice visites × formulaires** | — | Cochez les formulaires à remplir à chaque visite. Une visite sans formulaire est bloquante. |
 
-<!-- Capture à fournir : deux visites avec le même code (l'erreur est signalée). -->
-
 ## 10. Équipe
 
 Les responsables, la stratégie de monitoring et les membres.
