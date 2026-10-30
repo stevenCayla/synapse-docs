@@ -2,7 +2,7 @@
 
 # Synapse Docs
 
-**The documentation platform of [Synapse Medical](https://github.com/stevenCayla/SYNAPSE-MEDICAL)**<br>
+**The documentation platform of [Synapse Medical](https://github.com/stevenCayla/synapse-app)**<br>
 User guides, acceptance test books, compliance pages and technical reference, in French and English.
 
 [![CI](https://github.com/stevenCayla/synapse-docs/actions/workflows/ci.yaml/badge.svg)](https://github.com/stevenCayla/synapse-docs/actions/workflows/ci.yaml)
@@ -61,21 +61,21 @@ No access to the application repository is needed.
 ## Where to edit the pages
 
 Content that describes the application is edited in **one place only**: the
-`docs/` folder of [SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL),
+`docs/` folder of [synapse-app](https://github.com/stevenCayla/synapse-app),
 so the documentation evolves with the code.
 
 | Pages | Edit them in |
 |-------|--------------|
 | `src/content/docs/audit/` (audit and compliance) | this repository |
-| `src/content/docs/guides/`, `resources/`, `recette/` and their `en/` counterparts (guides, glossary, compliance FAQ, acceptance tests) | this repository **for now**: they describe the application and belong in the `docs/` folder of SYNAPSE-MEDICAL, where they should move (then drop them from the exclusions of `scripts/sync-content.sh`) |
+| `src/content/docs/guides/`, `resources/`, `recette/` and their `en/` counterparts (guides, glossary, compliance FAQ, acceptance tests) | this repository **for now**: they describe the application and belong in the `docs/` folder of synapse-app, where they should move (then drop them from the exclusions of `scripts/sync-content.sh`) |
 | `src/pages/recette/prospective-import.astro` and `src/components/recette-import/` (REC-01b test book) | this repository |
 | `src/data/CHANGELOG.md`, `APP_VERSION` | nowhere: copied from `CHANGELOG.md` and the latest release tag of the application by the sync, never edited by hand |
-| everything else in `src/content/docs/` | the `docs/` folder of SYNAPSE-MEDICAL |
+| everything else in `src/content/docs/` | the `docs/` folder of synapse-app |
 
 `src/content/docs/` (except `audit/`, `guides/`, `resources/` and `recette/`, French
 and English) is a snapshot of the application's `docs/` folder, refreshed by
 `scripts/sync-content.sh`. The CI runs it automatically when `docs/` changes on
-`develop` in SYNAPSE-MEDICAL, checks that the site still builds and commits the new
+`develop` in synapse-app, checks that the site still builds and commits the new
 snapshot. Changes made directly to the synced pages here are overwritten by the next
 sync. The `APP_VERSION` file (shown in the version menu) holds the latest release tag `vX.Y.Z` of the application, without the `v` (`-rc` tags ignored); it falls back to `APP_VERSION` of the application's `.env` when no tag is available (never `dev`), otherwise it is left unchanged. A checkout given as `SYNAPSE_DIR` needs its tags (`git fetch --tags`).
 
@@ -113,7 +113,7 @@ make preview                              # build, then serve dist/
 make clean                                # remove dist/, caches and the temporary clone
 make deploy-check                         # validate both Cloudflare deployments (dry run)
 
-# Refresh the snapshot (maintainers, needs access to SYNAPSE-MEDICAL)
+# Refresh the snapshot (maintainers, needs access to synapse-app)
 make sync SYNAPSE_DIR=../symfony-docker   # from a local checkout
 make sync SYNAPSE_REF=feat/my-branch      # from another branch of the application
 ```
@@ -233,7 +233,7 @@ npm run deploy:prod
 
 | Type | Name | Value |
 |------|------|-------|
-| Secret | `SYNAPSE_REPO_SSH_KEY` | Private key of a read-only deploy key of SYNAPSE-MEDICAL (content sync only) |
+| Secret | `SYNAPSE_REPO_SSH_KEY` | Private key of a read-only deploy key of synapse-app (content sync only) |
 | Secret | `CLOUDFLARE_API_TOKEN` | Cloudflare API token ("Edit Cloudflare Workers" template) |
 | Variable | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
 

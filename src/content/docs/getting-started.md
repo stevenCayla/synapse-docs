@@ -38,13 +38,13 @@ Synapse Medical tourne **entièrement en conteneurs** : un seul service applicat
 ## ✅ Étape 1 — Cloner le dépôt
 
 ```bash
-git clone <url-du-dépôt> synapse-medical
-cd synapse-medical
+git clone <url-du-dépôt> synapse-app
+cd synapse-app
 ```
 
 :::tip
 Pas d'accès au dépôt ? Demande-le à l'équipe ou travaille sur un **fork**. Le code source
-sera publié sur [GitHub](https://github.com/stevenCayla/SYNAPSE-MEDICAL).
+sera publié sur [GitHub](https://github.com/stevenCayla/synapse-app).
 :::
 
 ## ✅ Étape 2 — Clés de chiffrement (générées automatiquement)

@@ -38,13 +38,13 @@ local install of PHP, Composer or PostgreSQL is required.
 ## ✅ Step 1 — Clone the repository
 
 ```bash
-git clone <repository-url> synapse-medical
-cd synapse-medical
+git clone <repository-url> synapse-app
+cd synapse-app
 ```
 
 :::tip
 No repository access? Ask the team or work from a **fork**. The source code will be published
-on [GitHub](https://github.com/stevenCayla/SYNAPSE-MEDICAL).
+on [GitHub](https://github.com/stevenCayla/synapse-app).
 :::
 
 ## ✅ Step 2 — Encryption keys (generated automatically)

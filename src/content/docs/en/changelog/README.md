@@ -14,8 +14,8 @@ format.
 
 | Source | Role |
 |--------|------|
-| [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md) (repo root) | **Source of truth**, Keep a Changelog format |
-| [GitHub Releases](https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases) | One release per published version (tag `vX.Y.Z`) |
+| [`CHANGELOG.md`](https://github.com/stevenCayla/synapse-app/blob/main/CHANGELOG.md) (repo root) | **Source of truth**, Keep a Changelog format |
+| [GitHub Releases](https://github.com/stevenCayla/synapse-app/releases) | One release per published version (tag `vX.Y.Z`) |
 | This page | Readable mirror of the release history |
 
 :::note[SemVer convention]
@@ -168,5 +168,5 @@ Internal version, never published as a release: its content is included in `3.0.
 
 ---
 
-> 📋 The full, detailed history is maintained in [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md). For compatibility
+> 📋 The full, detailed history is maintained in [`CHANGELOG.md`](https://github.com/stevenCayla/synapse-app/blob/main/CHANGELOG.md). For compatibility
 > breaks, see [Breaking changes](/en/changelog/breaking-changes/).
