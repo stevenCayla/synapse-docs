@@ -38,8 +38,8 @@ local install of PHP, Composer or PostgreSQL is required.
 ## ✅ Step 1 — Clone the repository
 
 ```bash
-git clone <repository-url> synapse-medical
-cd synapse-medical
+git clone <repository-url> synapse-app
+cd synapse-app
 ```
 
 :::tip
@@ -109,9 +109,9 @@ You should see the `php`, `database` and `mailer` services running:
 
 ```
 NAME                        SERVICE    STATUS    PORTS
-synapse-medical-php-1       php        running   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp
-synapse-medical-database-1  database   running   5432/tcp
-synapse-medical-mailer-1    mailer     running   1025/tcp, 8025/tcp
+synapse-app-php-1       php        running   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp
+synapse-app-database-1  database   running   5432/tcp
+synapse-app-mailer-1    mailer     running   1025/tcp, 8025/tcp
 ```
 
 ## ✅ Step 4 — Initialize the data

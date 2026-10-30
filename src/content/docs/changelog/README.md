@@ -23,13 +23,36 @@ Synapse Medical suit le **[Semantic Versioning](https://semver.org/lang/fr/)**
 - **PATCH** — corrections rétrocompatibles.
 :::
 
-## Version actuelle — `3.2.0`
+## Version actuelle — `3.3.0`
 
-Nouvel assistant de création d'étude (parcours prospectif et rétrospectif, import de données appliqué par le worker, dossier réglementaire, signatures), fonctions par workspace et sécurité par ligne fermée ; version applicative (`APP_VERSION`).
+Accès restreint à l'IPP (affichage, saisie, recherche, exports), import de la colonne IPP et du sexe, bandeau d'environnement, lien vers la documentation sur la page de connexion ; version affichée issue du tag git.
 
 ## En cours (`Unreleased`)
 
 Rien pour le moment.
+
+## `3.3.0`
+
+Version qui restreint l'accès à l'IPP et améliore l'import, la page de connexion et l'identification de l'environnement.
+
+:::caution[À vérifier avant déploiement]
+- **Version issue du tag** (#248) : exporter `APP_VERSION="$(bin/app-version)"` et `APP_REVISION="$(git rev-parse HEAD)"` avant le build (`make build` le fait) et retirer `APP_VERSION` du `.env.local` des serveurs.
+- **Variables optionnelles** : `APP_DOCS_URL` (#247) ; `APP_ENVIRONMENT_LABEL` (#252), vide en production (aucun bandeau) ; `MAILER_ALLOWED_RECIPIENTS` (#249), vide en production, obligatoire dès que `APP_ENVIRONMENT_LABEL` est renseigné (liste vide = aucun e-mail envoyé).
+- **Exports et IPP** (#269) : l'IPP n'est plus exporté et n'est visible que des investigateurs du centre et des administrateurs ; la recherche d'IPP est une égalité exacte.
+- Aucune migration ni commande à lancer ; recréer le worker.
+:::
+
+### Ajouté
+
+- **IPP, accès restreint** (#269), cible d'import « IPP du patient » et sexe du patient (#261), **bandeau d'environnement** (#252), lien vers la documentation sur la page de connexion (#247).
+
+### Modifié
+
+- Exports CSV / XLSX des patients et des eCRF sans l'IPP (#269) ; version affichée calculée depuis le tag git (#248).
+
+### Corrigé
+
+- Import : correction d'une cellule vide (#254), rechargement de l'étape Import (#255), confirmation de remplacement (#256), avertissement sans colonne de données (#259), finitions d'écran (#260).
 
 ## `3.2.0`
 

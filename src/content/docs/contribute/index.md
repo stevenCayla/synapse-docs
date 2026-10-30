@@ -49,8 +49,8 @@ Aucune installation locale de PHP/Composer : tout passe par le conteneur Franken
 ### Installation
 
 ```bash
-git clone <url-du-dépôt> synapse-medical
-cd synapse-medical
+git clone <url-du-dépôt> synapse-app
+cd synapse-app
 make start
 make sf c="app:seed --reset --all-sites"
 # → https://localhost

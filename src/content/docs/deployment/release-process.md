@@ -26,11 +26,23 @@ release et le déploiement sont réalisés à la main en suivant cette page.
 ```mermaid
 flowchart LR
     feat["feature/*"] -->|PR| dev[develop]
+    dev -->|déploiement manuel| devsrv["dev-app<br/>(développement)"]
     dev --> rel["release/AAAA-MM-JJ"]
-    rel -->|PR| main[main]
+    rel -->|"tag vX.Y.Z-rc.N"| uat["uat-app<br/>(recette UAT)"]
+    uat -->|"correctif (PR sur release/…) puis rc.N+1"| rel
+    rel -->|"PR après validation"| main[main]
     main -->|"tag vX.Y.Z"| gh[GitHub Release]
-    main --> srv["Serveur : git pull + build frankenphp_prod + up -d<br/>(migrations appliquées au démarrage)"]
+    main --> srv["app (production) : git pull + build frankenphp_prod + up -d<br/>(migrations appliquées au démarrage)"]
+    main -->|"fusion retour (chore/back-merge-vX.Y.Z)"| dev
 ```
+
+| Environnement | Hôte | Code déployé |
+|---------------|------|--------------|
+| Développement | `dev-app.synapse-medical.fr` | `develop` |
+| Recette (UAT) | `uat-app.synapse-medical.fr` | candidate de release `vX.Y.Z-rc.N` |
+| Production | `app.synapse-medical.fr` | `vX.Y.Z` sur `main` |
+
+Les déploiements des trois environnements sont manuels.
 
 | Élément | Emplacement | Rôle |
 |---------|-------------|------|
@@ -49,7 +61,7 @@ Le dépôt suit un flux à trois niveaux :
 |---------|---------|---------------|
 | `feature/*` (ou `feat/*`), `fix/*`, `refactor/*`, `docs/*`, `ci/*`, `chore/*` | Une modification isolée | Création depuis `develop` |
 | `develop` | Prochaine version en cours d'intégration | Pull Requests des branches de travail |
-| `release/AAAA-MM-JJ` | Promotion de `develop` vers `main` | Création depuis `origin/develop` à la demande |
+| `release/AAAA-MM-JJ` | Promotion de `develop` vers `main`, candidates `vX.Y.Z-rc.N` déployées sur l'UAT | Création depuis `origin/develop` à la demande ; correctifs de recette uniquement |
 | `main` | Dernière version publiée | Pull Request `release/…` → `main` |
 
 - Les branches de travail partent **toujours** de `develop` et leur Pull Request
@@ -58,7 +70,8 @@ Le dépôt suit un flux à trois niveaux :
 - Les messages de commit suivent [Conventional Commits](https://www.conventionalcommits.org/),
   en anglais : `type(scope): résumé (#issue)` (voir le [guide de contribution](/contribute/)).
 - Il n'existe pas de branche de hotfix depuis `main` : un correctif urgent passe
-  aussi par `develop` (branche `fix/*`), puis par une release.
+  aussi par `develop` (branche `fix/*`), puis par une release. Seule exception : un
+  défaut trouvé en recette UAT est corrigé sur `release/AAAA-MM-JJ` (voir [§ 5](#5-publier-la-version)).
 - `Closes #x` ne ferme automatiquement une issue que lors d'une fusion dans la
   branche par défaut `main`. Après la fusion d'une PR dans `develop`, **fermer
   l'issue à la main**.
@@ -154,26 +167,58 @@ pour les commandes de backfill associées.
    Commiter le résultat sur `develop` (voir le README de `synapse-docs`).
 1. **Commit de release** sur `develop` : changelog daté (aucune version à modifier dans le dépôt), par exemple
    `chore(release): 2.1.0`.
-2. **Branche et PR de release**, uniquement sur demande explicite : créer
-   `release/AAAA-MM-JJ` depuis `origin/develop`, la pousser, puis ouvrir la PR
-   `release/AAAA-MM-JJ` → `main`. Ne jamais ouvrir une PR dont la branche source est
-   `develop` : avec la suppression automatique des branches fusionnées, `develop` serait
-   supprimée. La CI s'exécute sur la PR ; fusionner une fois verte.
-3. **Tag annoté** sur le commit de `main` :
+2. **Branche de release**, uniquement sur demande explicite : créer `release/AAAA-MM-JJ`
+   depuis `origin/develop` et la pousser. Ne jamais ouvrir une PR dont la branche source est
+   `develop` : avec la suppression automatique des branches fusionnées, `develop` serait supprimée.
+3. **Candidate de release** : tag annoté `vX.Y.Z-rc.1` sur la pointe de `release/AAAA-MM-JJ`, poussé,
+   puis **déploiement manuel de ce tag sur l'UAT** (même procédure qu'au [§ 7](#7-déployer-sur-le-serveur),
+   sur la pile UAT). L'application affiche `vX.Y.Z-rc.1`.
+   ```bash
+   git switch release/2026-11-03 && git pull
+   git tag -a v2.1.0-rc.1 -m "Synapse Medical 2.1.0-rc.1"
+   git push origin v2.1.0-rc.1
+   ```
+   Chaque candidate est publiée comme pré-release GitHub (elle indique quel tag est sur l'UAT) ; elle ne devient
+   jamais la « dernière » release :
+   ```bash
+   gh release create v2.1.0-rc.1 --verify-tag --prerelease --title "Synapse Medical 2.1.0-rc.1" \
+     --notes "Candidate de release déployée sur l'UAT, voir la section [2.1.0] du CHANGELOG.md"
+   ```
+4. **Recette** sur l'UAT. Un défaut est corrigé par une PR **vers `release/AAAA-MM-JJ`** (exception à la
+   règle « tout passe par `develop` » : seuls des correctifs y entrent, aucune fonctionnalité), puis nouveau tag
+   `vX.Y.Z-rc.2` (puis `rc.3`…) et nouveau déploiement UAT. Un correctif déjà fusionné dans `develop` s'y
+   reporte par `git cherry-pick -x`. Les correctifs reviennent dans `develop` par la fusion retour (étape 8).
+5. **Validation de la recette** par le valideur, puis PR `release/AAAA-MM-JJ` → `main` (titre `Release X.Y.Z`),
+   sur le code de la dernière candidate validée. La CI complète s'exécute sur cette PR (la seule, avec le push
+   sur `main`) ; fusionner une fois verte, avec un commit de merge.
+6. **Tag annoté final** `vX.Y.Z` sur le commit de merge de `main` :
    ```bash
    git switch main && git pull
-   git tag -a v2.1.0 -m "Release 2.1.0"
+   git tag -a v2.1.0 -m "Synapse Medical 2.1.0"
    git push origin v2.1.0
    ```
-4. **GitHub Release** créée à la main depuis le tag ; les notes reprennent mot pour mot la
+7. **GitHub Release** créée à la main depuis le tag ; les notes reprennent mot pour mot la
    section du `CHANGELOG.md` (voir [Versions & processus de release](/changelog/releases/)).
-5. **Fermer à la main** les issues des PR fusionnées dans `develop` : `Closes #x` ne
+8. **Fusion retour de `main` dans `develop`** (obligatoire, après chaque release) : sans elle, les tags de
+   release ne sont pas atteignables depuis `develop` (`git describe` échoue) et les correctifs faits sur la
+   branche de release n'y reviennent pas. Jamais de PR dont la tête est `main` ou `develop` : passer par
+   une branche dédiée.
+   ```bash
+   git fetch origin
+   git switch -c chore/back-merge-v2.1.0 origin/develop
+   git merge --no-ff origin/main     # conflits de CHANGELOG.md : garder les deux entrées
+   git push -u origin chore/back-merge-v2.1.0
+   ```
+   PR vers `develop`, **fusionnée avec un commit de merge** (jamais en squash ni en rebase, sinon les
+   commits taggués restent hors de `develop`). Vérifier ensuite que `git describe --tags origin/develop`
+   donne `vX.Y.Z-N-gsha`.
+9. **Fermer à la main** les issues des PR fusionnées dans `develop` : `Closes #x` ne
    les ferme automatiquement que pour une fusion dans `main`.
-6. **Publier la documentation** : le site de développement (dev-docs.synapse-medical.fr)
-   est mis à jour automatiquement à chaque fusion dans `develop` touchant `docs/` ou
-   `.env`. Le contenu atteint `main` via la PR de release de `synapse-docs`, et la
-   production (docs.synapse-medical.fr) n'est déployée **qu'à la main** (lancement du
-   workflow sur `main` dans `synapse-docs`).
+10. **Publier la documentation** : le site de développement (dev-docs.synapse-medical.fr)
+    est mis à jour à la demande (workflow manuel) ou à chaque fusion dans `develop` touchant `docs/` ou
+    `.env` lorsque la synchronisation automatique est active. Le contenu atteint `main` via la PR de release de `synapse-docs`, et la
+    production (docs.synapse-medical.fr) n'est déployée **qu'à la main** (lancement du
+    workflow sur `main` dans `synapse-docs`).
 
 :::tip[La version vient du tag, au build]
 Le tag `vX.Y.Z` est la **seule source** de la version. `bin/app-version` la calcule au build
@@ -184,7 +229,7 @@ Le tag `vX.Y.Z` est la **seule source** de la version. `bin/app-version` la calc
 voir [§ 6](#6-build-de-production)), et ne pas la définir dans `.env.local`. L'application ne lit jamais git à l'exécution.
 
 Les tags sont posés sur le commit de merge de `main`, que `develop` ne contient pas tant que `main` n'y est
-pas refusionnée après le tag : cette fusion de `main` dans `develop` (#251) est nécessaire pour que
+pas refusionnée après le tag : cette fusion de `main` dans `develop` (étape 8 du § 5) est nécessaire pour que
 `git describe` fonctionne sur `develop` et que celle-ci affiche `vX.Y.Z-N-gsha`. En attendant, `bin/app-version`
 retombe sur le dernier tag et le point commun avec `HEAD`, et, sans aucun tag (clone sans tags), sur le SHA court
 (affiché `dev-<sha>`). Le site de documentation lit le dernier tag `v*` (PR séparée dans `synapse-docs`).

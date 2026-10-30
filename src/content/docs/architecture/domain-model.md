@@ -143,6 +143,12 @@ index aveugles HMAC (`externalIdHash`, `dateOfBirthHash`) pour la recherche exac
 porte aussi les marqueurs RGPD : effacement (`erasedAt`, `PatientErasureLog`) et
 limitation du traitement (`processingRestricted`).
 
+L'IPP (`externalId`) est une donnée à accès restreint (`IppVoter`, règles dans `IppAccess`) : en clair pour
+les investigateurs du centre de l'inclusion, les administrateurs de l'étude et ceux du workspace actif, masqué
+pour tous les autres ; saisissable à la main seulement quand la politique « conserver les données identifiantes »
+de l'étude s'applique (`ImportIdentityPolicy::allowsKeep()`). Son affichage en clair sur une fiche et sa modification
+sont tracés dans `ActivityLog` (`patient.ipp_viewed`, `patient.ipp_updated`), sans la valeur.
+
 `StudyPatient` (l'**inclusion**) relie un patient à une étude et, en multicentrique, à un
 `StudySite`. Il porte le `subjectId` (format `{CODE_SITE}-{NNN}`, généré par
 `SubjectIdService`, unique par couple étude/centre) et le statut `StudyPatientStatus`.

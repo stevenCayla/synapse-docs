@@ -38,8 +38,8 @@ Synapse Medical tourne **entièrement en conteneurs** : un seul service applicat
 ## ✅ Étape 1 — Cloner le dépôt
 
 ```bash
-git clone <url-du-dépôt> synapse-medical
-cd synapse-medical
+git clone <url-du-dépôt> synapse-app
+cd synapse-app
 ```
 
 :::tip
@@ -110,9 +110,9 @@ Tu devrais voir les services `php`, `database` et `mailer` en cours d'exécution
 
 ```
 NAME                        SERVICE    STATUS    PORTS
-synapse-medical-php-1       php        running   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp
-synapse-medical-database-1  database   running   5432/tcp
-synapse-medical-mailer-1    mailer     running   1025/tcp, 8025/tcp
+synapse-app-php-1       php        running   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp
+synapse-app-database-1  database   running   5432/tcp
+synapse-app-mailer-1    mailer     running   1025/tcp, 8025/tcp
 ```
 
 ## ✅ Étape 4 — Initialiser les données
