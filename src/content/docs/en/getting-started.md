@@ -38,8 +38,8 @@ local install of PHP, Composer or PostgreSQL is required.
 ## ✅ Step 1 — Clone the repository
 
 ```bash
-git clone <repository-url> synapse-app
-cd synapse-app
+git clone <repository-url> synapse-medical
+cd synapse-medical
 ```
 
 :::tip

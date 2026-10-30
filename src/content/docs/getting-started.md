@@ -38,8 +38,8 @@ Synapse Medical tourne **entièrement en conteneurs** : un seul service applicat
 ## ✅ Étape 1 — Cloner le dépôt
 
 ```bash
-git clone <url-du-dépôt> synapse-app
-cd synapse-app
+git clone <url-du-dépôt> synapse-medical
+cd synapse-medical
 ```
 
 :::tip

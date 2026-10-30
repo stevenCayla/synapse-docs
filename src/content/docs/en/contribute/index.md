@@ -49,8 +49,8 @@ No local PHP/Composer install: everything runs through the FrankenPHP container.
 ### Setup
 
 ```bash
-git clone <repository-url> synapse-app
-cd synapse-app
+git clone <repository-url> synapse-medical
+cd synapse-medical
 make start
 make sf c="app:seed --reset --all-sites"
 # → https://localhost

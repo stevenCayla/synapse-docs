@@ -42,8 +42,8 @@ Mettre en place l'environnement, lancer l'application et contribuer en local.
 1. Cloner le dépôt
 
    ```bash
-   git clone <url-du-repo> synapse-app
-   cd synapse-app
+   git clone <url-du-repo> synapse-medical
+   cd synapse-medical
    ```
 
 2. Copier et adapter la configuration locale
