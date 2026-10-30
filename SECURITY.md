@@ -20,7 +20,7 @@ report is published as a security advisory.
 - The website (https://docs.synapse-medical.fr) and its build: scripts, headers
   (`public/_headers`), Content Security Policy, dependencies, CI workflow.
 - Vulnerabilities of the Synapse Medical application itself belong to the
-  [SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL) repository.
+  [synapse-app](https://github.com/stevenCayla/synapse-app) repository.
 
 ## Supported versions
 

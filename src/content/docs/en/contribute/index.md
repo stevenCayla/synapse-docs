@@ -14,12 +14,12 @@ Thank you for your interest in **Synapse Medical**! Contributions of **any size 
 level** are welcome — from a typo fix to a major new feature.
 
 :::tip[Quick start]
-The [`CONTRIBUTING.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CONTRIBUTING.md) file at the repository root summarizes everything below. This
+The [`CONTRIBUTING.md`](https://github.com/stevenCayla/synapse-app/blob/main/CONTRIBUTING.md) file at the repository root summarizes everything below. This
 page is its enriched, navigable version.
 :::
 
 <div class="sl-flex" style="gap:1rem;flex-wrap:wrap;margin:1rem 0;">
-  <a href="https://github.com/stevenCayla/SYNAPSE-MEDICAL" class="sl-flex" style="gap:.4em;align-items:center;">🐙 View the code on GitHub</a>
+  <a href="https://github.com/stevenCayla/synapse-app" class="sl-flex" style="gap:.4em;align-items:center;">🐙 View the code on GitHub</a>
   <a href="https://discord.com/channels/1521440528388984934/1521440528829382718" class="sl-flex" style="gap:.4em;align-items:center;">💬 Join the Discord</a>
 </div>
 

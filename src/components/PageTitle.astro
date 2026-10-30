@@ -95,7 +95,7 @@ const rel = (entry.filePath ?? `src/content/docs/${entry.id}.md`).replace(/^src\
 const own = /^(en\/)?(guides|resources|recette|audit)\//.test(rel);
 const editUrl = own
   ? `https://github.com/stevenCayla/synapse-docs/edit/develop/src/content/docs/${rel}`
-  : `https://github.com/stevenCayla/SYNAPSE-MEDICAL/edit/develop/docs/${rel}`;
+  : `https://github.com/stevenCayla/synapse-app/edit/develop/docs/${rel}`;
 const sheetHref = data.sheet ? `${isEn ? '/en/sheets/' : '/fiches/'}${entry.id.split('/').pop()}/` : undefined;
 const updated = lastUpdated?.toLocaleDateString(t.locale, { day: 'numeric', month: 'short', year: 'numeric' });
 ---

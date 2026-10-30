@@ -12,6 +12,6 @@ export const DOCS_VERSION = __DOCS_VERSION__;
 // home page and the changelog.
 export const APP_VERSION = DOCS_VERSION;
 
-// GitHub Releases URL of the application. Empty while the SYNAPSE-MEDICAL
+// GitHub Releases URL of the application. Empty while the synapse-app
 // repository is private: the version selector then hides the entry.
 export const RELEASES_URL = '';

@@ -3,7 +3,7 @@
 # and its version (latest release tag vX.Y.Z reachable from the synced commit,
 # without the v; -rc tags ignored) into the APP_VERSION file, so this
 # repository builds on its own. Run it to refresh the snapshot; the CI runs it automatically when
-# docs/ changes on develop or main in SYNAPSE-MEDICAL.
+# docs/ changes on develop or main in synapse-app.
 #
 # Source, by priority:
 #   1. SYNAPSE_DIR: path of an existing checkout of the application,
@@ -25,7 +25,7 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-SYNAPSE_REPO="${SYNAPSE_REPO:-git@github.com:stevenCayla/SYNAPSE-MEDICAL.git}"
+SYNAPSE_REPO="${SYNAPSE_REPO:-git@github.com:stevenCayla/synapse-app.git}"
 SYNAPSE_REF="${SYNAPSE_REF:-develop}"
 
 if [ -n "${SYNAPSE_DIR:-}" ]; then
