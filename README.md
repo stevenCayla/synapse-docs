@@ -5,12 +5,12 @@
 **The documentation platform of [Synapse Medical](https://github.com/stevenCayla/synapse-app)**<br>
 User guides, acceptance test books, compliance pages and technical reference, in French and English.
 
-[![CI](https://github.com/stevenCayla/synapse-docs/actions/workflows/ci.yaml/badge.svg)](https://github.com/stevenCayla/synapse-docs/actions/workflows/ci.yaml)
+[![CI](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml/badge.svg)](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-7-ff5d01.svg)](https://astro.build)
 [![Starlight](https://img.shields.io/badge/Starlight-0.42-8b5cf6.svg)](https://starlight.astro.build)
 
-[Production](https://docs.synapse-medical.fr) · [Development](https://dev-docs.synapse-medical.fr) · [Report an issue](https://github.com/stevenCayla/synapse-docs/issues) · [Security policy](SECURITY.md)
+[Production](https://docs.synapse-medical.fr) · [Development](https://dev-docs.synapse-medical.fr) · [Report an issue](https://github.com/synapse-medical/synapse-docs/issues) · [Security policy](SECURITY.md)
 
 </div>
 
@@ -216,7 +216,7 @@ environment rule, so running the workflow by hand on `main` is the approval gate
 
 **Content sync.** When `docs/` changes on `develop` in the application repository,
 its `.github/workflows/docs.yaml` runs
-`gh workflow run ci.yaml -R stevenCayla/synapse-docs --ref develop -f sync=true`. The
+`gh workflow run ci.yaml -R synapse-medical/synapse-docs --ref develop -f sync=true`. The
 run executes on `develop`, refreshes the snapshot, commits it, then builds and
 deploys that commit to dev-docs. The `sync` input is refused on any other branch.
 (A `repository_dispatch` is not used: GitHub always runs it on the default branch

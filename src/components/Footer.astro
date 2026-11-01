@@ -10,7 +10,7 @@ const isEn = Astro.url.pathname.startsWith('/en/');
 const contributeHref = isEn ? '/en/contribute/' : '/contribute/';
 const discordHref =
   'https://discord.com/channels/1521440528388984934/1521440528829382718';
-const githubHref = 'https://github.com/stevenCayla/synapse-docs';
+const githubHref = 'https://github.com/synapse-medical/synapse-docs';
 const changelogHref = isEn ? '/en/changelog/' : '/changelog/';
 const year = new Date().getFullYear();
 
@@ -25,7 +25,7 @@ const history = entry.data.template === 'splash' ? [] : pageHistory(`src/content
 const contributors = [...new Set(history.map((r) => r.author))].slice(0, 5);
 const last = history[0];
 const fmt = (d: Date) => d.toLocaleDateString(isEn ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-const historyHref = `https://github.com/stevenCayla/synapse-docs/commits/develop/src/content/docs/${rel}`;
+const historyHref = `https://github.com/synapse-medical/synapse-docs/commits/develop/src/content/docs/${rel}`;
 const o = isEn
   ? { edited: 'Edited on', by: 'by', n: (n: number) => `${n} contributor${n > 1 ? 's' : ''}`, btn: 'History', full: 'Full history on GitHub' }
   : { edited: 'Modifiée le', by: 'par', n: (n: number) => `${n} contributeur${n > 1 ? 's' : ''}`, btn: 'Historique', full: "Voir l'historique complet sur GitHub" };

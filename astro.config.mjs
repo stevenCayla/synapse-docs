@@ -156,7 +156,7 @@ export default defineConfig({
       },
       // Social links in the header.
       social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/stevenCayla/synapse-docs' },
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/synapse-medical/synapse-docs' },
         {
           icon: 'discord',
           label: 'Discord',

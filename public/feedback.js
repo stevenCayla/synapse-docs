@@ -5,7 +5,7 @@
   var content = document.querySelector('.sl-markdown-content');
   if (!content || content.closest('.sy-full') || content.querySelector('.sy-full')) return;
   var en = /^\/en\//.test(location.pathname);
-  var REPO = 'https://github.com/stevenCayla/synapse-docs/issues/new';
+  var REPO = 'https://github.com/synapse-medical/synapse-docs/issues/new';
   var T = en
     ? {
         q: 'Was this page helpful?',
