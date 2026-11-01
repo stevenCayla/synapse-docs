@@ -145,7 +145,7 @@
 :root[data-theme='dark'] .rec-imp .prail .ok,
 :root[data-theme='dark'] .rec-imp .prail .ko,
 :root[data-theme='dark'] .rec-imp .prail .na {
-  color: #0b0f1a;
+  color: #0f1629;
 }
 
 /* Step cards. */
@@ -221,7 +221,7 @@
 :root[data-theme='dark'] .rec-imp .pc.ok .pc-n,
 :root[data-theme='dark'] .rec-imp .pc.ko .pc-n,
 :root[data-theme='dark'] .rec-imp .pc.na .pc-n {
-  color: #0b0f1a;
+  color: #0f1629;
 }
 .rec-imp .pc-h b {
   flex: 1;
@@ -333,7 +333,7 @@
   color: #fff;
 }
 :root[data-theme='dark'] .rec-imp .ppills button.on {
-  color: #0b0f1a;
+  color: #0f1629;
 }
 .rec-imp .ppane .shot {
   display: grid;
@@ -494,7 +494,7 @@
 :root[data-theme='dark'] .rec-imp .pchk.s-ok .pseg [data-s='ok'],
 :root[data-theme='dark'] .rec-imp .pchk.s-ko .pseg [data-s='ko'],
 :root[data-theme='dark'] .rec-imp .pchk.s-na .pseg [data-s='na'] {
-  color: #0b0f1a;
+  color: #0f1629;
 }
 .rec-imp .pchk.s-ok .pseg [data-s='ok'] {
   background: var(--sy-ok);
