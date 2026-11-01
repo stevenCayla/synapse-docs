@@ -8,7 +8,7 @@ This repository holds the source of the Synapse Medical documentation website
 Please do not open a public issue for a security problem.
 
 Report it privately with GitHub's
-[private vulnerability reporting](https://github.com/stevenCayla/synapse-docs/security/advisories/new)
+[private vulnerability reporting](https://github.com/synapse-medical/synapse-docs/security/advisories/new)
 (*Security* tab → *Report a vulnerability*). Include the page or file concerned,
 the steps to reproduce it and the impact you see.
 
