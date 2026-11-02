@@ -40,7 +40,9 @@ fi
 
 test -d "$dir/docs" || { echo "$dir does not contain a docs/ folder." >&2; exit 1; }
 
-set -- --exclude '/audit/' --exclude '/guides/' --exclude '/resources/' --exclude '/recette/' --exclude '/index.md' --exclude '/en/index.md' --exclude '/en/guides/' --exclude '/en/resources/' --exclude '/en/recette/'
+# The Quick Start page is being reworked on the docs/getting-started-wip branch: it is
+# not published, so the sync must not bring it back.
+set -- --exclude '/audit/' --exclude '/guides/' --exclude '/resources/' --exclude '/recette/' --exclude '/index.md' --exclude '/en/index.md' --exclude '/en/guides/' --exclude '/en/resources/' --exclude '/en/recette/' --exclude '/getting-started.md' --exclude '/en/getting-started.md'
 for slug in $(node -p 'require("./versions.json").map((v) => v.slug).join(" ")'); do
   set -- "$@" --exclude "/$slug/" --exclude "/en/$slug/"
 done
