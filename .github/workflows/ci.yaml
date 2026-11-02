@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   target:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       branch: ${{ steps.target.outputs.branch }}
       sync: ${{ steps.target.outputs.sync }}
@@ -60,7 +60,7 @@ jobs:
   sync:
     needs: target
     if: needs.target.outputs.sync == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     concurrency:
@@ -118,7 +118,7 @@ jobs:
   build:
     needs: [target, sync]
     if: ${{ !cancelled() && needs.target.result == 'success' && needs.sync.result != 'failure' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout site
         uses: actions/checkout@v7
@@ -148,7 +148,7 @@ jobs:
   deploy:
     needs: [target, build]
     if: ${{ !cancelled() && needs.build.result == 'success' && needs.target.outputs.deploy == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # production is reached only by a manual run on main (see the target job).
     environment:
       name: ${{ needs.target.outputs.branch == 'main' && 'production' || 'development' }}
