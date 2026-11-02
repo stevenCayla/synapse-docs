@@ -26,6 +26,7 @@ const t = isEn
       dev: 'Search is only available in the built site (npm run build && npm run preview).',
       cancel: 'Cancel',
       groups: {
+        glossary: 'Glossary',
         guides: 'Guides',
         resources: 'Resources',
         recette: 'Acceptance tests',
@@ -51,6 +52,7 @@ const t = isEn
       dev: 'La recherche n’est disponible que sur le site construit (npm run build && npm run preview).',
       cancel: 'Annuler',
       groups: {
+        glossary: 'Glossaire',
         guides: 'Guides',
         resources: 'Ressources',
         recette: 'Recette',
@@ -73,6 +75,8 @@ const config = JSON.stringify({
   quick: t.quick,
   hint: t.hint,
   version: versionId,
+  glossary: isEn ? '/en/resources/glossary/' : '/resources/glossary/',
+  terms: isEn ? '/en/glossary.json' : '/glossary.json',
   scope: archived ? t.scope(archived.label) : '',
 });
 ---
@@ -106,6 +110,8 @@ const config = JSON.stringify({
     quick: string[][];
     hint: string;
     version: string;
+    glossary: string;
+    terms: string;
     scope: string;
   };
   type Hit = { url: string; title: string; excerpt: string; group: string };
@@ -121,13 +127,24 @@ const config = JSON.stringify({
     if (/^\/(backend|architecture|deployment|security|code-convention|database|commands|api|troubleshooting|qa|contribute|getting-started)\//.test(path)) return 'dev';
     return 'other';
   };
-  const ORDER = ['guides', 'resources', 'recette', 'changelog', 'dev', 'compliance', 'other'];
+  const ORDER = ['glossary', 'guides', 'resources', 'recette', 'changelog', 'dev', 'compliance', 'other'];
+
+  // Same accent- and case-insensitive form on both sides of a comparison.
+  const fold = (s: string) =>
+    s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  // Anchor of a glossary entry (public/glossary.js gives the same id to its line).
+  const slug = (s: string) => fold(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   class SitePalette extends HTMLElement {
     private pagefind: any;
     private hits: Hit[] = [];
     private sel = 0;
     private timer = 0;
+    private terms: { term: string; def: string }[] | null = null;
 
     connectedCallback() {
       const cfg: Config = JSON.parse(this.dataset.config || '{}');
@@ -150,29 +167,65 @@ const config = JSON.stringify({
         this.mark();
       };
 
+      // Glossary terms that match the query, best matches first. Archived versions
+      // keep their own glossary page, which the current list does not describe.
+      const glossaryHits = async (q: string): Promise<Hit[]> => {
+        if (cfg.version !== 'current') return [];
+        if (!this.terms) {
+          try {
+            this.terms = await (await fetch(cfg.terms)).json();
+          } catch {
+            this.terms = [];
+          }
+        }
+        const f = fold(q);
+        const rank = (t: { term: string; def: string }) => {
+          const name = fold(t.term);
+          if (name === f) return 0;
+          if (name.startsWith(f)) return 1;
+          if (name.includes(f)) return 2;
+          return f.length >= 3 && fold(t.def).includes(f) ? 3 : -1;
+        };
+        return this.terms!
+          .map((t) => ({ t, r: rank(t) }))
+          .filter((x) => x.r >= 0)
+          .sort((a, b) => a.r - b.r)
+          .slice(0, 6)
+          .map(({ t }) => ({
+            url: `${cfg.glossary}#${slug(t.term)}`,
+            title: t.term,
+            excerpt: esc(t.def),
+            group: 'glossary',
+          }));
+      };
+
       const run = async () => {
         const q = input.value.trim();
         if (!q) return showQuick();
+        const terms = await glossaryHits(q);
+        let data: any[] = [];
         try {
           if (!this.pagefind) {
             const url = '/pagefind/pagefind.js';
             this.pagefind = await import(/* @vite-ignore */ url);
             await this.pagefind.init?.();
           }
+          const search = await this.pagefind.search(q, { filters: { version: cfg.version } });
+          if (input.value.trim() !== q) return;
+          data = await Promise.all(search.results.slice(0, 20).map((r: any) => r.data()));
         } catch {
-          return;
+          // No index (dev server): the glossary results are still shown.
         }
-        const search = await this.pagefind.search(q, { filters: { version: cfg.version } });
         if (input.value.trim() !== q) return;
-        const data = await Promise.all(search.results.slice(0, 20).map((r: any) => r.data()));
-        this.hits = data
-          .map((d: any) => ({
+        this.hits = [
+          ...terms,
+          ...data.map((d: any) => ({
             url: d.url as string,
             title: (d.meta?.title as string) || d.url,
             excerpt: d.excerpt as string,
             group: groupOf(d.url),
-          }))
-          .sort((a, b) => ORDER.indexOf(a.group) - ORDER.indexOf(b.group));
+          })),
+        ].sort((a, b) => ORDER.indexOf(a.group) - ORDER.indexOf(b.group));
         this.sel = 0;
         res.replaceChildren();
         if (!this.hits.length) {

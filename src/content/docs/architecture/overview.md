@@ -245,7 +245,7 @@ sequenceDiagram
 
 ## 8. Infrastructure & déploiement
 
-Dockerfile **multi-stage** (`dunglas/frankenphp:1.13.1-php8.5.11`) :
+Dockerfile **multi-stage** (`dunglas/frankenphp:1.13.4-php8.5.12`) :
 
 | Cible | Base | Usage |
 |-------|------|-------|

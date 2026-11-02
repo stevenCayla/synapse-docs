@@ -2,15 +2,16 @@
 
 # Synapse Docs
 
-**The documentation platform of [Synapse Medical](https://github.com/stevenCayla/SYNAPSE-MEDICAL)**<br>
+**The documentation platform of [Synapse Medical](https://github.com/stevenCayla/synapse-app)**<br>
 User guides, acceptance test books, compliance pages and technical reference, in French and English.
 
-[![CI](https://github.com/stevenCayla/synapse-docs/actions/workflows/ci.yaml/badge.svg)](https://github.com/stevenCayla/synapse-docs/actions/workflows/ci.yaml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml/badge.svg)](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
+[![Content: CC BY-SA 4.0](https://img.shields.io/badge/content-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE-CONTENT)
 [![Astro](https://img.shields.io/badge/Astro-7-ff5d01.svg)](https://astro.build)
 [![Starlight](https://img.shields.io/badge/Starlight-0.42-8b5cf6.svg)](https://starlight.astro.build)
 
-[Production](https://docs.synapse-medical.fr) · [Development](https://dev-docs.synapse-medical.fr) · [Report an issue](https://github.com/stevenCayla/synapse-docs/issues) · [Security policy](SECURITY.md)
+[Production](https://docs.synapse-medical.fr) · [Development](https://dev-docs.synapse-medical.fr) · [Report an issue](https://github.com/synapse-medical/synapse-docs/issues) · [Security policy](SECURITY.md)
 
 </div>
 
@@ -61,21 +62,21 @@ No access to the application repository is needed.
 ## Where to edit the pages
 
 Content that describes the application is edited in **one place only**: the
-`docs/` folder of [SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL),
+`docs/` folder of [synapse-app](https://github.com/stevenCayla/synapse-app),
 so the documentation evolves with the code.
 
 | Pages | Edit them in |
 |-------|--------------|
 | `src/content/docs/audit/` (audit and compliance) | this repository |
-| `src/content/docs/guides/`, `resources/`, `recette/` and their `en/` counterparts (guides, glossary, compliance FAQ, acceptance tests) | this repository **for now**: they describe the application and belong in the `docs/` folder of SYNAPSE-MEDICAL, where they should move (then drop them from the exclusions of `scripts/sync-content.sh`) |
+| `src/content/docs/guides/`, `resources/`, `recette/` and their `en/` counterparts (guides, glossary, compliance FAQ, acceptance tests) | this repository **for now**: they describe the application and belong in the `docs/` folder of synapse-app, where they should move (then drop them from the exclusions of `scripts/sync-content.sh`) |
 | `src/pages/recette/prospective-import.astro` and `src/components/recette-import/` (REC-01b test book) | this repository |
 | `src/data/CHANGELOG.md`, `APP_VERSION` | nowhere: copied from `CHANGELOG.md` and the latest release tag of the application by the sync, never edited by hand |
-| everything else in `src/content/docs/` | the `docs/` folder of SYNAPSE-MEDICAL |
+| everything else in `src/content/docs/` | the `docs/` folder of synapse-app |
 
 `src/content/docs/` (except `audit/`, `guides/`, `resources/` and `recette/`, French
 and English) is a snapshot of the application's `docs/` folder, refreshed by
 `scripts/sync-content.sh`. The CI runs it automatically when `docs/` changes on
-`develop` in SYNAPSE-MEDICAL, checks that the site still builds and commits the new
+`develop` in synapse-app, checks that the site still builds and commits the new
 snapshot. Changes made directly to the synced pages here are overwritten by the next
 sync. The `APP_VERSION` file (shown in the version menu) holds the latest release tag `vX.Y.Z` of the application, without the `v` (`-rc` tags ignored); it falls back to `APP_VERSION` of the application's `.env` when no tag is available (never `dev`), otherwise it is left unchanged. A checkout given as `SYNAPSE_DIR` needs its tags (`git fetch --tags`).
 
@@ -113,7 +114,7 @@ make preview                              # build, then serve dist/
 make clean                                # remove dist/, caches and the temporary clone
 make deploy-check                         # validate both Cloudflare deployments (dry run)
 
-# Refresh the snapshot (maintainers, needs access to SYNAPSE-MEDICAL)
+# Refresh the snapshot (maintainers, needs access to synapse-app)
 make sync SYNAPSE_DIR=../symfony-docker   # from a local checkout
 make sync SYNAPSE_REF=feat/my-branch      # from another branch of the application
 ```
@@ -216,7 +217,7 @@ environment rule, so running the workflow by hand on `main` is the approval gate
 
 **Content sync.** When `docs/` changes on `develop` in the application repository,
 its `.github/workflows/docs.yaml` runs
-`gh workflow run ci.yaml -R stevenCayla/synapse-docs --ref develop -f sync=true`. The
+`gh workflow run ci.yaml -R synapse-medical/synapse-docs --ref develop -f sync=true`. The
 run executes on `develop`, refreshes the snapshot, commits it, then builds and
 deploys that commit to dev-docs. The `sync` input is refused on any other branch.
 (A `repository_dispatch` is not used: GitHub always runs it on the default branch
@@ -233,7 +234,7 @@ npm run deploy:prod
 
 | Type | Name | Value |
 |------|------|-------|
-| Secret | `SYNAPSE_REPO_SSH_KEY` | Private key of a read-only deploy key of SYNAPSE-MEDICAL (content sync only) |
+| Secret | `SYNAPSE_REPO_SSH_KEY` | Private key of a read-only deploy key of synapse-app (content sync only) |
 | Secret | `CLOUDFLARE_API_TOKEN` | Cloudflare API token ("Edit Cloudflare Workers" template) |
 | Variable | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
 
@@ -274,4 +275,14 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Copyright (c) 2026 Steven CM - CSI. The repository carries two licenses:
+
+| What | License |
+|------|---------|
+| Source code of the site: components, pages, integrations, scripts, styles, the Worker and the configuration | [MIT](LICENSE) |
+| Written content: documentation pages, glossary, guides, compliance FAQ, acceptance-test books and their screenshots | [CC BY-SA 4.0](LICENSE-CONTENT) |
+
+A file that mixes both (a test book with its text kept in a source file, for
+example) follows the license of its content. Reusing the text requires crediting the
+author and sharing any adaptation under the same license. Pages synchronized from the
+documentation of the application keep the license announced in that repository.

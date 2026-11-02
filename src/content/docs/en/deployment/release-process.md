@@ -25,11 +25,23 @@ releasing and deploying are done by hand following this page.
 ```mermaid
 flowchart LR
     feat["feature/*"] -->|PR| dev[develop]
+    dev -->|manual deployment| devsrv["dev-app<br/>(development)"]
     dev --> rel["release/YYYY-MM-DD"]
-    rel -->|PR| main[main]
+    rel -->|"tag vX.Y.Z-rc.N"| uat["uat-app<br/>(UAT)"]
+    uat -->|"fix (PR on release/…) then rc.N+1"| rel
+    rel -->|"PR after sign-off"| main[main]
     main -->|"tag vX.Y.Z"| gh[GitHub Release]
-    main --> srv["Server: git pull + build frankenphp_prod + up -d<br/>(migrations applied at startup)"]
+    main --> srv["app (production): git pull + build frankenphp_prod + up -d<br/>(migrations applied at startup)"]
+    main -->|"back-merge (chore/back-merge-vX.Y.Z)"| dev
 ```
+
+| Environment | Host | Deployed code |
+|-------------|------|---------------|
+| Development | `dev-app.synapse-medical.fr` | `develop` |
+| Acceptance (UAT) | `uat-app.synapse-medical.fr` | release candidate `vX.Y.Z-rc.N` |
+| Production | `app.synapse-medical.fr` | `vX.Y.Z` on `main` |
+
+All three environments are deployed by hand.
 
 | Item | Location | Role |
 |------|----------|------|
@@ -48,7 +60,7 @@ The repository follows a three-level flow:
 |--------|---------|--------|
 | `feature/*` (or `feat/*`), `fix/*`, `refactor/*`, `docs/*`, `ci/*`, `chore/*` | One isolated change | Created from `develop` |
 | `develop` | Next version being integrated | Pull Requests from work branches |
-| `release/YYYY-MM-DD` | Promotion of `develop` to `main` | Created from `origin/develop` on request |
+| `release/YYYY-MM-DD` | Promotion of `develop` to `main`, `vX.Y.Z-rc.N` candidates deployed to UAT | Created from `origin/develop` on request; acceptance fixes only |
 | `main` | Latest published version | Pull Request `release/…` → `main` |
 
 - Work branches **always** start from `develop` and their Pull Request targets
@@ -57,7 +69,8 @@ The repository follows a three-level flow:
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/),
   in English: `type(scope): summary (#issue)` (see the [contribution guide](/en/contribute/)).
 - There is no hotfix branch from `main`: an urgent fix also goes through `develop`
-  (`fix/*` branch), then a release.
+  (`fix/*` branch), then a release. The one exception: a defect found during UAT acceptance
+  testing is fixed on `release/YYYY-MM-DD` (see [§ 5](#5-publish-the-version)).
 - `Closes #x` only auto-closes an issue on a merge into the default branch `main`.
   After merging a PR into `develop`, **close the issue by hand**.
 
@@ -146,28 +159,59 @@ commands.
    ```bash
    make archive VERSION=2.0   # keeps the 2.0 docs online under /2.0/
    ```
-   Commit the result on `develop` (see the `synapse-docs` README).
+   Commit the result to `develop` (see the `synapse-docs` README).
 1. **Release commit** on `develop`: dated changelog (no version to edit in the repository), e.g.
    `chore(release): 2.1.0`.
-2. **Release branch and PR**, only on explicit request: create `release/YYYY-MM-DD`
-   from `origin/develop`, push it, then open the PR `release/YYYY-MM-DD` → `main`.
-   Never open a PR whose head is `develop`: with auto-delete of merged branches,
-   `develop` would be deleted. CI runs on the PR; merge once green.
-3. **Annotated tag** on the `main` commit:
+2. **Release branch**, only on explicit request: create `release/YYYY-MM-DD` from
+   `origin/develop` and push it. Never open a PR whose source branch is `develop`: with
+   automatic deletion of merged branches, `develop` would be deleted.
+3. **Release candidate**: annotated tag `vX.Y.Z-rc.1` on the tip of `release/YYYY-MM-DD`, pushed, then
+   **manual deployment of that tag to UAT** (same procedure as [§ 7](#7-deploy-to-the-server), on the UAT
+   stack). The application shows `vX.Y.Z-rc.1`.
+   ```bash
+   git switch release/2026-11-03 && git pull
+   git tag -a v2.1.0-rc.1 -m "Synapse Medical 2.1.0-rc.1"
+   git push origin v2.1.0-rc.1
+   ```
+   Every candidate is published as a GitHub pre-release (it records which tag is on UAT); it never becomes
+   the "latest" release:
+   ```bash
+   gh release create v2.1.0-rc.1 --verify-tag --prerelease --title "Synapse Medical 2.1.0-rc.1" \
+     --notes "Release candidate deployed to UAT, see the [2.1.0] section of CHANGELOG.md"
+   ```
+4. **Acceptance testing** on UAT. A defect is fixed by a PR **into `release/YYYY-MM-DD`** (exception to the
+   "everything goes through `develop`" rule: only fixes enter it, no features), then a new tag
+   `vX.Y.Z-rc.2` (then `rc.3`…) and a new UAT deployment. A fix already merged into `develop` is carried
+   over with `git cherry-pick -x`. Fixes come back to `develop` through the back-merge (step 8).
+5. **Sign-off** of the acceptance testing by the approver, then PR `release/YYYY-MM-DD` → `main` (title
+   `Release X.Y.Z`), on the code of the last validated candidate. The full CI runs on this PR (the only one,
+   besides the push to `main`); merge once green, with a merge commit.
+6. **Final annotated tag** `vX.Y.Z` on the `main` merge commit:
    ```bash
    git switch main && git pull
-   git tag -a v2.1.0 -m "Release 2.1.0"
+   git tag -a v2.1.0 -m "Synapse Medical 2.1.0"
    git push origin v2.1.0
    ```
-4. **GitHub Release** created by hand from the tag; the notes reuse the
+7. **GitHub Release** created by hand from the tag; the notes reuse the
    `CHANGELOG.md` section word for word (see [Releases & release process](/en/changelog/releases/)).
-5. **Close by hand** the issues of the PRs merged into `develop`: `Closes #x` only
+8. **Back-merge `main` into `develop`** (mandatory, after every release): without it the release tags are
+   not reachable from `develop` (`git describe` fails) and the fixes made on the release branch never come
+   back. Never a PR whose head is `main` or `develop`: use a dedicated branch.
+   ```bash
+   git fetch origin
+   git switch -c chore/back-merge-v2.1.0 origin/develop
+   git merge --no-ff origin/main     # CHANGELOG.md conflicts: keep both entries
+   git push -u origin chore/back-merge-v2.1.0
+   ```
+   PR into `develop`, **merged with a merge commit** (never squashed or rebased, or the tagged commits stay
+   out of `develop`). Then check that `git describe --tags origin/develop` gives `vX.Y.Z-N-gsha`.
+9. **Close by hand** the issues of the PRs merged into `develop`: `Closes #x` only
    closes them automatically on a merge into `main`.
-6. **Publish the documentation**: the development site (dev-docs.synapse-medical.fr)
-   is updated automatically on every merge into `develop` that touches `docs/` or
-   `.env`. The content reaches `main` through the `synapse-docs` release PR, and
-   production (docs.synapse-medical.fr) is deployed **only by hand** (workflow run
-   on `main` in `synapse-docs`).
+10. **Publish the documentation**: the development site (dev-docs.synapse-medical.fr)
+    is refreshed on demand (manual workflow), or on every merge into `develop` touching `docs/` or `.env`
+    when the automatic sync is active. The content reaches `main` through the `synapse-docs` release PR, and
+    production (docs.synapse-medical.fr) is deployed **by hand only** (run the workflow on `main` in
+    `synapse-docs`).
 
 :::tip[The version comes from the tag, at build time]
 The `vX.Y.Z` tag is the **single source** of the version. `bin/app-version` computes it at build time
@@ -178,7 +222,7 @@ The `vX.Y.Z` tag is the **single source** of the version. `bin/app-version` comp
 [§ 6](#6-production-build)) and do not define it in `.env.local`. The application never reads git at runtime.
 
 Tags sit on the merge commit of `main`, which `develop` does not contain until `main` is merged back after the
-tag: that merge of `main` into `develop` (#251) is required for `git describe` to work on `develop` and for it to
+tag: that merge of `main` into `develop` (step 8 of § 5) is required for `git describe` to work on `develop` and for it to
 show `vX.Y.Z-N-gsha`. Meanwhile `bin/app-version` falls back to the latest tag and the common point with `HEAD`,
 and, with no tag at all (clone without tags), to the short SHA (shown as `dev-<sha>`). The documentation site reads
 the latest `v*` tag (separate PR in `synapse-docs`).

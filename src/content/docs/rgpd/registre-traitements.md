@@ -48,10 +48,15 @@ title: "Registre des activités de traitement — RGPD Art. 30"
 | **Base légale** | Intérêt public (Art. 6.1.e) + données de santé (Art. 9.2.j) |
 | **Catégories de données** | IPP (Identifiant Patient Permanent), prénom, nom, nom de naissance, date de naissance, lieu de naissance, sexe, statut vital (Death Checker) |
 | **Catégories de personnes** | Patients pris en charge dans les établissements membres du workspace |
-| **Destinataires** | Investigateurs autorisés (via StudyMember/SiteMember), administrateurs |
+| **Destinataires** | Investigateurs autorisés (via StudyMember/SiteMember), administrateurs ; l'IPP en clair est réservé aux investigateurs du centre de l'inclusion, aux administrateurs de l'étude et aux administrateurs du workspace actif (les autres rôles voient « •••••• », « IPP masqué ») |
 | **Transferts hors UE** | Aucun |
 | **Durée de conservation** | Durée de l'étude + 15 ans ; effacement sur demande (Art. 17) via ErasePatientService |
-| **Mesures techniques** | Chiffrement AES-256-GCM des données PII (firstName, lastName, birthName, externalId, dateOfBirth, birth, death), HMAC-SHA256 pour les recherches, suppression EXIF sur les images, restriction de traitement (Art. 18) |
+| **Mesures techniques** | Chiffrement AES-256-GCM des données PII (firstName, lastName, birthName, externalId, dateOfBirth, birth, death), HMAC-SHA256 pour les recherches, suppression EXIF sur les images, restriction de traitement (Art. 18) ; accès à l'IPP restreint (voir ci-dessous) |
+
+Accès à l'IPP : `IppVoter` (`IPP_VIEW`, `IPP_EDIT`). Affichage masqué par défaut, saisie manuelle seulement si l'étude conserve les données identifiantes, recherche par IPP exact limitée aux inclusions dont l'utilisateur voit l'IPP.
+Traçabilité dans ActivityLog : `patient.ipp_viewed` (affichage en clair d'une fiche) et `patient.ipp_updated` (modification), sans jamais enregistrer la valeur.
+Les exports d'étude (CSV, eCRF) ne contiennent plus l'IPP ; l'export RGPD d'un patient (Art. 20) le conserve.
+L'IPP n'apparaît ni dans les messages flash, ni dans les problèmes d'import, ni dans les journaux applicatifs, ni dans les e-mails.
 
 ---
 

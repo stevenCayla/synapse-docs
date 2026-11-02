@@ -1,15 +1,18 @@
 ---
-title: "🚀 Quick Start — Run Synapse Medical in 5 minutes"
-description: "Quick start guide for developers: prerequisites, encryption keys, launching the Docker (FrankenPHP) containers, migrations, seed and first login. Up and running in 5 to 10 minutes."
+title: 🚀 Quick Start — Run Synapse Medical in 5 minutes
+description: "Quick start guide for developers: prerequisites, encryption keys,
+  launching the Docker (FrankenPHP) containers, migrations, seed and first
+  login. Up and running in 5 to 10 minutes."
 sidebar:
-  label: "🚦 Getting started"
+  label: 🚦 Getting started
   order: 1
   badge:
     text: New
     variant: tip
+slug: en/3.2/getting-started
 ---
 
-> 🌐 [Version française](/getting-started/) · English version
+> 🌐 [Version française](/3.2/getting-started/) · English version
 
 *For developers — local environment (Docker recommended).*
 **Goal: a running application in 5 to 10 minutes.**
@@ -77,7 +80,7 @@ To use your own values, define them in `.env.local` before the first start:
 
 :::caution
 The `POSTGRES_PASSWORD`, passwords and keys in the `.env` file are **development values**.
-Never reuse them in production — see [Production deployment](/en/deployment/production/).
+Never reuse them in production — see [Production deployment](/en/3.2/deployment/production/).
 The automatic generation never runs in production: a missing secret makes the container fail
 to start with a message naming the variable.
 :::
@@ -170,7 +173,7 @@ JWT):
 
 👉 **https://localhost/api/doc**
 
-For the endpoint details and OpenAPI conventions, see the [API reference](/en/api/readme/).
+For the endpoint details and OpenAPI conventions, see the [API reference](/en/3.2/api/readme/).
 
 :::tip[Emails in dev]
 Outgoing emails are captured by **Mailpit** (no real sending). Get its web UI URL with
@@ -179,11 +182,11 @@ Outgoing emails are captured by **Mailpit** (no real sending). Get its web UI UR
 
 ## 🎯 Next steps
 
-- 🏗️ Understand the architecture: [Overview](/en/architecture/overview/)
-- 🗄️ Explore the data model: [Data model](/en/database/data-model/)
-- ⌨️ All commands: [Console commands reference](/en/commands/readme/)
-- 🔒 Security rules: [Security best practices](/en/security/best-practices/)
-- 🤝 Get involved: [Contribution guide](/en/contribute/)
+* 🏗️ Understand the architecture: [Overview](/en/3.2/architecture/overview/)
+* 🗄️ Explore the data model: [Data model](/en/3.2/database/data-model/)
+* ⌨️ All commands: [Console commands reference](/en/3.2/commands/readme/)
+* 🔒 Security rules: [Security best practices](/en/3.2/security/best-practices/)
+* 🤝 Get involved: [Contribution guide](/en/3.2/contribute/)
 
 ## 🔍 Final check
 
@@ -196,10 +199,10 @@ Outgoing emails are captured by **Mailpit** (no real sending). Get its web UI UR
 | Application reachable | ✅ | `curl -k https://localhost` (returns HTML) |
 | Admin login | ✅ | https://localhost (e-mail entered during the seed + password entered or printed by the seed) |
 
----
+***
 
 :::tip[Did this guide help?]
 A step is missing or a command fails? Report it on
 [Discord](https://discord.com/channels/1521440528388984934/1521440528829382718) or via an
-issue. See also [Troubleshooting](/en/troubleshooting/common-errors/).
+issue. See also [Troubleshooting](/en/3.2/troubleshooting/common-errors/).
 :::

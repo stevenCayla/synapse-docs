@@ -87,6 +87,7 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 | `POSTGRES_PASSWORD` / `POSTGRES_USER` / `POSTGRES_DB` | Identifiants base de données (propriétaire : migrations et maintenance) |
 | `POSTGRES_APP_PASSWORD` | Mot de passe du rôle restreint `app_runtime` que l'application utilise ([voir plus bas](#rôle-de-base-de-données-de-lapplication)) |
 | `APP_DOCS_URL` | URL de la documentation liée depuis la page de connexion (défaut `https://docs.synapse-medical.fr` ; serveur de développement : `https://dev-docs.synapse-medical.fr`) |
+| `APP_WEBSITE_URL` | URL du site public vers lequel la page de connexion renvoie pour la demande de démo (défaut `https://synapse-medical.fr`) |
 | `DOMAIN` | Domaine public (URL publique Mercure, URI par défaut) |
 | `TRUSTED_PROXIES` | Défaut `127.0.0.1,172.16.0.0/12` (couvre les bridges Docker) |
 
@@ -174,10 +175,10 @@ Toutes les images sont épinglées sur une version explicite (aucun tag flottant
 
 | Image | Fichier | Version |
 |-------|---------|---------|
-| `dunglas/frankenphp` | `Dockerfile` | `1.13.1-php8.5.11` |
+| `dunglas/frankenphp` | `Dockerfile` | `1.13.4-php8.5.12` |
 | `debian` (base `frankenphp_prod`) | `Dockerfile` | `13.7-slim@sha256:a29215f6…` |
 | `postgres` | `compose.yaml` | `18.6-alpine` |
-| `axllent/mailpit` (dev) | `compose.override.yaml` | `v1.31.6` |
+| `axllent/mailpit` (dev) | `compose.override.yaml` | `v1.32.0` |
 | `nfrastack/db-backup` | `compose.prod.yaml` | `5.0.5@sha256:01212206…` |
 
 Pour mettre à jour une image : changer le tag (et l'empreinte), reconstruire avec `--pull --no-cache`, puis valider la pile. Les changements de version majeure de PostgreSQL suivent une procédure dédiée : [Migration PostgreSQL 16 vers 18](/deployment/postgresql-18-upgrade/).

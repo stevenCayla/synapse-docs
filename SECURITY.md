@@ -8,7 +8,7 @@ This repository holds the source of the Synapse Medical documentation website
 Please do not open a public issue for a security problem.
 
 Report it privately with GitHub's
-[private vulnerability reporting](https://github.com/stevenCayla/synapse-docs/security/advisories/new)
+[private vulnerability reporting](https://github.com/synapse-medical/synapse-docs/security/advisories/new)
 (*Security* tab → *Report a vulnerability*). Include the page or file concerned,
 the steps to reproduce it and the impact you see.
 
@@ -20,7 +20,7 @@ report is published as a security advisory.
 - The website (https://docs.synapse-medical.fr) and its build: scripts, headers
   (`public/_headers`), Content Security Policy, dependencies, CI workflow.
 - Vulnerabilities of the Synapse Medical application itself belong to the
-  [SYNAPSE-MEDICAL](https://github.com/stevenCayla/SYNAPSE-MEDICAL) repository.
+  [synapse-app](https://github.com/stevenCayla/synapse-app) repository.
 
 ## Supported versions
 

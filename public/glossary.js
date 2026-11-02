@@ -1,6 +1,25 @@
 // Underlines the first occurrence of each glossary term in the guides and
 // shows its definition in a tooltip (styles: src/styles/guides.css).
 (function () {
+  // Glossary page: gives each entry an anchor (same id as the search palette) so
+  // that a search result can lead straight to its entry.
+  if (/\/resources\/glossary\/?$/.test(location.pathname)) {
+    var fold = function (t) {
+      return t
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    };
+    document.querySelectorAll('.sl-markdown-content li > strong:first-child').forEach(function (strong) {
+      var id = fold(strong.textContent || '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      if (id && !document.getElementById(id)) strong.parentElement.id = id;
+    });
+    if (location.hash.length > 1) {
+      var entry = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (entry) entry.scrollIntoView({ block: 'center' });
+    }
+    return;
+  }
   if (!/\/guides\//.test(location.pathname)) return;
   var root = document.querySelector('.sl-markdown-content');
   if (!root) return;

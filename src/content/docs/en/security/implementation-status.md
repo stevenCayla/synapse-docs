@@ -53,6 +53,7 @@ Details: [Password policy](/en/security/password-policy/).
 | Forced change after an admin sets or resets a password | Implemented | `UserController`, `ForcePasswordChangeSubscriber` |
 | `force_password_change_on_first_login` setting | **Partial** | Loaded but not read; the flag is always set when an admin creates an account |
 | Email reset: hashed token, 15-min lifetime, 3 requests/h, 3 visits, single use | Implemented | `Service/PasswordResetService`, `PasswordResetTokenRepository` |
+| Reset request form: CSRF token (`password_reset_request`), rate limits of 5 requests / 15 min per IP and 3 / 15 min per address (keys and logs hold an HMAC-SHA256 keyed with the application secret, never the clear value), generic answer and no e-mail when a limit is hit | Implemented | `Controller/PasswordResetController`, `Security/PasswordResetRequestThrottle`, `rate_limiter.yaml` |
 
 ## Sessions
 

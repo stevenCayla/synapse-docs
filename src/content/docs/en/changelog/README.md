@@ -14,8 +14,8 @@ format.
 
 | Source | Role |
 |--------|------|
-| [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md) (repo root) | **Source of truth**, Keep a Changelog format |
-| [GitHub Releases](https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases) | One release per published version (tag `vX.Y.Z`) |
+| [`CHANGELOG.md`](https://github.com/stevenCayla/synapse-app/blob/main/CHANGELOG.md) (repo root) | **Source of truth**, Keep a Changelog format |
+| [GitHub Releases](https://github.com/stevenCayla/synapse-app/releases) | One release per published version (tag `vX.Y.Z`) |
 | This page | Readable mirror of the release history |
 
 :::note[SemVer convention]
@@ -24,13 +24,36 @@ format.
 - **PATCH** — backward-compatible fixes.
 :::
 
-## Current version — `3.2.0`
+## Current version — `3.3.0`
 
-New study creation wizard (prospective and retrospective paths, data import applied by the worker, regulatory file, signatures), per-workspace job titles and closed row-level security; application version (`APP_VERSION`).
+Restricted access to the IPP (display, entry, search, exports), IPP and sex column import, environment banner, documentation link on the login page; displayed version derived from the git tag.
 
 ## In progress (`Unreleased`)
 
 Nothing yet.
+
+## `3.3.0`
+
+Release that restricts access to the IPP and improves the import, the login page and environment identification.
+
+:::caution[Check before deploying]
+- **Version from the tag** (#248): export `APP_VERSION="$(bin/app-version)"` and `APP_REVISION="$(git rev-parse HEAD)"` before the build (`make build` does it) and remove `APP_VERSION` from the servers' `.env.local`.
+- **Optional variables**: `APP_DOCS_URL` (#247); `APP_ENVIRONMENT_LABEL` (#252), empty in production (no banner); `MAILER_ALLOWED_RECIPIENTS` (#249), empty in production, required as soon as `APP_ENVIRONMENT_LABEL` is set (empty list = no e-mail sent).
+- **Exports and IPP** (#269): the IPP is no longer exported and is visible only to the site investigators and administrators; IPP search is an exact match.
+- No migration or command to run; recreate the worker.
+:::
+
+### Added
+
+- **Restricted IPP access** (#269), "Patient IPP" import target and patient sex (#261), **environment banner** (#252), documentation link on the login page (#247).
+
+### Changed
+
+- CSV / XLSX exports of patients and eCRFs without the IPP (#269); displayed version computed from the git tag (#248).
+
+### Fixed
+
+- Import: correcting an empty cell (#254), reloading the Import step (#255), replacement confirmation (#256), warning without a data column (#259), screen polish (#260).
 
 ## `3.2.0`
 
@@ -168,5 +191,5 @@ Internal version, never published as a release: its content is included in `3.0.
 
 ---
 
-> 📋 The full, detailed history is maintained in [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md). For compatibility
+> 📋 The full, detailed history is maintained in [`CHANGELOG.md`](https://github.com/stevenCayla/synapse-app/blob/main/CHANGELOG.md). For compatibility
 > breaks, see [Breaking changes](/en/changelog/breaking-changes/).

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       sync:
-        description: Refresh the content from SYNAPSE-MEDICAL before building (develop only)
+        description: Refresh the content from synapse-app before building (develop only)
         type: boolean
         default: false
 
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   target:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       branch: ${{ steps.target.outputs.branch }}
       sync: ${{ steps.target.outputs.sync }}
@@ -55,12 +55,12 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Branch: $branch — sync: $sync — deploy: $deploy"
 
-  # Refreshes src/content/docs from the docs/ folder of SYNAPSE-MEDICAL
+  # Refreshes src/content/docs from the docs/ folder of synapse-app
   # (develop), checks that the site still builds, then commits the snapshot.
   sync:
     needs: target
     if: needs.target.outputs.sync == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     concurrency:
@@ -72,12 +72,12 @@ jobs:
         with:
           ref: ${{ needs.target.outputs.branch }}
 
-      - name: Checkout content (SYNAPSE-MEDICAL docs/)
+      - name: Checkout content (synapse-app docs/)
         uses: actions/checkout@v7
         with:
-          repository: stevenCayla/SYNAPSE-MEDICAL
+          repository: stevenCayla/synapse-app
           ref: ${{ needs.target.outputs.branch }}
-          # Read-only deploy key of SYNAPSE-MEDICAL
+          # Read-only deploy key of synapse-app
           ssh-key: ${{ secrets.SYNAPSE_REPO_SSH_KEY }}
           path: .synapse
           sparse-checkout: docs
@@ -112,13 +112,13 @@ jobs:
           source_sha="$(git -C .synapse rev-parse --short HEAD)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "docs: sync content from SYNAPSE-MEDICAL@$source_sha"
+          git commit -m "docs: sync content from synapse-app@$source_sha"
           git push origin "HEAD:$BRANCH"
 
   build:
     needs: [target, sync]
     if: ${{ !cancelled() && needs.target.result == 'success' && needs.sync.result != 'failure' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout site
         uses: actions/checkout@v7
@@ -148,7 +148,7 @@ jobs:
   deploy:
     needs: [target, build]
     if: ${{ !cancelled() && needs.build.result == 'success' && needs.target.outputs.deploy == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # production is reached only by a manual run on main (see the target job).
     environment:
       name: ${{ needs.target.outputs.branch == 'main' && 'production' || 'development' }}

@@ -20,8 +20,6 @@ La structure de l'essai.
 | **Inclusion / Suivi** | `12 et 12 mois` | Durée du recrutement, puis du suivi de chaque patient. |
 | **Durée totale** \* | `24 mois` | Calculée automatiquement (inclusion + suivi), modifiable. |
 
-<!-- Capture à fournir : le design rempli ; la durée totale s'est calculée seule. -->
-
 ## 5. Population
 
 Qui peut être inclus, et combien.
@@ -34,8 +32,6 @@ Qui peut être inclus, et combien.
 | **Sexe** | `Tous` | |
 | **Critères d'inclusion / d'exclusion** | `Patient majeur ↵` | Tapez un critère puis Entrée : il devient une étiquette ; la croix l'enlève. |
 
-<!-- Captures à fournir : l'étape Population remplie ; des âges incohérents (le message s'affiche sous le champ). -->
-
 ## 6. Sites
 
 Les pays de l'étude, puis les établissements participants.
@@ -47,8 +43,6 @@ Les pays de l'étude, puis les établissements participants.
 | **Investigateur principal** | `Dr A. Payet` | Le médecin responsable sur ce site. Il voit uniquement les patients de son site. |
 | **Objectif** | `50` | Patients attendus sur ce site. La somme est comparée à l'effectif cible. |
 | **Activation prévue** | `01/12/2026` | Date d'ouverture du site aux inclusions. |
-
-<!-- Captures à fournir : un site complet (la somme des objectifs égale la cible) ; sans site, l'écart à la cible s'affiche en orange, ce qui n'est pas bloquant. -->
 
 :::tip[Ajouter des sites plus tard]
 Les sites sont optionnels : vous pourrez en ajouter depuis la page Configuration de l'étude.

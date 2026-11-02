@@ -85,6 +85,8 @@ title: "Checklist de recette QA — Security"
 - [ ] Vérifier que la durée du verrouillage correspond au setting prévu.
 - [ ] Vérifier qu’une connexion réussie remet à zéro l’état d’échec si attendu.
 - [ ] Vérifier que les messages retournés ne facilitent pas l’énumération de comptes.
+- [ ] Vérifier que la demande de réinitialisation (`POST /password-reset`) refuse un jeton CSRF absent ou invalide, sans e-mail envoyé.
+- [ ] Vérifier que la demande de réinitialisation est limitée à 5 par 15 minutes par IP et 3 par 15 minutes par adresse, avec la même réponse générique et sans e-mail au-delà, et que les logs ne contiennent qu'un HMAC (clé dérivée de `APP_SECRET`) de l'IP ou de l'adresse.
 
 ## Contrôle d’accès
 - [ ] Vérifier que les `access_control` Symfony sont cohérents.

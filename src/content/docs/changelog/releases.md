@@ -9,7 +9,7 @@ sidebar:
 > 🌐 Version française · [English version](/en/changelog/releases/)
 
 Chaque version publiée est matérialisée par un **tag Git `vX.Y.Z`** et une
-**[GitHub Release](https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases)** associée.
+**[GitHub Release](https://github.com/stevenCayla/synapse-app/releases)** associée.
 
 ## Numérotation (SemVer)
 
@@ -26,7 +26,7 @@ La version est celle du dernier tag git `vX.Y.Z` : l'image la reçoit au build d
 
 ## Processus de publication
 
-1. Regrouper les changements de `[Unreleased]` dans le [`CHANGELOG.md`](https://github.com/stevenCayla/SYNAPSE-MEDICAL/blob/main/CHANGELOG.md) sous un numéro de
+1. Regrouper les changements de `[Unreleased]` dans le [`CHANGELOG.md`](https://github.com/stevenCayla/synapse-app/blob/main/CHANGELOG.md) sous un numéro de
    version daté.
 2. Taguer : `git tag -a v2.1.0 -m "Release 2.1.0"` puis `git push --tags`.
 3. Créer la **GitHub Release** correspondante (notes = section du changelog).

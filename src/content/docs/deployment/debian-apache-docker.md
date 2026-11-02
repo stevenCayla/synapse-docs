@@ -213,7 +213,7 @@ php -r "echo base64_encode(random_bytes(32));"  # → APP_FILE_ENCRYPTION_KEY
 ```bash
 # ── 1. Cloner le dépôt ───────────────────────────────────────────────────────
 cd /opt
-git clone git@github.com:votre-org/synapse-medical.git synapse
+git clone git@github.com:votre-org/synapse-app.git synapse
 cd synapse
 
 # ── 2. Créer .env.local ──────────────────────────────────────────────────────

@@ -1,15 +1,18 @@
 ---
-title: "🚀 Quick Start — Lancer Synapse Medical en 5 minutes"
-description: "Guide de démarrage rapide pour développeurs : prérequis, clés de chiffrement, lancement des conteneurs Docker (FrankenPHP), migrations, seed et première connexion. Opérationnel en 5 à 10 minutes."
+title: 🚀 Quick Start — Lancer Synapse Medical en 5 minutes
+description: "Guide de démarrage rapide pour développeurs : prérequis, clés de
+  chiffrement, lancement des conteneurs Docker (FrankenPHP), migrations, seed et
+  première connexion. Opérationnel en 5 à 10 minutes."
 sidebar:
-  label: "🚦 Guide de démarrage"
+  label: 🚦 Guide de démarrage
   order: 1
   badge:
     text: Nouveau
     variant: tip
+slug: 3.2/getting-started
 ---
 
-> 🌐 Version française · [English version](/en/getting-started/)
+> 🌐 Version française · [English version](/en/3.2/getting-started/)
 
 *Pour les développeurs — environnement local (Docker recommandé).*
 **Objectif : application opérationnelle en 5 à 10 minutes.**
@@ -78,7 +81,7 @@ Pour utiliser tes propres valeurs, définis-les dans `.env.local` avant le premi
 :::caution
 Les valeurs `POSTGRES_PASSWORD`, mots de passe et clés du fichier `.env` sont des **valeurs
 de développement**. Ne les réutilise **jamais** en production — voir
-[Déploiement en production](/deployment/production/). La génération automatique ne s'exécute
+[Déploiement en production](/3.2/deployment/production/). La génération automatique ne s'exécute
 jamais en production : un secret manquant fait échouer le démarrage du conteneur avec un
 message qui nomme la variable.
 :::
@@ -173,7 +176,7 @@ de JWT) :
 👉 **https://localhost/api/doc**
 
 Pour le détail des endpoints et des conventions OpenAPI, voir la
-[Référence de l'API](/api/readme/).
+[Référence de l'API](/3.2/api/readme/).
 
 :::tip[E-mails en dev]
 Les e-mails sortants sont capturés par **Mailpit** (aucun envoi réel). Récupère l'URL de son
@@ -182,11 +185,11 @@ interface web avec `docker compose port mailer 8025`.
 
 ## 🎯 Prochaines étapes
 
-- 🏗️ Comprendre l'architecture : [Vue d'ensemble](/architecture/overview/)
-- 🗄️ Explorer le modèle de données : [Modèle de données](/database/data-model/)
-- ⌨️ Toutes les commandes : [Référence des commandes console](/commands/readme/)
-- 🔒 Règles de sécurité : [Bonnes pratiques de sécurité](/security/best-practices/)
-- 🤝 Participer : [Guide de contribution](/contribute/)
+* 🏗️ Comprendre l'architecture : [Vue d'ensemble](/3.2/architecture/overview/)
+* 🗄️ Explorer le modèle de données : [Modèle de données](/3.2/database/data-model/)
+* ⌨️ Toutes les commandes : [Référence des commandes console](/3.2/commands/readme/)
+* 🔒 Règles de sécurité : [Bonnes pratiques de sécurité](/3.2/security/best-practices/)
+* 🤝 Participer : [Guide de contribution](/3.2/contribute/)
 
 ## 🔍 Vérification finale
 
@@ -199,10 +202,10 @@ interface web avec `docker compose port mailer 8025`.
 | Application accessible | ✅ | `curl -k https://localhost` (retourne du HTML) |
 | Connexion admin | ✅ | https://localhost (e-mail saisi lors du seed + mot de passe saisi ou affiché par le seed) |
 
----
+***
 
 :::tip[Ce guide t'a aidé ?]
 Une étape manque ou une commande échoue ? Signale-le sur le
 [Discord](https://discord.com/channels/1521440528388984934/1521440528829382718) ou via une
-*issue*. Voir aussi le [Dépannage](/troubleshooting/common-errors/).
+*issue*. Voir aussi le [Dépannage](/3.2/troubleshooting/common-errors/).
 :::

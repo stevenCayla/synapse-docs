@@ -341,3 +341,10 @@ abbr.gl {
   .sy-lb-p { left: 6px; }
   .sy-lb-n { right: 6px; }
 }
+
+/* Glossary entry reached from the search palette or a link. */
+.sl-markdown-content li:target {
+  background: var(--sy-accent-soft);
+  border-radius: 6px;
+  box-shadow: 0 0 0 6px var(--sy-accent-soft);
+}

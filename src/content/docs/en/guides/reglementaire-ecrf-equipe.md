@@ -42,8 +42,6 @@ The study visits and the forms completed at each one. D0 = enrolment day.
 | **Visit** | `V1 · Enrolment · D0` | Unique code, name and day relative to enrolment, with a tolerance window. |
 | **Visits × forms matrix** | — | Tick the forms to complete at each visit. A visit without a form is blocking. |
 
-<!-- Screenshot to provide: two visits with the same code (the error is flagged). -->
-
 ## 10. Team
 
 The leads, the monitoring strategy and the members.

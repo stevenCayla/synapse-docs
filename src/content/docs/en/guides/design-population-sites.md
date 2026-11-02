@@ -20,8 +20,6 @@ The structure of the trial.
 | **Enrolment / Follow-up** | `12 and 12 months` | Duration of recruitment, then of each patient's follow-up. |
 | **Total duration** \* | `24 months` | Calculated automatically (enrolment + follow-up), editable. |
 
-<!-- Screenshot to provide: the completed design; the total duration was calculated automatically. -->
-
 ## 5. Population
 
 Who can be enrolled, and how many.
@@ -34,8 +32,6 @@ Who can be enrolled, and how many.
 | **Sex** | `All` | |
 | **Inclusion / exclusion criteria** | `Adult patient ↵` | Type a criterion then press Enter: it becomes a tag; the cross removes it. |
 
-<!-- Screenshots to provide: the completed Population step; inconsistent ages (the message appears below the field). -->
-
 ## 6. Sites
 
 The study countries, then the participating institutions.
@@ -47,8 +43,6 @@ The study countries, then the participating institutions.
 | **Principal investigator** | `Dr A. Payet` | The physician responsible at this site. They only see the patients of their site. |
 | **Target** | `50` | Patients expected at this site. The sum is compared with the target sample size. |
 | **Planned activation** | `01/12/2026` | Date the site opens to enrolment. |
-
-<!-- Screenshots to provide: a complete site (the sum of targets equals the target sample size); without a site, the gap to the target is shown in orange, which is not blocking. -->
 
 :::tip[Add sites later]
 Sites are optional: you can add them later from the study Configuration page.

@@ -3,7 +3,7 @@
 # and its version (latest release tag vX.Y.Z reachable from the synced commit,
 # without the v; -rc tags ignored) into the APP_VERSION file, so this
 # repository builds on its own. Run it to refresh the snapshot; the CI runs it automatically when
-# docs/ changes on develop or main in SYNAPSE-MEDICAL.
+# docs/ changes on develop or main in synapse-app.
 #
 # Source, by priority:
 #   1. SYNAPSE_DIR: path of an existing checkout of the application,
@@ -25,7 +25,7 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-SYNAPSE_REPO="${SYNAPSE_REPO:-git@github.com:stevenCayla/SYNAPSE-MEDICAL.git}"
+SYNAPSE_REPO="${SYNAPSE_REPO:-git@github.com:stevenCayla/synapse-app.git}"
 SYNAPSE_REF="${SYNAPSE_REF:-develop}"
 
 if [ -n "${SYNAPSE_DIR:-}" ]; then
@@ -40,7 +40,9 @@ fi
 
 test -d "$dir/docs" || { echo "$dir does not contain a docs/ folder." >&2; exit 1; }
 
-set -- --exclude '/audit/' --exclude '/guides/' --exclude '/resources/' --exclude '/recette/' --exclude '/index.md' --exclude '/en/index.md' --exclude '/en/guides/' --exclude '/en/resources/' --exclude '/en/recette/'
+# The Quick Start page is being reworked on the docs/getting-started-wip branch: it is
+# not published, so the sync must not bring it back.
+set -- --exclude '/audit/' --exclude '/guides/' --exclude '/resources/' --exclude '/recette/' --exclude '/index.md' --exclude '/en/index.md' --exclude '/en/guides/' --exclude '/en/resources/' --exclude '/en/recette/' --exclude '/getting-started.md' --exclude '/en/getting-started.md'
 for slug in $(node -p 'require("./versions.json").map((v) => v.slug).join(" ")'); do
   set -- "$@" --exclude "/$slug/" --exclude "/en/$slug/"
 done
