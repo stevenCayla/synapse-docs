@@ -6,7 +6,8 @@
 User guides, acceptance test books, compliance pages and technical reference, in French and English.
 
 [![CI](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml/badge.svg)](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
+[![Content: CC BY-SA 4.0](https://img.shields.io/badge/content-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE-CONTENT)
 [![Astro](https://img.shields.io/badge/Astro-7-ff5d01.svg)](https://astro.build)
 [![Starlight](https://img.shields.io/badge/Starlight-0.42-8b5cf6.svg)](https://starlight.astro.build)
 
@@ -274,4 +275,14 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Copyright (c) 2026 Steven CM - CSI. The repository carries two licenses:
+
+| What | License |
+|------|---------|
+| Source code of the site: components, pages, integrations, scripts, styles, the Worker and the configuration | [MIT](LICENSE) |
+| Written content: documentation pages, glossary, guides, compliance FAQ, acceptance-test books and their screenshots | [CC BY-SA 4.0](LICENSE-CONTENT) |
+
+A file that mixes both (a test book with its text kept in a source file, for
+example) follows the license of its content. Reusing the text requires crediting the
+author and sharing any adaptation under the same license. Pages synchronized from the
+documentation of the application keep the license announced in that repository.
