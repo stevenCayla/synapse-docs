@@ -25,6 +25,7 @@ const APP_VERSION = readAppVersion();
 // "make archive VERSION=x.y". The plugin requires at least one archived
 // version, so it is only enabled once versions.json lists one.
 const ARCHIVED_VERSIONS = JSON.parse(fs.readFileSync('versions.json', 'utf8'));
+const SITE_URL = 'https://docs.synapse-medical.fr';
 
 // Synapse Medical documentation — Starlight site.
 // Root locale = French (served at /), English under /en/.
@@ -51,7 +52,7 @@ function syntaxTheme(type) {
 }
 
 export default defineConfig({
-  site: 'https://docs.synapse-medical.fr',
+  site: SITE_URL,
   markdown: { processor: satteri({ mdastPlugins: [mockupPlugin] }) },
   // Injects the version (constant replaced by Vite at build time).
   vite: {
@@ -66,7 +67,9 @@ export default defineConfig({
     // be indexed (printable sheets, 404, password-protected acceptance tests).
     sitemap({
       i18n: { defaultLocale: 'root', locales: { root: 'fr', en: 'en' } },
-      filter: (page) => !/\/(fiches|en\/sheets)\/|\/404\/?$|\/(en\/)?recette\//.test(page),
+      filter: (page) =>
+        !/\/(fiches|en\/sheets)\/|\/404\/?$|\/(en\/)?recette\//.test(page) &&
+        !ARCHIVED_VERSIONS.some((v) => new RegExp(`^${SITE_URL}/(en/)?${v.slug.replace('.', '\\.')}/`).test(page)),
     }),
     starlight({
       // The 404 page is src/pages/404.astro (design of the mockup).
@@ -166,6 +169,8 @@ export default defineConfig({
       // Custom components:
       // - Sidebar: adds a version selector at the top of the sidebar.
       // - Footer:  Astro-style community section.
+      // Head tags per page: noindex on archived versions, JSON-LD (src/routeData.ts).
+      routeMiddleware: './src/routeData.ts',
       components: {
         Header: './src/components/Header.astro',
         // The plugin's notice must be rendered once a version is archived.
