@@ -47,7 +47,7 @@ cd synapse-medical
 
 :::tip
 No repository access? Ask the team or work from a **fork**. The source code will be published
-on [GitHub](https://github.com/stevenCayla/SYNAPSE-MEDICAL).
+on [GitHub](https://github.com/synapse-medical/synapse-app).
 :::
 
 ## ✅ Step 2 — Encryption keys (generated automatically)

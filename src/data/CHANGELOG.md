@@ -5,7 +5,7 @@ Toutes les modifications notables de **Synapse Medical** sont consignées dans c
 Le format est basé sur [Keep a Changelog 1.1.0](https://keepachangelog.com/fr/1.1.0/), et le
 projet suit le [Semantic Versioning](https://semver.org/lang/fr/) (`MAJOR.MINOR.PATCH`).
 
-Chaque version publiée correspond à une [GitHub Release](https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases) (tag `vX.Y.Z`). La section
+Chaque version publiée correspond à une [GitHub Release](https://github.com/synapse-medical/synapse-app/releases) (tag `vX.Y.Z`). La section
 `[Unreleased]` regroupe les changements fusionnés sur `develop` mais pas encore publiés.
 
 ## [Unreleased]
@@ -362,8 +362,8 @@ Actions à prévoir avant de déployer cette version (sauvegarder la base au pr�
 - Affichage des KPI des centres sur toute la largeur (grille 4 colonnes).
 - Masquage du bouton « Réinitialiser » en l'absence de filtre actif.
 
-[Unreleased]: https://github.com/stevenCayla/SYNAPSE-MEDICAL/compare/v3.2.0...HEAD
-[3.2.0]: https://github.com/stevenCayla/SYNAPSE-MEDICAL/compare/v3.1.0...v3.2.0
-[3.1.0]: https://github.com/stevenCayla/SYNAPSE-MEDICAL/compare/v3.0.1...v3.1.0
-[3.0.1]: https://github.com/stevenCayla/SYNAPSE-MEDICAL/compare/v3.0.0...v3.0.1
-[3.0.0]: https://github.com/stevenCayla/SYNAPSE-MEDICAL/releases/tag/v3.0.0
+[Unreleased]: https://github.com/synapse-medical/synapse-app/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/synapse-medical/synapse-app/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/synapse-medical/synapse-app/compare/v3.0.1...v3.1.0
+[3.0.1]: https://github.com/synapse-medical/synapse-app/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/synapse-medical/synapse-app/releases/tag/v3.0.0

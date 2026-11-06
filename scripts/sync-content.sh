@@ -25,7 +25,7 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-SYNAPSE_REPO="${SYNAPSE_REPO:-git@github.com:stevenCayla/synapse-app.git}"
+SYNAPSE_REPO="${SYNAPSE_REPO:-git@github.com:synapse-medical/synapse-app.git}"
 SYNAPSE_REF="${SYNAPSE_REF:-develop}"
 
 if [ -n "${SYNAPSE_DIR:-}" ]; then
