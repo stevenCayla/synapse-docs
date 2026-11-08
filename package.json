@@ -28,7 +28,7 @@
     "starlight-versions": "^0.10.1"
   },
   "devDependencies": {
-    "wrangler": "4.152.0"
+    "wrangler": "4.157.0"
   },
   "overrides": {
     "astro-mermaid": {
