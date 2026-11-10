@@ -75,7 +75,7 @@ jobs:
       - name: Checkout content (synapse-app docs/)
         uses: actions/checkout@v7
         with:
-          repository: stevenCayla/synapse-app
+          repository: synapse-medical/synapse-app
           ref: ${{ needs.target.outputs.branch }}
           # Read-only deploy key of synapse-app
           ssh-key: ${{ secrets.SYNAPSE_REPO_SSH_KEY }}

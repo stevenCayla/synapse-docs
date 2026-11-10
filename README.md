@@ -2,7 +2,7 @@
 
 # Synapse Docs
 
-**The documentation platform of [Synapse Medical](https://github.com/stevenCayla/synapse-app)**<br>
+**The documentation platform of [Synapse Medical](https://github.com/synapse-medical/synapse-app)**<br>
 User guides, acceptance test books, compliance pages and technical reference, in French and English.
 
 [![CI](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml/badge.svg)](https://github.com/synapse-medical/synapse-docs/actions/workflows/ci.yaml)
@@ -62,7 +62,7 @@ No access to the application repository is needed.
 ## Where to edit the pages
 
 Content that describes the application is edited in **one place only**: the
-`docs/` folder of [synapse-app](https://github.com/stevenCayla/synapse-app),
+`docs/` folder of [synapse-app](https://github.com/synapse-medical/synapse-app),
 so the documentation evolves with the code.
 
 | Pages | Edit them in |
