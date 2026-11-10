@@ -32,6 +32,7 @@ This file complements the general security documentation.
 | `password_require_special_char` | boolean | `true` | Yes | Enforces special character presence in passwords |
 | `password_history_count` | integer | `5` | Yes | Prevents reuse of recent passwords |
 | `force_password_change_on_first_login` | boolean | `true` | Yes | Requires users to change their password after first successful login |
+| `default_can_change_own_password` | boolean | `true` | No | Default of the per-account right to change one's own password from the profile, for new accounts |
 | `password_rotation_days` | integer or `null` | `null` | No | Enables optional password renewal policy for specific account scopes |
 | `max_failed_login_attempts` | integer | `5` | Yes | Defines how many failed attempts are tolerated before temporary lockout |
 | `lockout_duration_minutes` | integer | `15` | Yes | Defines temporary lockout duration after repeated failures |
@@ -211,6 +212,20 @@ Forces a user to change the password after the first successful login.
 
 #### Notes
 - Should also be reused for password reset or temporary password flows.
+
+---
+
+### `default_can_change_own_password`
+
+**Type:** `boolean`  
+**Default:** `true`  
+**Required:** No
+
+Default value of the per-account setting `canChangeOwnPassword`, applied to the accounts created from the user form and by invitation. An administrator can change it per account on the user edit page. When it is off for an account, the profile shows the administrator request form and "Forgot your password?" asks the administrators instead of mailing a link.
+
+#### Notes
+- Existing accounts received `true` with the migration.
+- The forced change and the reset link sent by an administrator are not affected.
 
 ---
 

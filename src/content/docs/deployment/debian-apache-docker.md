@@ -441,6 +441,7 @@ Intégration monitoring (Nagios/Zabbix/Uptime Kuma) :
 - [ ] DNS `A` et `AAAA` configurés pour le domaine
 - [ ] `.env.local` créé avec **toutes** les valeurs (`APP_SECRET`, `POSTGRES_PASSWORD`, les 3 clés de chiffrement, `CADDY_MERCURE_JWT_SECRET`, `DOMAIN`)
 - [ ] `TRUSTED_PROXIES` adapté à la gateway Docker réelle
+- [ ] `TRUSTED_HOSTS` (production : `app.synapse-medical.fr`, plus `old.synapse-medical.fr` pendant la migration ; recette : `uat-app` ; développement : `dev-app`), voir `docs/options.md` (obligatoire, points échappés ; à définir aussi sur la recette et le serveur de développement)
 - [ ] `HTTP_PORT=8080` dans `.env.local`
 - [ ] `SERVER_NAME=":80, php:80"` dans `.env.local`
 - [ ] `CADDY_GLOBAL_OPTIONS=auto_https off` dans `.env.local`

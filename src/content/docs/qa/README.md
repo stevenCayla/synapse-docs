@@ -16,6 +16,7 @@ en bout.
 | Page | Contenu |
 |------|---------|
 | [Checklist de recette QA — Security](/qa/security-checklist/) | Recette détaillée des paramètres de sécurité : sessions, modale d'avertissement, verrouillage, mots de passe… |
+| [Recette d'une étude d'ophtalmologie](/qa/recette-ophtalmologie/) | Recette pas à pas pour un ophtalmologue : assistant de création d'étude, import par œil, saisie œil par œil, discordance, signature, exports de test |
 
 ## Organisation des tests
 
@@ -107,6 +108,23 @@ Sans Make :
 docker compose exec -e APP_ENV=test php bin/phpunit
 ```
 
+### Exécution parallèle (par PR)
+
+```bash
+make test-parallel                               # 8 processus (PROCS=8 par défaut)
+make test-parallel PROCS=12 c="--filter Wizard"  # autre nombre de processus, options paratest/PHPUnit
+```
+
+`make test-parallel` lance [ParaTest](https://github.com/paratestphp/paratest) : une base par processus
+(`app_test1`, `app_test2`…, via `TEST_TOKEN`, créées et migrées à chaque appel) et un répertoire temporaire
+par processus (`tests/parallel-prepend.php`). Le compte de tests et d'assertions est identique à l'exécution
+série (1999 tests, 11795 assertions), en environ 2 minutes au lieu de 7 à 11 (machine de 16 cœurs, chargée).
+
+Règle : le parallèle sert à valider **une PR** ; l'exécution série (`make test`) reste la référence et reste
+**obligatoire** pour la vérification complète sur `develop` après un lot de fusions. Un échec en parallèle se
+rejoue en série avant de conclure. L'ordre aléatoire (`--order-by=random`) n'est pas supporté : la suite
+contient des dépendances d'ordre préexistantes, qui échouent aussi en série avec la même graine.
+
 :::tip[Écrire un nouveau test]
 Placer le test dans le répertoire miroir de la classe testée
 (`src/Security/Voter/XxxVoter.php` → `tests/Security/XxxVoterTest.php`). Tout
@@ -149,6 +167,72 @@ Variables : `E2E_BASE_URL` (défaut `https://localhost`), `E2E_ALLOW_RESET=1`
 `E2E_OUTPUT_DIR` (rapport HTML et traces, par défaut un dossier temporaire :
 ils sont écrits hors de l'arborescence, car le rechargement à chaud de
 FrankenPHP rechargerait les pages à chaque image écrite).
+
+### Lancer la suite de façon fiable
+
+La pile de développement surveille les fichiers (`FRANKENPHP_WORKER_CONFIG=watch`,
+`FRANKENPHP_SITE_CONFIG=hot_reload`) : à chaque fichier PHP, Twig, YAML ou image modifié
+sous `/app`, FrankenPHP redémarre ses threads PHP et recharge toutes les pages ouvertes.
+Pendant une exécution, cela ferme la fenêtre de l'assistant ou recharge une page au milieu
+d'une étape, et le test échoue sans raison (mesuré : une modification de fichier toutes les
+2 s fait échouer 3 exécutions sur 8 du test 11, 9 sur 10 du test « progress » de 33). Une édition, un changement de branche, un
+`cache:clear` ou une reconstruction du cache suffisent.
+
+Pour un test fiable, lancer la suite sur une pile jetable **sans surveillance**, avec le fichier
+`compose.e2e.yaml` (opt-in, jamais chargé par défaut ; la pile de développement habituelle et la
+production ne changent pas) :
+
+```bash
+export COMPOSE_PROJECT_NAME=synapse-e2e IMAGES_PREFIX=e2e- HTTP_PORT=24080 HTTPS_PORT=24443 HTTP3_PORT=24443
+export COMPOSE_FILE=compose.yaml:compose.override.yaml:compose.e2e.yaml
+docker compose up -d --wait
+E2E_BASE_URL=https://localhost:24443 E2E_OUTPUT_DIR=/tmp/e2e-out make e2e
+```
+
+Un script fait tout cela d'une seule façon, depuis un worktree git lié (jamais le checkout principal) : `bin/verify up`
+recrée la pile à partir d'un volume neuf (jamais de worker périmé), `bin/verify check --phpunit=parallel --e2e=none|<specs>|full` enchaîne
+les contrôles du moins coûteux au plus coûteux (changelog, `git diff --check`, `make qa`, migrations, schéma, OpenAPI,
+PHPUnit, E2E) et écrit un rapport (étape, durée, journal, commit testé, verdict) ; `bin/verify down` retire la pile, ses
+images et, avec `--worktree`, le worktree. Le mode PHPUnit (`parallel` par PR, `serial` fait référence : seul `serial` avec `--e2e=full` donne le verdict complet) et le périmètre E2E sont toujours explicites, chaque exécution E2E repart d'un seed
+neuf, et un périmètre partiel ou une étape non exécutée n'est jamais présenté comme un succès (code de sortie 3).
+
+Sans surveillance, le code est lu au démarrage des workers : après une modification du code,
+`docker compose restart php worker` (le `worker` Messenger n'est jamais rechargé à chaud). Ne pas modifier les
+fichiers de l'arborescence pendant l'exécution. La suite affiche un avertissement si la pile surveille encore ses
+fichiers. Les tests du sélecteur de profil (`38-profile-switcher`) ne s'exécutent qu'avec
+`APP_ENVIRONMENT_LABEL=local APP_PROFILE_SWITCHER=1` dans l'environnement de la pile.
+
+**Quelle exécution, quand** (aucune CI ne tourne sur les Pull Requests vers `develop`, tout est vérifié en local) :
+
+- Par Pull Request : PHPUnit complet, `make qa`, migrations et `doctrine:schema:validate`, `make openapi` sans écart, et
+  **seulement les specs E2E concernées**.
+- La suite E2E **complète** s'ajoute quand la PR touche les données de démonstration ou les commandes de seed, les
+  gabarits de mise en page ou partagés, la connexion ou la session, l'assistant de création d'étude, ou le code et la
+  configuration de support des E2E (un changement de seed a déjà cassé des specs que la PR ne touchait pas).
+- Une exécution complète sur `develop` après chaque lot de fusions. Si `develop` est rouge, plus rien n'est fusionné
+  avant son retour au vert.
+- Après avoir fusionné `develop` dans une branche, ou modifié un gestionnaire de messages, recréer la pile ou lancer
+  `docker compose restart php worker` : un worker périmé a déjà produit un faux échec. Après la résolution d'un conflit
+  de fusion, relire le diff par rapport à `develop` avant de pousser. `retries` reste à 0 dans Playwright.
+
+**Écrire des specs rapides** (là où part le temps d'une exécution) :
+
+- Une connexion passe par `submitCredentials` (`support/login.ts`), qui demande au navigateur la préférence « réduire
+  les animations » : la page de connexion saute alors son onde d'une seconde et plus avant d'envoyer le formulaire. La
+  première connexion (`01-first-login`) garde l'animation.
+- Le serveur ne retient pas les codes TOTP déjà utilisés : `currentTotp` (`support/totp.ts`) donne le code de la fenêtre
+  courante et n'attend la suivante que dans les trois dernières secondes d'une fenêtre. Si le serveur refuse un jour de
+  rejouer un code, c'est ici qu'il faudra attendre la fenêtre suivante.
+- Une capture d'écran est prise à la fin de chaque test (`screenshot: 'only-on-failure'`) : si le test s'arrête juste
+  après une navigation, elle attend jusqu'à 5 s les polices d'une page à moitié chargée. La fixture `problems`
+  (`support/fixtures.ts`) laisse donc la page finir de charger avant la fin du test.
+- Un `waitForTimeout` n'est acceptable que pour une pause que le test veut observer (un enregistrement automatique qui
+  ne doit pas partir, le délai d'un anti-rebond) ; sinon, attendre la condition (réponse réseau, texte, état).
+- Le nettoyage de données (par exemple les brouillons) ne passe par l'écran que si l'écran est ce que le test vérifie.
+
+Un nouveau test `NN-….spec.ts` est exécuté sans autre réglage : le projet `wizard` prend tous les tests
+que les autres projets (`first-login`, `app`, `backup-code`, `public-pages`) ne réclament pas. Les tests partagent
+un compte : ne pas renuméroter, l'ordre des fichiers compte.
 
 ## Intégration continue
 
@@ -218,6 +302,7 @@ la [checklist de recette Security](/qa/security-checklist/).
 - [ ] Export des données d'étude (CSV / Excel) : contenu cohérent avec l'écran.
 - [ ] Un utilisateur restreint à un centre n'exporte que les patients de son centre.
 - [ ] L'export est tracé dans le journal d'activité.
+- [ ] Étude en Configuration : l'export des données de test (page de configuration, bloc « Données de test ») ne contient que les patients de test, le nom du fichier contient `TEST` et la dernière colonne indique TEST ; refusé une fois l'étude en cours ; les exports normaux ne contiennent aucun patient de test.
 
 ### Fichiers privés
 

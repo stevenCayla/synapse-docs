@@ -24,14 +24,14 @@ Study and site roles are **not** plain constants: they are entities (`study_role
 
 ## 1. Workspace roles
 
-`WorkspaceRole` — a user has **one** role per workspace, mapped to a Symfony role.
+`WorkspaceRole` — a user has **one** role per workspace. Administration rights come only from that role in the **active** workspace (owner or admin): no account carries `ROLE_ADMIN`, the attribute is granted at runtime by `WorkspaceAdministratorVoter`. `ROLE_SUPER_ADMIN` remains the platform role.
 
-| Role | Code | Symfony role | Description |
+| Role | Code | `ROLE_ADMIN` attribute | Description |
 |------|------|--------------|-------------|
-| **Owner** | `owner` | `ROLE_ADMIN` | Full control **of its workspace**, billing included — one per workspace |
-| **Admin** | `admin` | `ROLE_ADMIN` | Manages users, studies, integrations — **excluding billing** |
-| **Member** | `member` | `ROLE_USER` | Standard access — scoped to assigned studies |
-| **Guest** | `guest` | `ROLE_USER` | External collaborator — **expires after 90 days** by default |
+| **Owner** | `owner` | yes, in its workspace | Full control **of its workspace**, billing included — one per workspace |
+| **Admin** | `admin` | yes, in its workspace | Manages users, studies, integrations — **excluding billing** |
+| **Member** | `member` | no | Standard access — scoped to assigned studies |
+| **Guest** | `guest` | no | External collaborator — **expires after 90 days** by default |
 
 ### Workspace-level capabilities
 
@@ -77,15 +77,32 @@ the lower ones.
 | `SITE_ENTER_DATA` | Enter and edit patient data |
 | `SITE_MANAGE_QUERIES` | Manage queries and discrepancies |
 
+### Queries raised by a monitor (read-only role)
+
+Raising, closing and following a query needs no data-entry right: `STUDY_QUERY_RAISE` (`StudyVoter`, subject: the inclusion) is granted
+
+- to the study manager and administrator, as before, on the patients they can see;
+- to the study **viewer** holding the **CRA / monitor** site role (`cra`) on **the patient's site**. A viewer with no site assignment has no such role and gets nothing (most restrictive reading).
+
+| Action | Manager / administrator | Viewer CRA on the patient's site | Other viewer |
+|--------|:-----------------------:|:--------------------------------:|:------------:|
+| See the queries | ✅ | ✅ (their sites) | ✅ |
+| Raise a query (field, eye) | ✅ | ✅ | – |
+| Answer | ✅ | – | – |
+| Close | ✅ | ✅ | – |
+| Cancel (raised in error) | ✅ | ✅ (their own) | – |
+| Sign (the "sponsor / CRA review" meaning only) | ✅ | ✅ | – |
+| Enter data, sign as investigator or data manager, lock, include, change a status, import | ✅ (per role) | – | – |
+
 ## 4. Technical enforcement
 
 Authorization is checked **server-side** on every access:
 
 | Component | Role |
 |-----------|------|
-| `StudyVoter` | Attributes `STUDY_VIEW` / `STUDY_MANAGE` / `STUDY_ADMIN` |
+| `StudyVoter` | Attributes `STUDY_VIEW` / `STUDY_MANAGE` / `STUDY_ADMIN`, and `STUDY_QUERY_RAISE` (subject: `StudyPatient`) |
 | `StudyAccessService` | `canView()` / `canManage()` / `canAdmin()` — resolves the effective role |
-| `SiteAccessService` | Rights at the investigator-site level |
+| `SiteAccessService` | Rights at the investigator-site level; `canRaiseQuery()` for the queries |
 | `WorkspaceAccess` | Tells the platform level (`ROLE_SUPER_ADMIN`, created by `app:admin:create`) from the workspace level (the non expired `WorkspaceUser` role on the workspace of the resource) |
 | Symfony hierarchy | `ROLE_SUPER_ADMIN` (platform super administrator) and the Owner **of the resource's workspace** bypass the Voters; the owner of a workspace never receives `ROLE_SUPER_ADMIN` nor any right on another workspace |
 

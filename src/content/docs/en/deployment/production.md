@@ -193,12 +193,16 @@ PROD="docker compose -f compose.yaml -f compose.prod.yaml"
 $PROD exec php php bin/console app:regulatory-packs:seed
 
 # 2. First super administrator: typed password (hidden, confirmed)
-$PROD exec php php bin/console app:admin:create --email=first.last@example.com --workspace-name="My organisation"
+$PROD exec php php bin/console app:admin:create --email=first.last@example.com --workspace-name="My workspace"
 
 # Non-interactive variant: password read from ADMIN_PASSWORD (never a command-line option)
 read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
 $PROD exec -T -e ADMIN_PASSWORD php php bin/console app:admin:create --email=first.last@example.com --no-interaction
 unset ADMIN_PASSWORD
+
+# 3. eCRF templates of the library (ophthalmology) for workspaces that already exist; idempotent
+#    (a workspace created afterwards, in the UI or by app:admin:create, receives them by itself)
+$PROD exec php php bin/console app:ecrf-templates:seed
 ```
 
 Options: `--email` (required), `--username`, `--first-name`, `--last-name` (derived from the e-mail by default), `--workspace-name` (used only when no workspace exists; otherwise the account is linked to the existing workspaces). The password must satisfy the password policy; the command refuses an e-mail or a username already taken.
@@ -219,6 +223,7 @@ Run these once per deployment, inside the `php` container
 | **Provision 2FA** | `app:totp:provision-missing` (preview with `--dry-run`) | After enabling mandatory 2FA. Existing users without TOTP are redirected to `/2fa/setup` on next login (expected, non-blocking). |
 | **Encrypt patient PII** | `app:patient:encrypt-existing --batch-size=200` (idempotent; `--dry-run` to check) | One-off backfill when introducing patient encryption. Take a `pg_dump` first. |
 | **Check retention** | `app:retention:check-studies` | Exit code `2` if studies exceed retention — integrate into Nagios/Zabbix. |
+| **Load the library eCRF templates** | `app:ecrf-templates:seed` (one workspace: `--workspace=<id>`) | Once at deployment for existing workspaces, then to add a new template to the library (a new workspace gets them by itself). Idempotent, creates only the missing ophthalmology templates as published templates and never modifies an existing one. Without them the wizard's eCRF step offers none. |
 | **Remind GCP certificates** | `app:gcp:send-expiry-reminders` (preview with `--dry-run`) | Schedule it daily (cron): sends a single reminder before the GCP certificate of a user expires. Informative, blocks no access. |
 | **Verify audit chains** | `app:verify-audit-chain` · `app:audit:verify-chain` | Periodic integrity check of the tamper-evident logs. |
 

@@ -25,7 +25,7 @@ The version is that of the latest `vX.Y.Z` git tag: the image receives it at bui
 
 ## Publishing process
 
-1. Group the `[Unreleased]` changes in [`CHANGELOG.md`](https://github.com/synapse-medical/synapse-app/blob/main/CHANGELOG.md) under a dated version number.
+1. Assemble the fragments (`bin/changelog assemble`), then group the `[Unreleased]` changes in [`CHANGELOG.md`](https://github.com/synapse-medical/synapse-app/blob/main/CHANGELOG.md) under a dated version number.
 2. Tag: `git tag -a v2.1.0 -m "Release 2.1.0"` then `git push --tags`.
 3. Create the matching **GitHub Release** (notes = changelog section).
 4. No version to edit in the repository: the tag is authoritative. The documentation version selector is

@@ -134,8 +134,10 @@ erDiagram
 | `WorkspaceUser` | Appartenance User↔Workspace | `role: WorkspaceRole` |
 | `WorkspaceModule` | Activation de module | `moduleCode: ModuleCode`, `status` |
 | `DpoContact` | Délégué à la protection des données | `type: DpoContactType` |
-| `Invitation` | Invitation en attente | rôle, sites/études assignés, `enforceMfa` |
+| `Invitation` | Invitation en attente | rôle, sites/études assignés, `enforceMfa`, `locale` (`fr` ou `en` : langue de l'e-mail et de la page d'acceptation) |
 | `Team` / `TeamMember` | Regroupement intra-workspace | — |
+| `TherapeuticArea` | Domaine thérapeutique du workspace (28 par défaut, personnalisables) | `workspace_id`, clé stable (`area_key`), libellés FR et EN, `enabled`, `position` ; RLS fermée comme `study` |
+| `UserTherapeuticArea` | Sélection par défaut d'un utilisateur dans un workspace | `user_id`, `area_id`, `workspace_id` ; RLS fermée |
 
 Contraintes d'intégrité notables : `WorkspaceUserRepository` garantit **≥ 1 Owner** par workspace ; `UserRepository.findOneByWorkspace` empêche l'assignation cross-workspace.
 
@@ -169,6 +171,15 @@ Détails fonctionnels : [security/README.md](/en/security/readme/).
 
 `Site`, `SiteMember`, `SiteRole`, `SitePermission`, `SiteDocument` modélisent les centres investigateurs.
 
+**Domaine thérapeutique.** `Study.therapeuticArea` stocke la clé d'un `TherapeuticArea` du workspace (`oncology`, `ophthalmology`, `custom_…`) et `Study.therapeuticAreaOther` le texte libre qui accompagne « Autre » (`other`). Chaque workspace démarre
+avec le catalogue par défaut (`App\TherapeuticArea\DefaultAreas`, 28 domaines, libellés FR et EN), amorcé à la première lecture et par la migration pour les workspaces existants. Le propriétaire et les administrateurs du workspace
+(`TherapeuticAreaVoter`) activent, désactivent, renomment, réordonnent et ajoutent des domaines depuis le menu « Domaines thérapeutiques » (`/therapeutic-areas`) ; chaque changement est tracé dans le journal d'activité (`therapeutic_area.*`). Un
+domaine désactivé n'est plus proposé mais reste affiché sur les études qui l'utilisent ; un domaine par défaut ne se supprime pas, un domaine ajouté se supprime tant qu'aucune étude ne l'utilise. Chaque utilisateur choisit ses domaines par défaut
+(page de profil ou lien « Gérer mes domaines » de l'assistant) : ils sont proposés en premier, les autres restent accessibles par la recherche ou « Afficher tous » ; sans sélection, tous les domaines activés sont proposés. Une source unique
+(`App\TherapeuticArea\TherapeuticAreas`, `Form\Type\TherapeuticAreaType`) alimente l'assistant, le formulaire d'édition, les récapitulatifs et la fiche imprimable.
+
+**Latéralité (ophtalmologie).** Les études du domaine `ophthalmology` portent des réglages de latéralité (`Study.laterality_unit`, `laterality_eyes`, `laterality_rule`) ; `StudyPatient.studyEyes` (`OD`, `OS`, `OU`) enregistre l'œil de l'étude à l'inclusion. Détail : [Ophtalmologie](/backend/ophtalmologie/).
+
 ---
 
 ## 7. Patients & consentement
@@ -197,6 +208,11 @@ Architecture **template (réutilisable) → form (instancié par étude)** avec 
 | Audit & intégrité | `EcrfValueAudit`, `EcrfFieldSnapshot` |
 | Annexes | `EcrfAttachment` (token opaque), `EcrfSignature` (contentHash), `EcrfQuery` ── `EcrfQueryMessage` |
 | Taxonomie | `EcrfSpecialty`, mapping CDISC SDTM (`SdtmClass`) |
+
+Un champ peut être saisi **par œil** (`EcrfField.perEye`) : `EcrfValue.laterality` (`OD`, `OS`, vide sinon), `EcrfValueAudit.laterality` et `EcrfQuery.laterality` portent alors l'œil ; l'index unique des valeurs l'inclut.
+
+`EcrfValueAudit.recordId` est une simple colonne indexée, pas une clé étrangère vers `ecrf_record` : la piste d'audit est immuable (déclencheur de base de données), elle ne suit donc pas la suppression de son enregistrement et ne la bloque pas.
+À la purge des données de test d'une étude lors de la mise en production, les enregistrements, valeurs, requêtes, signatures et fichiers des patients de test sont supprimés et leurs entrées d'audit restent telles quelles. Les écrans et les exports atteignent les entrées par leur enregistrement vivant : ces entrées n'y figurent pas.
 
 `EcrfFieldType` couvre ~23 types (texte, date, nombre, signature, matrice, champ calculé, galerie…). Les sections sont **auto-référentielles** (arbre parent/enfants).
 

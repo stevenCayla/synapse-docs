@@ -49,6 +49,7 @@ Details: [Password policy](/en/security/password-policy/).
 | Breach check (HIBP k-anonymity, fail-open) | Implemented | `Security/HibpPasswordChecker` |
 | Central policy applied on every password entry point | **Partial** | The invitation and user-wizard forms use hard-coded rules |
 | Password history (last 5) | Implemented | `Security/PasswordHistoryService`: forced-change and reset flows only |
+| Self-service password change from the profile, per-account right (`canChangeOwnPassword`), rate limited, audited | Implemented | `Controller/ProfilePasswordController`, `Service/PasswordResetService` (administrators asked when off) |
 | Password rotation (90 days) | Implemented | `ForcePasswordChangeSubscriber::checkPasswordRotation()` |
 | Forced change after an admin sets or resets a password | Implemented | `UserController`, `ForcePasswordChangeSubscriber` |
 | `force_password_change_on_first_login` setting | **Partial** | Loaded but not read; the flag is always set when an admin creates an account |

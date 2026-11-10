@@ -15,6 +15,7 @@ for end-to-end flows.
 | Page | Content |
 |------|---------|
 | [QA acceptance checklist — Security](/qa/security-checklist/) (French) | Detailed QA of the security settings: sessions, warning modal, lockout, passwords… |
+| [Acceptance test of an ophthalmology study](/en/qa/ophthalmology-acceptance-test/) | Step-by-step test for an ophthalmologist: study creation wizard, per-eye import, eye-by-eye entry, query, signature, test exports |
 
 ## Test layout
 
@@ -106,6 +107,23 @@ Without Make:
 docker compose exec -e APP_ENV=test php bin/phpunit
 ```
 
+### Parallel run (per pull request)
+
+```bash
+make test-parallel                               # 8 processes (PROCS=8 by default)
+make test-parallel PROCS=12 c="--filter Wizard"  # other process count, ParaTest/PHPUnit options
+```
+
+`make test-parallel` runs [ParaTest](https://github.com/paratestphp/paratest): one database per process
+(`app_test1`, `app_test2`… through `TEST_TOKEN`, created and migrated on every call) and one temporary
+directory per process (`tests/parallel-prepend.php`). The test and assertion counts are identical to the
+serial run (1999 tests, 11795 assertions), in about 2 minutes instead of 7 to 11 (16-core machine, loaded).
+
+Rule: parallel is for validating **a pull request**; the serial run (`make test`) stays the reference and stays
+**mandatory** for the full verification on `develop` after a batch of merges. A parallel failure is replayed in
+series before concluding. Random order (`--order-by=random`) is not supported: the suite has existing order
+dependencies, which also fail in series with the same seed.
+
 :::tip[Writing a new test]
 Put the test in the directory mirroring the tested class
 (`src/Security/Voter/XxxVoter.php` → `tests/Security/XxxVoterTest.php`). Every
@@ -147,6 +165,69 @@ Variables: `E2E_BASE_URL` (default `https://localhost`), `E2E_ALLOW_RESET=1`
 (HTML report and traces, a temporary folder by default: they are written outside
 the source tree because FrankenPHP hot reload would reload the pages on every
 image written).
+
+### Running the suite reliably
+
+The development stack watches its files (`FRANKENPHP_WORKER_CONFIG=watch`,
+`FRANKENPHP_SITE_CONFIG=hot_reload`): each time a PHP, Twig, YAML or image file changes under
+`/app`, FrankenPHP reboots its PHP threads and reloads every open page. During a run this closes
+the wizard dialog or reloads a page in the middle of a step, and the spec fails for no reason
+(measured: one file change every 2 s fails 3 runs out of 8 of spec 11 and 9 out of 10 of the spec 33
+"progress" test). An edit, a branch switch, a `cache:clear` or a cache rebuild is enough.
+
+For a reliable run, use a disposable stack **without watching**, with the `compose.e2e.yaml` file
+(opt-in, never loaded by default; the usual development stack and production are unchanged):
+
+```bash
+export COMPOSE_PROJECT_NAME=synapse-e2e IMAGES_PREFIX=e2e- HTTP_PORT=24080 HTTPS_PORT=24443 HTTP3_PORT=24443
+export COMPOSE_FILE=compose.yaml:compose.override.yaml:compose.e2e.yaml
+docker compose up -d --wait
+E2E_BASE_URL=https://localhost:24443 E2E_OUTPUT_DIR=/tmp/e2e-out make e2e
+```
+
+One script does all of this the same way, from a linked git worktree (never the main checkout): `bin/verify up`
+recreates the stack from a fresh volume (never a stale worker), `bin/verify check --phpunit=parallel --e2e=none|<specs>|full` runs the
+checks from the cheapest to the most expensive (changelog, `git diff --check`, `make qa`, migrations, schema, OpenAPI,
+PHPUnit, E2E) and writes a report (step, duration, log, commit tested, verdict); `bin/verify down` removes the stack, its
+images and, with `--worktree`, the worktree. The PHPUnit mode (`parallel` per PR, `serial` is the reference: only `serial` with `--e2e=full` gives the complete verdict) and the E2E scope are always explicit, every E2E run starts from a fresh seed,
+and a partial scope or a step not run is never presented as a pass (exit code 3).
+
+Without watching, the code is read when the workers start: after a code change,
+`docker compose restart php worker` (the Messenger `worker` is never hot-reloaded). Do not edit files of the tree
+during the run. The suite prints a warning when the stack still watches its files. The profile switcher specs
+(`38-profile-switcher`) only run with `APP_ENVIRONMENT_LABEL=local APP_PROFILE_SWITCHER=1` in the environment of the
+stack.
+
+**Which run, when** (no CI runs on pull requests to `develop`, everything is verified locally):
+
+- Per pull request: full PHPUnit, `make qa`, migrations and `doctrine:schema:validate`, `make openapi` with no diff,
+  and **only the E2E specs concerned**.
+- The **full** E2E suite is added when the PR touches the demo data or the seed commands, the layouts or shared
+  templates, the login or session, the study wizard, or the E2E support code and configuration (a seed change once
+  broke specs the PR did not touch).
+- One full run on `develop` after each batch of merges. If `develop` is red, nothing more is merged until it is green.
+- After merging `develop` into a branch, or after changing a message handler, recreate the stack or run
+  `docker compose restart php worker`: a stale worker once produced a false failure. After resolving a merge conflict,
+  read the diff against `develop` before pushing. Playwright `retries` stays at 0.
+
+**Writing fast specs** (where the time of a run goes):
+
+- A sign-in goes through `submitCredentials` (`support/login.ts`), which asks the browser for the "reduce motion"
+  preference: the login page then skips its wave animation (a second or more) before it sends the form. The first-login
+  scenario (`01-first-login`) keeps the animation.
+- The server keeps no memory of the TOTP codes already used: `currentTotp` (`support/totp.ts`) returns the code of the
+  current window and only waits for the next one in the last three seconds of a window. If the server ever refuses to
+  replay a code, this is the place to wait for the next window.
+- A screenshot is taken at the end of every test (`screenshot: 'only-on-failure'`): when the test stops right after a
+  navigation, it waits up to 5 s for the fonts of a half-loaded page. The `problems` fixture (`support/fixtures.ts`)
+  therefore lets the page finish loading before the test ends.
+- A `waitForTimeout` is only acceptable for a pause the test means to observe (an autosave that must not fire, a
+  debounce delay); otherwise wait for the condition (network response, text, state).
+- Data clean-up (drafts, for example) only goes through the screen when the screen is what the test verifies.
+
+A new `NN-….spec.ts` file runs with no other setting: the `wizard` project takes every spec that the other projects
+(`first-login`, `app`, `backup-code`, `public-pages`) do not claim. The specs share one account: do not renumber
+them, the order of the files matters.
 
 ## Continuous integration
 

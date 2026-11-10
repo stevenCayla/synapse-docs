@@ -25,14 +25,14 @@ Les rôles `is_system = true` sont fournis par défaut ; des **rôles personnali
 
 ## 1. Rôles de workspace
 
-`WorkspaceRole` — un utilisateur a **un** rôle par workspace, mappé à un rôle Symfony.
+`WorkspaceRole` — un utilisateur a **un** rôle par workspace. Les droits d'administration viennent uniquement de ce rôle dans le workspace **actif** (owner ou admin) : aucun compte ne porte `ROLE_ADMIN`, l'attribut est accordé à l'exécution par `WorkspaceAdministratorVoter`. `ROLE_SUPER_ADMIN` reste le rôle de la plateforme.
 
-| Rôle | Code | Rôle Symfony | Description |
+| Rôle | Code | Attribut `ROLE_ADMIN` | Description |
 |------|------|--------------|-------------|
-| **Owner** | `owner` | `ROLE_ADMIN` | Contrôle total **de son workspace**, facturation incluse — un seul par workspace |
-| **Admin** | `admin` | `ROLE_ADMIN` | Gère utilisateurs, études, intégrations — **hors facturation** |
-| **Member** | `member` | `ROLE_USER` | Accès standard — limité aux études assignées |
-| **Guest** | `guest` | `ROLE_USER` | Collaborateur externe — **expire après 90 jours** par défaut |
+| **Owner** | `owner` | oui, dans son workspace | Contrôle total **de son workspace**, facturation incluse — au moins un par workspace (copropriétaires possibles) |
+| **Admin** | `admin` | oui, dans son workspace | Gère utilisateurs, études, intégrations — **hors facturation** |
+| **Member** | `member` | non | Accès standard — limité aux études assignées |
+| **Guest** | `guest` | non | Collaborateur externe — **expire après 90 jours** par défaut |
 
 ### Capacités au niveau workspace
 
@@ -42,6 +42,24 @@ Les rôles `is_system = true` sont fournis par défaut ; des **rôles personnali
 | Gérer les utilisateurs & invitations | ✅ | ✅ | – | – |
 | Gérer les études & intégrations | ✅ | ✅ | selon l'étude | – |
 | Accéder aux études assignées | ✅ | ✅ | ✅ | ✅ |
+
+### Changer le rôle d'un membre
+
+Onglet Membres du workspace (`WorkspaceRoleChanger`, routes `app_settings_workspace_user_role` et `app_settings_workspace_user_transfer`). Chaque changement exige un **motif**,
+une confirmation dans la modale de l'application,
+une entrée `workspace.member.role_changed` dans l'historique du workspace (rôle avant/après, auteur, motif) et, dès que le rôle owner est en jeu,
+une entrée du journal d'audit sécurité (`workspace.owner.granted`, `workspace.owner.revoked`, `workspace.ownership.transferred`).
+Les droits s'appliquent immédiatement (aucun rôle global n'est stocké).
+
+| Qui | Ce qu'il peut faire |
+|-----|---------------------|
+| Owner du workspace, super-administrateur de la plateforme | Passer **un autre membre** en member, admin, guest (avec expiration, 90 jours par défaut) ou owner (copropriétaire) |
+| Owner | Transférer la propriété à un membre, en restant admin ou member |
+| Admin | Seulement member → guest (avec expiration) et guest → member ; jamais attribuer ni retirer admin ou owner |
+
+Refus expliqués : personne ne change son propre rôle
+(sauf en transférant la propriété, ou un owner qui se retire tant qu'un autre owner reste) ; le dernier owner ne peut être ni rétrogradé ni retiré ; un guest ou un compte de service ne devient pas owner (un compte de service n'est pas non plus admin) ;
+une cible hors du workspace donne un 404. Retirer un membre exige aussi un motif, conservé dans l'historique (`workspace.member.removed`).
 
 ## 2. Rôles d'étude
 
@@ -78,15 +96,32 @@ des rôles inférieurs.
 | `SITE_ENTER_DATA` | Saisir et modifier les données patient |
 | `SITE_MANAGE_QUERIES` | Gérer les requêtes et discordances |
 
+### Discordances d'un ARC (rôle lecteur)
+
+Lever, clôturer et suivre une discordance n'exige pas de droit de saisie : `STUDY_QUERY_RAISE` (`StudyVoter`, sujet : l'inclusion) est accordé
+
+- au gestionnaire et à l'administrateur de l'étude, comme avant, sur les patients qu'ils peuvent voir ;
+- au **lecteur** de l'étude qui a le rôle de site **ARC moniteur** (`cra`) sur le centre **du patient**. Un lecteur sans rattachement à un centre n'a pas ce rôle : il n'obtient rien (lecture la plus restrictive).
+
+| Action | Gestionnaire / administrateur | Lecteur ARC du centre du patient | Autre lecteur |
+|--------|:-----------------------------:|:--------------------------------:|:-------------:|
+| Voir les discordances | ✅ | ✅ (ses centres) | ✅ |
+| Lever une discordance (champ, œil) | ✅ | ✅ | – |
+| Répondre | ✅ | – | – |
+| Clôturer | ✅ | ✅ | – |
+| Annuler (levée par erreur) | ✅ | ✅ (les siennes) | – |
+| Signer (signification « Vérification sponsor / ARC » seule) | ✅ | ✅ | – |
+| Saisir, signer en investigateur ou data manager, verrouiller, inclure, changer un statut, importer | ✅ (selon le rôle) | – | – |
+
 ## 4. Application technique
 
 L'autorisation est vérifiée **côté serveur** à chaque accès :
 
 | Composant | Rôle |
 |-----------|------|
-| `StudyVoter` | Attributs `STUDY_VIEW` / `STUDY_MANAGE` / `STUDY_ADMIN` |
+| `StudyVoter` | Attributs `STUDY_VIEW` / `STUDY_MANAGE` / `STUDY_ADMIN`, et `STUDY_QUERY_RAISE` (sujet : `StudyPatient`) |
 | `StudyAccessService` | `canView()` / `canManage()` / `canAdmin()` — résout le rôle effectif |
-| `SiteAccessService` | Droits au niveau centre investigateur |
+| `SiteAccessService` | Droits au niveau centre investigateur ; `canRaiseQuery()` pour les discordances |
 | `WorkspaceAccess` | Distingue le niveau plateforme (`ROLE_SUPER_ADMIN`, créé par `app:admin:create`) du niveau workspace (rôle `WorkspaceUser`, non expiré, du workspace de la ressource) |
 | Hiérarchie Symfony | `ROLE_SUPER_ADMIN` (super-administrateur de la **plateforme**) et l'Owner **du workspace de la ressource** court-circuitent les Voters ; l'Owner d'un workspace n'obtient jamais `ROLE_SUPER_ADMIN` ni de droit sur un autre workspace |
 

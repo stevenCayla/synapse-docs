@@ -31,7 +31,7 @@ Voir aussi : [Architecture — vue d'ensemble](/architecture/overview/) ·
 
 | Terme métier | Classe | Description |
 |--------------|--------|-------------|
-| Workspace / Organisation | `Workspace` | Tenant : environnement applicatif totalement isolé |
+| Workspace | `Workspace` | Tenant : environnement applicatif totalement isolé |
 | Série / Étude | `Study` | Étude clinique sur une maladie ou une indication |
 | Centre investigateur | `Site` | Hôpital, clinique ou cabinet participant ; lié à une étude via `StudySite` |
 | Patient | `Patient` | Personne suivie ; IPP = `externalId` (chiffré) |
@@ -60,7 +60,7 @@ Le domaine se découpe en contextes, tous bornés par le **workspace** :
 flowchart TB
     subgraph WS["Workspace (tenant)"]
         direction TB
-        ORG["Organisation<br/>WorkspaceUser · Team · Invitation<br/>WorkspaceModule · DpoContact"]
+        ORG["Workspace<br/>WorkspaceUser · Team · Invitation<br/>WorkspaceModule · DpoContact"]
         SITE["Centres investigateurs<br/>Site · SiteDocument"]
         STUDY["Étude<br/>Study · StudySite · StudyMember · SiteMember<br/>StudyVisit · StudyVisitForm"]
         PAT["Patient & inclusion<br/>Patient · StudyPatient<br/>PatientVisitOccurrence"]
@@ -91,7 +91,7 @@ flowchart TB
 
 | Contexte | Rôle | Racine d'agrégat |
 |----------|------|------------------|
-| **Organisation** | Membres, équipes, invitations, modules activés, DPO | `Workspace` |
+| **Workspace** | Membres, équipes, invitations, modules activés, DPO | `Workspace` |
 | **Identité & sécurité** | Comptes, 2FA, sessions, audit sécurité — **hors workspace** (un utilisateur peut appartenir à plusieurs workspaces) | `User` |
 | **RBAC** | Rôles et permissions d'étude et de site, stockés en base | `StudyRole`, `SiteRole` |
 | **Centres** | Centres investigateurs du workspace | `Site` |

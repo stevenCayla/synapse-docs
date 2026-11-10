@@ -133,8 +133,10 @@ erDiagram
 | `WorkspaceUser` | User↔Workspace membership | `role: WorkspaceRole` |
 | `WorkspaceModule` | Module activation | `moduleCode: ModuleCode`, `status` |
 | `DpoContact` | Data Protection Officer | `type: DpoContactType` |
-| `Invitation` | Pending invitation | role, assigned sites/studies, `enforceMfa` |
+| `Invitation` | Pending invitation | role, assigned sites/studies, `studyAccess` (study role, site role and sites per study), `guestExpiresAt`, `message`, `enforceMfa`, `locale` (`fr` or `en`: language of the e-mail and of the acceptance page) |
 | `Team` / `TeamMember` | Intra-workspace grouping | — |
+| `TherapeuticArea` | Therapeutic area of the workspace (28 by default, customisable) | `workspace_id`, stable key (`area_key`), French and English labels, `enabled`, `position`; closed RLS like `study` |
+| `UserTherapeuticArea` | Default selection of a user in a workspace | `user_id`, `area_id`, `workspace_id`; closed RLS |
 
 Notable integrity constraints: `WorkspaceUserRepository` guarantees **≥ 1 Owner** per workspace; `UserRepository.findOneByWorkspace` prevents cross-workspace assignment.
 
@@ -168,6 +170,14 @@ Functional details: [security/README.md](/en/security/readme/).
 
 `Site`, `SiteMember`, `SiteRole`, `SitePermission`, `SiteDocument` model the investigation sites.
 
+**Therapeutic area.** `Study.therapeuticArea` stores the key of a `TherapeuticArea` of the workspace (`oncology`, `ophthalmology`, `custom_…`) and `Study.therapeuticAreaOther` the free text that goes with "Other" (`other`). Every workspace starts
+with the default catalogue (`App\TherapeuticArea\DefaultAreas`, 28 areas, French and English labels), seeded on first read and by the migration for the existing workspaces. The workspace owner and admins (`TherapeuticAreaVoter`) enable, disable,
+rename, reorder and add areas from the "Therapeutic areas" menu (`/therapeutic-areas`); every change is recorded in the activity log (`therapeutic_area.*`). A disabled area is no longer offered but stays displayed on the studies that use it; a
+default area cannot be deleted, an added one can until a study uses it. Each user picks default areas (profile page or the "Manage my areas" link of the wizard): they are offered first, the others stay reachable through the search or "Show all"; with
+no selection every enabled area is offered. One source (`App\TherapeuticArea\TherapeuticAreas`, `Form\Type\TherapeuticAreaType`) feeds the wizard, the edit form, the summaries and the printable sheet.
+
+**Laterality (ophthalmology).** Studies of the `ophthalmology` area carry laterality settings (`Study.laterality_unit`, `laterality_eyes`, `laterality_rule`); `StudyPatient.studyEyes` (`OD`, `OS`, `OU`) records the study eye at inclusion. Details: [Ophthalmology](/en/backend/ophthalmology/).
+
 ---
 
 ## 7. Patients & consent
@@ -196,6 +206,11 @@ The `externalIdHash` / `dateOfBirthHash` columns (deterministic HMAC) enable exa
 | Audit & integrity | `EcrfValueAudit`, `EcrfFieldSnapshot` |
 | Attachments | `EcrfAttachment` (opaque token), `EcrfSignature` (contentHash), `EcrfQuery` ── `EcrfQueryMessage` |
 | Taxonomy | `EcrfSpecialty`, CDISC SDTM mapping (`SdtmClass`) |
+
+A field can be entered **per eye** (`EcrfField.perEye`): `EcrfValue.laterality` (`OD`, `OS`, empty otherwise), `EcrfValueAudit.laterality` and `EcrfQuery.laterality` then carry the eye; the unique index of the values includes it.
+
+`EcrfValueAudit.recordId` is a plain indexed column, not a foreign key to `ecrf_record`: the audit trail is immutable (database trigger), so it neither follows the deletion of its record nor blocks it.
+When the test data of a study is purged at go-live, the records, values, queries, signatures and files of the test patients are deleted and their audit entries stay as they were. Screens and exports reach the entries through their live record, so these entries are not listed (the test patients are not exported anyway).
 
 `EcrfFieldType` covers ~23 types (text, date, number, signature, matrix, calculated field, gallery…). Sections are **self-referencing** (parent/children tree).
 

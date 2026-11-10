@@ -1,6 +1,6 @@
 ---
 title: "Structure du code backend"
-description: "Organisation de src/ — contrôleurs, services, voters, événements et entités — ainsi que les conventions de code et les règles du mode worker."
+description: "Workspace de src/ — contrôleurs, services, voters, événements et entités — ainsi que les conventions de code et les règles du mode worker."
 ---
 
 > 🌐 Version française · [English version](/en/backend/symfony-structure/)
@@ -163,7 +163,7 @@ Détail complet : [Modèle de données](/database/data-model/).
 `assets/` — **AssetMapper** (pas de build Node), piloté par `importmap.php`.
 
 - **Stimulus** 3.2 (`bootstrap.js`, `controllers/`).
-- Libs : `sortablejs` (builder drag-and-drop), `choices.js`, Bootstrap 5.3 et Bootstrap Icons (via `importmap:require`, versionnés et couverts par `importmap:audit`), polices Inter et Fraunces (woff2 sous `assets/fonts/`, licence OFL).
+- Libs : `sortablejs` (builder drag-and-drop), `choices.js`, Bootstrap 5.3 et Bootstrap Icons (via `importmap:require`, versionnés et couverts par `importmap:audit`), polices Inter, Fraunces et Nunito (logotype de la barre latérale ; woff2 sous `assets/fonts/`, licence OFL).
   Aucune ressource n'est chargée depuis un CDN ou un service tiers : la CSP n'autorise que `'self'` pour les scripts, styles et polices. Le bundle JS de Bootstrap est vendoré dans `assets/lib/bootstrap/` (script classique, l'objet global `bootstrap` est utilisé par des scripts inline) à garder à la même version que le CSS.
 - Points d'entrée : `app`, `login`, `2fa-check`, `2fa-setup`, `ecrf-builder`, `study-wizard`.
 - Modules UX (`assets/js/`) : `session-guard`, `confirm-modal`, `drawer-manager`, `password-strength`, `toast`, `theme`, `ecrf-builder`, `ecrf-engine`, `study-wizard`…
@@ -202,3 +202,15 @@ Le worker FrankenPHP réutilise le process PHP entre les requêtes. **Erreurs à
 | Variable persistant entre requêtes par mégarde | Cookies sur la réponse, session pour l'état utilisateur |
 
 > Voir le détail du cycle de requête : [architecture/overview.md §7](/architecture/overview/#7-flux-dune-requête).
+
+---
+
+## 5. Langue des invitations et fuseau horaire
+
+- **Invitation** : le formulaire (`/users#invitations`) propose le français ou l'anglais (anglais par défaut), stocké dans `Invitation::$locale`. L'e-mail (sujet et corps) et la page d'acceptation sont rendus dans cette langue ; les invitations du wizard d'étude utilisent la langue de l'invitant (anglais sinon).
+- **Page d'acceptation** (`/invitation/accept/{token}`) : la langue est présélectionnée depuis l'invitation, le fuseau depuis le navigateur (`Intl.DateTimeFormat().resolvedOptions().timeZone`, `Europe/Paris` à défaut). Les deux sont enregistrés sur le compte (`User::$locale`, `User::$timezone`).
+- **Profil** (`/profile`) : le fuseau se choisit à côté de la langue ; un administrateur le voit et le modifie sur la page de l'utilisateur. Les comptes existants sont migrés en `Europe/Paris`.
+- **Affichage** : le stockage reste en UTC (base et `date.timezone`) ; seul l'affichage change. `UserTimeZoneSubscriber` applique à chaque requête le fuseau de l'utilisateur connecté (`Europe/Paris` pour un visiteur anonyme) au filtre Twig `date` ; les jours calendaires (naissance, inclusion, visite, documents, certificats) ne sont pas convertis (`|date('d/m/Y', false)`).
+  Le JavaScript lit `<html data-user-timezone>` (`window.SynapseTime`).
+  Les e-mails utilisent le fuseau du destinataire (celui de l'invitant si le compte n'existe pas, nommé dans le message).
+- **Exports et journal d'audit** : l'export d'audit eCRF écrit `changed_at` en ISO 8601 avec décalage (`+00:00`) ; l'export eCRF indique « UTC » après la date de mise à jour ; les tableaux de journaux affichent le décalage (`+01:00`).

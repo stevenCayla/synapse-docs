@@ -32,6 +32,7 @@ php bin/console <commande> [arguments] [--options]
 |---|---|---|
 | [`app:admin:create`](#appadmincreate) | Crée un super-administrateur (prod-safe, sans donnée fictive) | `app:admin:create --email=prenom.nom@exemple.fr` |
 | [`app:seed`](#appseed) | Jeu de données fictif complet (pipeline orchestré) | `app:seed --reset --users=5 --studies=2` |
+| [`app:ecrf-templates:seed`](#appecrf-templatesseed) | Charge les modèles d’eCRF de la bibliothèque (ophtalmologie) dans les workspaces (sûr en production, idempotent) | `app:ecrf-templates:seed --workspace=1` |
 | [`app:reset-database`](#appreset-database) | Vide toutes les tables applicatives | `app:reset-database --force` |
 
 ### Sécurité & conformité
@@ -110,6 +111,33 @@ changement du mot de passe puis activation de la 2FA. Procédure complète :
 
 ---
 
+## `app:ecrf-templates:seed`
+
+Charge les modèles d’eCRF de la bibliothèque dans les workspaces, comme modèles **publiés** : aujourd’hui les trois
+modèles d’ophtalmologie (visite initiale, visite de suivi, événements indésirables oculaires ; voir
+[Ophtalmologie](/backend/ophtalmologie/)). Fonctionne en `prod` et ne génère aucune donnée fictive.
+
+```bash
+php bin/console app:ecrf-templates:seed [--workspace=<id>]
+```
+
+| Option | Type | Défaut | Description |
+|---|---|---|---|
+| `--workspace`, `-w` | int | tous les workspaces | Ne charge les modèles que dans ce workspace |
+
+Idempotent, sans risque à chaque déploiement : un modèle déjà présent dans le workspace (même référence
+`ECRF-OPH-001` à `003`, ou même titre, quel que soit son statut, données fictives comprises) est ignoré, jamais
+modifié ni republié, donc les modifications du workspace sont conservées. Rien n’est écrasé. La commande affiche
+une ligne par modèle et les totaux (créés, déjà présents). Les modèles n’ont pas d’auteur : le créateur s’affiche
+sous la forme d’un tiret.
+
+Un workspace créé ensuite (écran « Workspaces » ou `app:admin:create` sur une installation vierge) reçoit ces
+modèles de lui-même, dans la même transaction que sa création : la commande sert aux workspaces déjà existants
+(une fois au déploiement) et à ajouter plus tard un nouveau modèle à la bibliothèque. Un modèle supprimé par une
+workspace ne revient jamais tout seul : seule cette commande le recréerait.
+
+---
+
 ## `app:seed`
 
 Commande d'orchestration principale. Génère un jeu de données fictif complet en une seule
@@ -137,7 +165,7 @@ php bin/console app:seed [options]
 | `--patients` | int | `30` | Nombre de patients à créer |
 | `--studies` | int | `3` | Nombre d'études à créer |
 | `--patients-per-study` | int | `10` | Patients inclus par étude |
-| `--all-sites` | flag | — | Crée tous les sites du catalogue (sinon les 3 premiers) |
+| `--all-sites` | flag | — | Crée tous les sites du catalogue (sinon les 3 premiers et les sites régionaux, 12 au total) |
 
 **Exemple :**
 
@@ -407,8 +435,9 @@ Mensuel.
 ## `app:create-fake-sites`
 
 Crée des centres investigateurs fictifs (hôpitaux français) avec codes uniques,
-départements, adresses et couleurs d'identification. Le catalogue contient 6 sites
-prédéfinis.
+départements, adresses et couleurs d'identification. Le catalogue contient 15 sites
+prédéfinis. Sans `--all`, la commande crée les 3 premiers et les 9 sites régionaux (12 au total), de sorte qu'un
+`app:seed` simple les crée aussi ; les codes déjà présents dans le workspace sont ignorés.
 
 ```bash
 php bin/console app:create-fake-sites [options]
@@ -419,7 +448,7 @@ php bin/console app:create-fake-sites [options]
 | Option | Type | Défaut | Description |
 |---|---|---|---|
 | `-w, --workspace` | int | — | ID du workspace cible (demandé interactivement si absent) |
-| `--all` | flag | — | Crée tous les sites du catalogue (sinon les 3 premiers) |
+| `--all` | flag | — | Crée tous les sites du catalogue (sinon les 3 premiers et les sites régionaux, 12 au total) |
 
 **Exemple :**
 
@@ -446,7 +475,7 @@ php bin/console app:create-fake-users [options]
 |---|---|---|---|
 | `-c, --count` | int | `10` | Nombre d'utilisateurs à créer |
 | `-p, --password` | string | aléatoire | Mot de passe commun pour tous les utilisateurs. Sans cette option, un mot de passe aléatoire est généré à chaque exécution et affiché dans le résumé |
-| `-r, --role` | string[] | — | Rôle(s) à attribuer (`ROLE_USER`, `ROLE_ADMIN`, `ROLE_MODERATOR`) |
+| `-r, --role` | string[] | — | Rôle(s) à attribuer (`ROLE_USER` ; `ROLE_ADMIN` rend les comptes admins du workspace cible) |
 | `-w, --workspace` | int | — | ID du workspace cible (demandé interactivement si absent) |
 | `--assign-sites` | flag | — | Assigne aléatoirement les utilisateurs à des sites du workspace |
 
@@ -618,8 +647,9 @@ php bin/console app:create-fake-study-patients -w 1 -s 5 --owner=investigateur1
 
 ## `app:create-fake-ecrf-templates`
 
-Crée 5 templates eCRF réutilisables couvrant les domaines cliniques courants :
-démographie/inclusion, biologie standard, neurologie, oncologie et qualité de vie (SF-12).
+Crée 8 templates eCRF réutilisables couvrant les domaines cliniques courants :
+démographie/inclusion, biologie standard, neurologie, oncologie et qualité de vie (SF-12), plus trois modèles d'ophtalmologie
+(visite initiale, visite de suivi, événements indésirables oculaires ; champs saisis par œil, voir [Ophtalmologie](/backend/ophtalmologie/)).
 Chaque template inclut sections et champs avec règles de validation.
 
 ```bash

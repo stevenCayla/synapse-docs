@@ -33,6 +33,7 @@ php bin/console <command> [arguments] [--options]
 | [`app:admin:create`](#appadmincreate) | Creates a super administrator (production-safe, no fake data) | `app:admin:create --email=first.last@example.com` |
 | [`app:seed`](#appseed) | Full fake dataset (orchestrated pipeline) | `app:seed --reset --users=5 --studies=2` |
 | [`app:reset-database`](#appreset-database) | Empties all application tables | `app:reset-database --force` |
+| [`app:ecrf-templates:seed`](#appecrf-templatesseed) | Loads the library eCRF templates (ophthalmology) into the workspaces (production-safe, idempotent) | `app:ecrf-templates:seed --workspace=1` |
 
 ### Security & compliance
 
@@ -109,6 +110,32 @@ then 2FA enrolment. Full procedure: [production deployment](/en/deployment/produ
 
 ---
 
+## `app:ecrf-templates:seed`
+
+Loads the eCRF templates of the library into the workspaces as **published** templates: today the three
+ophthalmology templates (baseline visit, follow-up visit, ocular adverse events; see
+[Ophthalmology](/en/backend/ophthalmology/)). Works in `prod` and generates no fake data.
+
+```bash
+php bin/console app:ecrf-templates:seed [--workspace=<id>]
+```
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `--workspace`, `-w` | int | all workspaces | Loads the templates in this workspace only |
+
+Idempotent, safe on every deployment: a template the workspace already holds (same reference `ECRF-OPH-001` to
+`003`, or same title, whatever its status, fake data included) is skipped, never modified nor republished, so edits
+made by the workspace survive. Nothing is overwritten. The command prints one line per template and the totals
+(created, already present). The templates have no author: they appear with a dash as the creator.
+
+A workspace created afterwards (the workspaces screen, or `app:admin:create` on a fresh installation) receives these
+templates by itself, in the same transaction as its creation: the command is for the workspaces that already exist
+(once at deployment) and for adding a new template to the library later. A template deleted by a workspace never comes
+back on its own: only this command would recreate it.
+
+---
+
 ## `app:seed`
 
 Main orchestration command. Generates a full fake dataset in a single command: workspace,
@@ -136,7 +163,7 @@ php bin/console app:seed [options]
 | `--patients` | int | `30` | Number of patients to create |
 | `--studies` | int | `3` | Number of studies to create |
 | `--patients-per-study` | int | `10` | Patients enrolled per study |
-| `--all-sites` | flag | — | Creates all sites from the catalog (otherwise the first 3) |
+| `--all-sites` | flag | — | Creates all sites from the catalog (otherwise the first 3 and the regional sites, 12 in total) |
 
 **Example:**
 
@@ -403,7 +430,8 @@ Monthly.
 ## `app:create-fake-sites`
 
 Creates fake investigator sites (French hospitals) with unique codes, departments,
-addresses and identification colors. The catalog contains 6 predefined sites.
+addresses and identification colors. The catalog contains 15 predefined sites. Without `--all`, the command creates the first 3 and the 9 regional sites
+(12 in total), so a plain `app:seed` creates them too; codes already present in the workspace are skipped.
 
 ```bash
 php bin/console app:create-fake-sites [options]
@@ -414,7 +442,7 @@ php bin/console app:create-fake-sites [options]
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `-w, --workspace` | int | — | Target workspace ID (prompted interactively if absent) |
-| `--all` | flag | — | Creates all sites from the catalog (otherwise the first 3) |
+| `--all` | flag | — | Creates all sites from the catalog (otherwise the first 3 and the regional sites, 12 in total) |
 
 **Example:**
 
@@ -441,7 +469,7 @@ php bin/console app:create-fake-users [options]
 |---|---|---|---|
 | `-c, --count` | int | `10` | Number of users to create |
 | `-p, --password` | string | random | Common password for all users. If omitted, a random password is generated on each run and printed in the summary |
-| `-r, --role` | string[] | — | Role(s) to assign (`ROLE_USER`, `ROLE_ADMIN`, `ROLE_MODERATOR`) |
+| `-r, --role` | string[] | — | Role(s) to assign (`ROLE_USER`; `ROLE_ADMIN` makes the accounts admins of the target workspace) |
 | `-w, --workspace` | int | — | Target workspace ID (prompted interactively if absent) |
 | `--assign-sites` | flag | — | Randomly assigns users to sites of the workspace |
 
@@ -612,9 +640,10 @@ php bin/console app:create-fake-study-patients -w 1 -s 5 --owner=investigateur1
 
 ## `app:create-fake-ecrf-templates`
 
-Creates 5 reusable eCRF templates covering common clinical domains: demographics/inclusion,
-standard biology, neurology, oncology and quality of life (SF-12). Each template includes
-sections and fields with validation rules.
+Creates 8 reusable eCRF templates covering common clinical domains: demographics/inclusion,
+standard biology, neurology, oncology and quality of life (SF-12), plus three ophthalmology templates
+(baseline visit, follow-up visit, ocular adverse events; fields entered per eye, see [Ophthalmology](/en/backend/ophthalmology/)).
+Each template includes sections and fields with validation rules.
 
 ```bash
 php bin/console app:create-fake-ecrf-templates [options]

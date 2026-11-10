@@ -26,7 +26,7 @@ La version est celle du dernier tag git `vX.Y.Z` : l'image la reçoit au build d
 
 ## Processus de publication
 
-1. Regrouper les changements de `[Unreleased]` dans le [`CHANGELOG.md`](https://github.com/synapse-medical/synapse-app/blob/main/CHANGELOG.md) sous un numéro de
+1. Assembler les fragments (`bin/changelog assemble`), puis regrouper les changements de `[Unreleased]` dans le [`CHANGELOG.md`](https://github.com/synapse-medical/synapse-app/blob/main/CHANGELOG.md) sous un numéro de
    version daté.
 2. Taguer : `git tag -a v2.1.0 -m "Release 2.1.0"` puis `git push --tags`.
 3. Créer la **GitHub Release** correspondante (notes = section du changelog).

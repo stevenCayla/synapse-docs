@@ -90,6 +90,7 @@ php -r "echo base64_encode(random_bytes(32));"    # APP_FILE_ENCRYPTION_KEY
 | `APP_WEBSITE_URL` | URL du site public vers lequel la page de connexion renvoie pour la demande de démo (défaut `https://synapse-medical.fr`) |
 | `DOMAIN` | Domaine public (URL publique Mercure, URI par défaut) |
 | `TRUSTED_PROXIES` | Défaut `127.0.0.1,172.16.0.0/12` (couvre les bridges Docker) |
+| `TRUSTED_HOSTS` | **Obligatoire.** Expression régulière des `Host` acceptés (400 sinon), points échappés : `app` et `old` pendant la migration, `uat-app` en recette, `dev-app` en développement (docs/options.md) |
 
 :::danger[Clés de chiffrement irrécupérables en cas de perte]
 La perte de `APP_PATIENT_ENCRYPTION_KEY`, `APP_TOTP_ENCRYPTION_KEY` ou `APP_FILE_ENCRYPTION_KEY` rend les
@@ -194,12 +195,16 @@ PROD="docker compose -f compose.yaml -f compose.prod.yaml"
 $PROD exec php php bin/console app:regulatory-packs:seed
 
 # 2. Premier super-administrateur : mot de passe saisi (masqué, confirmé)
-$PROD exec php php bin/console app:admin:create --email=prenom.nom@exemple.fr --workspace-name="Mon organisation"
+$PROD exec php php bin/console app:admin:create --email=prenom.nom@exemple.fr --workspace-name="Mon workspace"
 
 # Variante non interactive : mot de passe lu dans ADMIN_PASSWORD (jamais en option de ligne de commande)
 read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
 $PROD exec -T -e ADMIN_PASSWORD php php bin/console app:admin:create --email=prenom.nom@exemple.fr --no-interaction
 unset ADMIN_PASSWORD
+
+# 3. Modèles d'eCRF de la bibliothèque (ophtalmologie) pour les workspaces déjà existants ; idempotent
+#    (un workspace créé ensuite, par l'interface ou par app:admin:create, les reçoit de lui-même)
+$PROD exec php php bin/console app:ecrf-templates:seed
 ```
 
 Options : `--email` (obligatoire), `--username`, `--first-name`, `--last-name` (déduits de l'e-mail par défaut), `--workspace-name` (utilisé seulement si aucun workspace n'existe ; sinon le compte est rattaché aux workspaces existants). Le mot de passe doit respecter la politique de mot de passe ; la commande refuse un e-mail ou un nom d'utilisateur déjà pris.
@@ -219,6 +224,7 @@ Un serveur de **développement ou de recette** qui exécute l'image de productio
 |-------|----------|-------|
 | **Provisionner la 2FA** | `app:totp:provision-missing` (aperçu avec `--dry-run`) | Après activation de la 2FA obligatoire. Les utilisateurs sans TOTP sont redirigés vers `/2fa/setup` au prochain login (attendu, non bloquant). |
 | **Charger les packs réglementaires** | `app:regulatory-packs:seed` | Après les migrations, à chaque déploiement : idempotent, ne crée que ce qui manque (jamais de modification des packs existants). Sans cette étape, les packs réglementaires sont vides. |
+| **Charger les modèles d'eCRF de la bibliothèque** | `app:ecrf-templates:seed` (un workspace : `--workspace=<id>`) | Une fois au déploiement pour les workspaces existants, puis pour ajouter un nouveau modèle à la bibliothèque (une nouveau workspace les reçoit d'elle-même). Idempotent : ne crée que les modèles manquants et ne modifie jamais un modèle existant. |
 | **Chiffrer les PII patient** | `app:patient:encrypt-existing --batch-size=200` (idempotent ; `--dry-run` pour vérifier) | Backfill ponctuel lors de l'introduction du chiffrement patient. Faire un `pg_dump` au préalable. |
 | **Vérifier la rétention** | `app:retention:check-studies` | Code de sortie `2` si des études dépassent la rétention — intégrable dans Nagios/Zabbix. |
 | **Rappeler les certificats GCP** | `app:gcp:send-expiry-reminders` (aperçu avec `--dry-run`) | Planifier chaque jour (cron) : envoie un rappel unique avant l'expiration du certificat GCP d'un utilisateur. Informatif, ne bloque aucun accès. |
@@ -315,7 +321,7 @@ La file `failed` n'est volontairement pas consommée par le worker : une relance
 - [ ] TLS Apache valide ; redirection HTTP→HTTPS OK ; `certbot renew --dry-run` OK.
 - [ ] `TRUSTED_PROXIES` correspond à la gateway Docker réelle.
 - [ ] PostgreSQL **non** exposé sur l'hôte.
-- [ ] Migrations appliquées ; `app:totp:provision-missing` et `app:regulatory-packs:seed` exécutés.
+- [ ] Migrations appliquées ; `app:totp:provision-missing`, `app:regulatory-packs:seed` et `app:ecrf-templates:seed` exécutés.
 - [ ] Premier administrateur créé (`app:admin:create`) ; `APP_ALLOW_FAKE_DATA` absent de `.env.local`.
 - [ ] Service `worker` actif (`ps` → `healthy`), volume `private_uploads` présent (`docker volume ls`), fichiers existants copiés dedans (voir ci-dessus).
 - [ ] Service `backup` actif (`--profile backup`, obligatoire avant toute donnée réelle) ; une restauration a été testée.

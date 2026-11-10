@@ -46,7 +46,7 @@ Les déploiements des trois environnements sont manuels.
 
 | Élément | Emplacement | Rôle |
 |---------|-------------|------|
-| Journal des modifications | `CHANGELOG.md` (racine) | Format [Keep a Changelog 1.1.0](https://keepachangelog.com/fr/1.1.0/), section `[Unreleased]` |
+| Journal des modifications | `CHANGELOG.md` (racine) | Format [Keep a Changelog 1.1.0](https://keepachangelog.com/fr/1.1.0/), section `[Unreleased]` alimentée par les fragments de `changelog.d/` |
 | Version applicative | Le tag git `vX.Y.Z` (aucun fichier ne la copie) ; `bin/app-version` la calcule au build | Passée en `APP_VERSION` à l'image (`Dockerfile`, `compose.prod.yaml`), affichée par `app_version` (pied de page, page de connexion) |
 | Version de la doc | Dépôt `synapse-docs` : `astro.config.mjs` → `src/version.ts` | Dérivée du dernier tag `v*` (voir le dépôt `synapse-docs`) |
 | CI | `.github/workflows/ci.yaml` | Build Docker, smoke-tests HTTP/Mercure, migrations + PHPUnit, `composer audit`, lint |
@@ -78,8 +78,10 @@ Le dépôt suit un flux à trois niveaux :
 
 ## 2. Tenir le changelog au fil de l'eau
 
-Chaque PR qui change un comportement visible ajoute une ligne dans la section
-`[Unreleased]` de `CHANGELOG.md`, sous la rubrique adaptée :
+Chaque PR qui change un comportement visible ajoute **un fichier** dans `changelog.d/`
+(plutôt qu'une ligne dans `CHANGELOG.md`, qui provoquait des conflits à presque chaque PR) :
+`changelog.d/<slug>.<rubrique>.md`, avec une seule ligne en français, sous forme d'élément de liste
+Markdown, de 400 caractères au plus. La rubrique (dans le nom du fichier, en minuscules) est l'une de :
 
 | Rubrique | Usage |
 |----------|-------|
@@ -89,6 +91,11 @@ Chaque PR qui change un comportement visible ajoute une ligne dans la section
 | `Removed` | Fonctionnalité supprimée |
 | `Fixed` | Correction de bug |
 | `Security` | Correction de vulnérabilité |
+
+`bin/changelog check` valide les fragments (rubrique inconnue, fichier vide ou de plusieurs lignes,
+ligne trop longue) ; `bin/changelog assemble` les range dans `[Unreleased]` de `CHANGELOG.md` au commit de
+release, puis les supprime (voir `changelog.d/README.md`). Les entrées déjà présentes dans `[Unreleased]`
+restent dans `CHANGELOG.md`.
 
 Un changement incompatible (qui impose un incrément **MAJOR**) doit aussi être
 documenté dans [Changements incompatibles](/changelog/breaking-changes/).
@@ -126,11 +133,13 @@ exécutée par le job **Tests**.
       vide, du début à la fin (voir ci-dessous).
 - [ ] **Aucune migration manquante** : `make migration` ne génère pas de nouveau
       fichier (supprimer le fichier vide éventuellement créé).
-- [ ] **Recette manuelle** : dérouler la [checklist QA de release](/qa/readme/#checklist-de-recette-manuelle).
+- [ ] **Recette manuelle** : dérouler la [checklist QA de release](/qa/readme/#checklist-de-recette-manuelle). Pour une évolution d'ophtalmologie, dérouler aussi la [recette d'une étude d'ophtalmologie](/qa/recette-ophtalmologie/).
 - [ ] **Build de production** : l'image `frankenphp_prod` se construit sans erreur
       (voir [§ 6](#6-build-de-production)).
-- [ ] **Changelog** : section `[Unreleased]` renommée en `[X.Y.Z] - AAAA-MM-JJ`,
-      nouvelle section `[Unreleased]` vide ajoutée, liens de comparaison en bas de fichier mis à jour.
+- [ ] **Changelog** : `bin/changelog assemble` exécuté **d'abord** (les fragments de `changelog.d/` sont
+      rangés dans `[Unreleased]`, puis supprimés ; `bin/changelog check --expect-none` ne signale plus rien ; le job Lint échoue sinon sur la PR de release),
+      ensuite section `[Unreleased]` renommée en `[X.Y.Z] - AAAA-MM-JJ`, nouvelle section `[Unreleased]` vide
+      ajoutée, liens de comparaison en bas de fichier mis à jour.
 - [ ] **Version** : rien à modifier (ni `.env`, ni `.env.local.example`) : elle vient du tag posé à l'étape 3.
 - [ ] **Changements incompatibles** documentés si la version est MAJOR.
 
@@ -165,7 +174,7 @@ pour les commandes de backfill associées.
    make archive VERSION=2.0   # garde la doc 2.0 en ligne sous /2.0/
    ```
    Commiter le résultat sur `develop` (voir le README de `synapse-docs`).
-1. **Commit de release** sur `develop` : changelog daté (aucune version à modifier dans le dépôt), par exemple
+1. **Commit de release** sur `develop` : fragments assemblés puis changelog daté (aucune version à modifier dans le dépôt), par exemple
    `chore(release): 2.1.0`.
 2. **Branche de release**, uniquement sur demande explicite : créer `release/AAAA-MM-JJ`
    depuis `origin/develop` et la pousser. Ne jamais ouvrir une PR dont la branche source est

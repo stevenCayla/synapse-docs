@@ -163,7 +163,7 @@ Full details: [Data model](/en/database/data-model/).
 `assets/` — **AssetMapper** (no Node build), driven by `importmap.php`.
 
 - **Stimulus** 3.2 (`bootstrap.js`, `controllers/`).
-- Libraries: `sortablejs` (drag-and-drop builder), `choices.js`, Bootstrap 5.3 and Bootstrap Icons (through `importmap:require`, versioned and covered by `importmap:audit`), Inter and Fraunces fonts (woff2 under `assets/fonts/`, OFL licence).
+- Libraries: `sortablejs` (drag-and-drop builder), `choices.js`, Bootstrap 5.3 and Bootstrap Icons (through `importmap:require`, versioned and covered by `importmap:audit`), Inter, Fraunces and Nunito fonts (Nunito for the sidebar wordmark only; woff2 under `assets/fonts/`, OFL licence).
   Nothing is loaded from a CDN or a third-party service: the CSP only allows `'self'` for scripts, styles and fonts. The Bootstrap JS bundle is vendored in `assets/lib/bootstrap/` (classic script: inline scripts use the global `bootstrap` object) and must stay on the same version as the CSS.
 - Entry points: `app`, `login`, `2fa-check`, `2fa-setup`, `ecrf-builder`, `study-wizard`.
 - UX modules (`assets/js/`): `session-guard`, `confirm-modal`, `drawer-manager`, `password-strength`, `toast`, `theme`, `ecrf-builder`, `ecrf-engine`, `study-wizard`…
@@ -202,3 +202,15 @@ The FrankenPHP worker reuses the PHP process between requests. **Mistakes to nev
 | Variable accidentally persisting between requests | Cookies on the response, session for user state |
 
 > See the full request cycle: [architecture/overview.md §7](/en/architecture/overview/#7-request-lifecycle).
+
+---
+
+## 5. Invitation language and time zone
+
+- **Invitation**: one wizard (`/invitation/wizard`, `assets/js/invitation-wizard.js`) opened from the Users page, the Members tab of a workspace and a study. Its four steps are people, access, profile (skipped when every address is an existing account) and review. The e-mail language (French or English) is the one of the account, else of the inviter, editable per person, and stored in `Invitation::$locale`: the e-mail (subject and body) and the acceptance page are rendered in that language; invitations created by the study wizard use the inviter's language (English otherwise).
+- **One server path** (`InvitationService::inviteMany()`, `POST /invitation/create`, JSON): one result per person (`sent`, `added` for a member who only receives study access, `refused` with a reason code). Owner role for the platform administrator only; a guest needs a study and an end date (90 days by default, `Invitation::$guestExpiresAt`); a reason is required for admin and owner and written to the history (`ActivityLog::$reason`); studies must be those of the workspace the inviter administers, sites those of the study (none = every site); a pending invitation for the same address refuses a second one. Pending invitations are resent and cancelled from the Members tab (`/invitation/{id}/resend`, `/invitation/{id}/cancel`). The people, sites and roles rules shared with the Team step of the study wizard are in `App\Invitation\InvitationRules`.
+- **Acceptance page** (`/invitation/accept/{token}`): the language is preselected from the invitation, the time zone from the browser (`Intl.DateTimeFormat().resolvedOptions().timeZone`, `Europe/Paris` as fallback). Both are saved on the account (`User::$locale`, `User::$timezone`).
+- **Profile** (`/profile`): the time zone is chosen next to the language; an administrator sees and sets it on the user page. Existing accounts are migrated to `Europe/Paris`.
+- **Display**: storage stays in UTC (database and `date.timezone`); only the display changes. `UserTimeZoneSubscriber` applies the signed-in user's zone to Twig's `date` filter on every request (`Europe/Paris` for an anonymous visitor); values that are calendar days (birth, inclusion and visit dates, documents, certificates) are shown without conversion (`|date('d/m/Y', false)`).
+  JavaScript reads `<html data-user-timezone>` (`assets/js/user-time.js`, `window.SynapseTime`). E-mails use the recipient's zone (the inviter's for an invitation to a not yet existing account, named in the message).
+- **Exports and audit log**: the eCRF audit export writes `changed_at` as ISO 8601 with its offset (`+00:00`); the eCRF export marks the last update as UTC; log tables show the offset (`+01:00`).

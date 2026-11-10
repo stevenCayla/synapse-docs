@@ -45,7 +45,7 @@ All three environments are deployed by hand.
 
 | Item | Location | Role |
 |------|----------|------|
-| Changelog | `CHANGELOG.md` (root) | [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format, `[Unreleased]` section |
+| Changelog | `CHANGELOG.md` (root) | [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format, `[Unreleased]` section, fed by the `changelog.d/` fragments |
 | Application version | The git tag `vX.Y.Z` (no file copies it); `bin/app-version` computes it at build time | Passed as `APP_VERSION` to the image (`Dockerfile`, `compose.prod.yaml`), shown through `app_version` (footer, login page) |
 | Docs version | `synapse-docs` repository: `astro.config.mjs` → `src/version.ts` | Derived from the latest `v*` tag (see the `synapse-docs` repository) |
 | CI | `.github/workflows/ci.yaml` | Docker build, HTTP/Mercure smoke tests, migrations + PHPUnit, `composer audit`, lint |
@@ -76,8 +76,11 @@ The repository follows a three-level flow:
 
 ## 2. Keep the changelog up to date
 
-Every PR that changes visible behaviour adds a line to the `[Unreleased]`
-section of `CHANGELOG.md`, under the matching heading:
+Every PR that changes visible behaviour adds **one file** to `changelog.d/`
+(rather than a line in `CHANGELOG.md`, which conflicted on almost every PR):
+`changelog.d/<slug>.<section>.md`, holding a single line in French, written as a
+Markdown list item, 400 characters at most. The section (lowercase, in the file name)
+is one of:
 
 | Heading | Use |
 |---------|-----|
@@ -87,6 +90,11 @@ section of `CHANGELOG.md`, under the matching heading:
 | `Removed` | Feature removed |
 | `Fixed` | Bug fix |
 | `Security` | Vulnerability fix |
+
+`bin/changelog check` validates the fragments (unknown section, empty or multi-line
+file, line too long); `bin/changelog assemble` moves them into `[Unreleased]` of
+`CHANGELOG.md` in the release commit, then deletes them (see `changelog.d/README.md`).
+The entries already in `[Unreleased]` stay in `CHANGELOG.md`.
 
 An incompatible change (which requires a **MAJOR** bump) must also be documented
 in [Breaking changes](/en/changelog/breaking-changes/).
@@ -123,11 +131,13 @@ opening the release PR:
       start to finish (see below).
 - [ ] **No missing migration**: `make migration` generates no new file (delete the
       empty file if one was created).
-- [ ] **Manual QA**: run the [release QA checklist](/en/qa/readme/#manual-qa-checklist).
+- [ ] **Manual QA**: run the [release QA checklist](/en/qa/readme/#manual-qa-checklist). For an ophthalmology change, also run the [acceptance test of an ophthalmology study](/en/qa/ophthalmology-acceptance-test/).
 - [ ] **Production build**: the `frankenphp_prod` image builds without error
       (see [§ 6](#6-production-build)).
-- [ ] **Changelog**: `[Unreleased]` renamed to `[X.Y.Z] - YYYY-MM-DD`, a new empty
-      `[Unreleased]` section added, comparison links at the bottom updated.
+- [ ] **Changelog**: `bin/changelog assemble` run **first** (the `changelog.d/` fragments are
+      moved into `[Unreleased]`, then deleted; `bin/changelog check --expect-none` reports nothing; the Lint job fails otherwise on the release PR),
+      then `[Unreleased]` renamed to `[X.Y.Z] - YYYY-MM-DD`, a new empty `[Unreleased]` section
+      added, comparison links at the bottom updated.
 - [ ] **Version**: nothing to edit (neither `.env` nor `.env.local.example`): it comes from the tag created in step 3.
 - [ ] **Breaking changes** documented if the version is MAJOR.
 
@@ -160,7 +170,7 @@ commands.
    make archive VERSION=2.0   # keeps the 2.0 docs online under /2.0/
    ```
    Commit the result to `develop` (see the `synapse-docs` README).
-1. **Release commit** on `develop`: dated changelog (no version to edit in the repository), e.g.
+1. **Release commit** on `develop`: fragments assembled, then dated changelog (no version to edit in the repository), e.g.
    `chore(release): 2.1.0`.
 2. **Release branch**, only on explicit request: create `release/YYYY-MM-DD` from
    `origin/develop` and push it. Never open a PR whose source branch is `develop`: with

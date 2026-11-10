@@ -156,7 +156,17 @@ After a successful change:
 | Audit | `logPasswordResetRequested` and `logPasswordResetCompleted` (with the IP address) |
 
 An administrator can also send a reset email from the user page
-(`app_user_send_reset_password`, `ROLE_ADMIN`, CSRF protected).
+(`app_user_send_reset_password`, `ROLE_ADMIN`, CSRF protected). That action
+works whatever the self-service setting of the account (section 7).
+
+When the account may not change its own password (section 7), "Forgot your
+password?" sends **no link** to the user. The request goes to the administrators
+who manage the account (the owners and admins of the user's workspaces, the super
+administrators when there is none): an e-mail asking them to reset the password,
+an administrator request of type `password_reset` and an audit entry
+(`password.reset_admin_requested`). The page shown to the requester is the same in
+every case (unknown account, setting on or off); the CSRF token and the rate limits
+are unchanged. The administrator then sends the reset link from the user page.
 
 :::tip
 Too many failed logins lock the account (see [Session management](/en/security/session-management/)
@@ -164,3 +174,18 @@ and [Implementation status](/en/security/implementation-status/)). The lockout m
 suggests resetting the password. A successful reset does **not** unlock a *permanently*
 locked account: only an administrator can do that (`app_user_unlock`).
 :::
+
+## 7. Self-service change from the profile
+
+`ProfilePasswordController` (`POST /profile/password`, section "Change my password" of the profile page).
+
+| Control | Value |
+|---------|-------|
+| Who | the accounts with `User.canChangeOwnPassword` on; otherwise the endpoint answers **403** and the profile shows the administrator request form instead |
+| Setting | chosen by the administrator when creating the account and editable on the user edit page; the default of new accounts is `default_can_change_own_password` (security settings page); existing accounts got `true` with the migration |
+| Checks | CSRF token, current password, confirmation, password policy, history (the current password cannot be chosen again) |
+| Rate limit | `profile_password_change`: 5 attempts per 15 minutes per account, reset after a success |
+| After the change | `password_changed_at` updated, other sessions revoked (the current one stays), audit `password.changed` |
+| Audit | wrong current password or limit reached: `password.change_refused`; setting changed by an administrator: `password.self_change_setting` |
+
+The forced change and the reset link sent by an administrator stay available whatever the setting.
